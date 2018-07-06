@@ -7,7 +7,7 @@
  */
 
 import * as React from "react";
-import { StyleSheet, View, Animated, Text, Easing } from "react-native";
+import { StyleSheet, View, Animated, Text, Easing, ScrollView } from "react-native";
 import {
   NativeViewGestureHandler as Gesture,
   PanGestureHandler as Pan,
@@ -18,12 +18,17 @@ import { atLeastCheck } from "./Check";
 
 export class SpringScrollView extends React.Component<PropType, StateType> {
   _scrollRef: Gesture = React.createRef();
+  _scrollViewRef:ScrollView;
   _panRef: Pan = React.createRef();
   _transformY: Animated.Value;
   _offsetY: Animated.Value;
   _panHandler;
   _dampingCoefficient: Animated.Value;
   _scrollHandler;
+  _scrollEnabled=true;
+  _transformYValue:number=0;
+  _offsetYValue:number=0;
+  _slowDownAnimation;
 
   constructor(props: PropType) {
     super(props);
@@ -44,7 +49,20 @@ export class SpringScrollView extends React.Component<PropType, StateType> {
       [{ nativeEvent: { contentOffset: { y: this._offsetY } } }],
       { useNativeDriver: true }
     );
-
+    this._transformY.addListener(({value:panY})=>{
+      this._transformYValue = panY;
+      if (panY===0 && !this._scrollEnabled && this._offsetYValue===0){
+        this._scrollViewRef.setNativeProps({scrollEnabled:true})
+        this._scrollEnabled = true;
+      }
+      if(this._offsetYValue===0 && this._scrollEnabled && this._transformYValue>0) {
+        this._scrollViewRef.setNativeProps({scrollEnabled:false})
+        this._scrollEnabled = false;
+      }
+    });
+    this._offsetY.addListener(({value:v})=>{
+      this._offsetYValue = v;
+    });
     this.componentWillReceiveProps(props);
   }
 
@@ -93,6 +111,7 @@ export class SpringScrollView extends React.Component<PropType, StateType> {
       <Gesture ref={this._scrollRef} simultaneousHandlers={this._panRef}>
         <Animated.ScrollView
           {...this.props}
+          ref={ref=>this._scrollViewRef=ref}
           bounces={false}
           overScrollMode={"never"}
           scrollEventThrottle={1}
@@ -100,7 +119,7 @@ export class SpringScrollView extends React.Component<PropType, StateType> {
         >
           <Pan
             ref={this._panRef}
-            minDist={0}
+            minDist={1}
             simultaneousHandlers={this._scrollRef}
             onGestureEvent={this._panHandler}
             onHandlerStateChange={this._onHandlerStateChange}
@@ -136,11 +155,15 @@ export class SpringScrollView extends React.Component<PropType, StateType> {
     // console.log("event", event);
     switch (event.state) {
       case State.BEGAN:
+        this._slowDownAnimation && this._slowDownAnimation.stop();
+        this._slowDownAnimation = null;
+        this._transformY.extractOffset();
         break;
       case State.CANCELLED:
       case State.FAILED:
       case State.END:
-        Animated.sequence([
+        this._transformY.flattenOffset();
+        this._slowDownAnimation = Animated.sequence([
           Animated.decay(this._transformY, {
             velocity: event.velocityY / 1000,
             deceleration: 0.95,
@@ -152,7 +175,8 @@ export class SpringScrollView extends React.Component<PropType, StateType> {
             easing: Easing.sin,
             useNativeDriver: true
           })
-        ]).start();
+        ]);
+          this._slowDownAnimation.start();
     }
   };
 }

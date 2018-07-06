@@ -16,23 +16,19 @@ export class SpringScrollView extends React.Component {
   _panOffsetY: Animated.Value;
   _animatedOffsetY: Animated.Value;
   _endAnimate;
+  _endAnimateVelocity: number = 0;
+  _endAnimateStartTime: number;
+  _beyondAnimate;
   _contentOffsetY: Animated.Value;
 
-  _contentOffset:{x:number,y:number}={};
+  _contentOffset: { x: number, y: number } = {};
+  _panOffset: { x: number, y: number } = {};
+  _animatedOffset: { x: number, y: number } = {};
 
   constructor(props) {
     super(props);
-    this._panOffsetY2 = new Animated.Value(0);
-    this._panOffsetY = this._panOffsetY2.interpolate({
-      inputRange: [Number.MIN_SAFE_INTEGER, 0, Number.MAX_SAFE_INTEGER],
-      outputRange: [Number.MIN_SAFE_INTEGER, 0, 0]
-    });
-    this._animatedOffsetY2 = new Animated.Value(0);
-    this._animatedOffsetY = this._animatedOffsetY2
-      .interpolate({
-        inputRange: [Number.MIN_SAFE_INTEGER, 0, Number.MAX_SAFE_INTEGER],
-        outputRange: [Number.MIN_SAFE_INTEGER, 0, 0]
-      });
+    this._panOffsetY = new Animated.Value(0);
+    this._animatedOffsetY = new Animated.Value(0);
     // this._panOffsetY.addListener(value=>this._contentOffset.y=value);
 
     this._panHandler = Animated.event(
@@ -40,7 +36,7 @@ export class SpringScrollView extends React.Component {
         {
           nativeEvent: {
             // translationX: this._panOffsetX,
-            translationY: this._panOffsetY2
+            translationY: this._panOffsetY
           }
         }
       ],
@@ -49,10 +45,36 @@ export class SpringScrollView extends React.Component {
     this._contentOffsetY = Animated.add(
       this._panOffsetY,
       this._animatedOffsetY
-    )
-      .interpolate({
+    ).interpolate({
       inputRange: [Number.MIN_SAFE_INTEGER, 0, Number.MAX_SAFE_INTEGER],
-      outputRange: [Number.MIN_SAFE_INTEGER, 0, 0]
+      outputRange: [Number.MIN_SAFE_INTEGER, 0, Number.MAX_SAFE_INTEGER * 0.5]
+    });
+    this._panOffsetY.addListener(v => {
+      this._panOffset.y = v.value;
+    });
+    this._animatedOffsetY.addListener(v => {
+      this._animatedOffset.y = v.value;
+      if (this._panOffset.y + this._animatedOffset.y > 0 && this._endAnimate) {
+        const animatedTime = new Date().getTime() - this._endAnimateStartTime;
+        const velocity =
+          this._endAnimateVelocity * Math.pow(0.997, animatedTime);
+        this._endAnimate.stop();
+        this._endAnimate = null;
+        this._beyondAnimate = Animated.sequence([
+          Animated.decay(this._animatedOffsetY, {
+            velocity: velocity,
+            deceleration: 0.9,
+            useNativeDriver: true
+          }),
+          Animated.timing(this._animatedOffsetY, {
+            toValue: -this._panOffset.y,
+            duration: 300,
+            easing: Easing.sin,
+            useNativeDriver: true
+          })
+        ]);
+        this._beyondAnimate.start();
+      }
     });
   }
   render() {
@@ -79,7 +101,7 @@ export class SpringScrollView extends React.Component {
   }
 
   _onHandlerStateChange = ({ nativeEvent: event }) => {
-    console.log("event.state", event.state);
+    // console.log("event.state", event.state);
     switch (event.state) {
       case State.BEGAN:
         this._endAnimate && this._endAnimate.stop();
@@ -88,13 +110,29 @@ export class SpringScrollView extends React.Component {
       case State.CANCELLED:
       case State.FAILED:
       case State.END:
-        this._panOffsetY2.extractOffset();
-        this._endAnimate = Animated.decay(this._animatedOffsetY2, {
-          velocity: event.velocityY / 1000,
+        this._panOffsetY.extractOffset();
+        this._endAnimateVelocity = event.velocityY / 1000;
+        this._endAnimate = Animated.decay(this._animatedOffsetY, {
+          velocity: this._endAnimateVelocity,
           deceleration: 0.997,
           useNativeDriver: true
         });
-        this._endAnimate.start();
+        this._endAnimateStartTime = new Date().getTime();
+
+        this._endAnimate.start(() => {
+          this._endAnimateStartTime = 0;
+          this._endAnimate = null;
+          this._endAnimateVelocity = 0;
+          // this._panOffsetY.flattenOffset();
+          // if (this._animatedOffset.y+this._panOffset.y>0){
+          //   // Animated.timing(this._contentOffsetY,{toValue:0, duration:500}).start(()=>{
+          //   console.log("===================");
+          //
+          //     this._panOffsetY.setValue(0);
+          //     this._animatedOffsetY.setValue(0);
+          //   // })
+          // }
+        });
     }
   };
 }
