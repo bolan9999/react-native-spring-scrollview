@@ -23,7 +23,9 @@ export class VerticalScrollView extends React.Component<PropType> {
   _touching: boolean = false;
 
   _animatedOffsetYValue: number = 0;
+  _panOffsetYValue2: number = 0;
   _panOffsetYValue: number = 0;
+  _contentOffsetYValue: number = 0;
 
   _contentLayout: Frame;
   _wrapperLayout: Frame;
@@ -40,7 +42,8 @@ export class VerticalScrollView extends React.Component<PropType> {
     dampingCoefficient: 0.5,
     decelerationRateWhenOut: 0.9,
     reboundEasing: Easing.cos,
-    reboundDuration: 300
+    reboundDuration: 300,
+    onScroll: () => null
   };
 
   constructor(props: PropType) {
@@ -65,10 +68,20 @@ export class VerticalScrollView extends React.Component<PropType> {
               }
             }
           ],
-          { useNativeDriver: true }
+          {
+            listener: e => {
+              const v = e.nativeEvent.translationY;
+              this._panOffsetYValue2 = this._panOffsetYValue + v;
+              this._onScroll(
+                this._panOffsetYValue2 + this._animatedOffsetYValue
+              );
+            },
+            useNativeDriver: true
+          }
         );
-    this._animatedOffsetY.addListener(v => {
-      this._animatedOffsetYValue = v.value;
+    this._animatedOffsetY.addListener(({ value: v }) => {
+      this._animatedOffsetYValue = v;
+      this._onScroll(v + this._panOffsetYValue2);
       if (this._endAnimate) {
         const beyondOffset =
           -this._contentLayout.height +
@@ -121,7 +134,9 @@ export class VerticalScrollView extends React.Component<PropType> {
       case State.BEGAN:
         this._endAnimate && this._endAnimate.stop();
         this._beyondAnimate && this._beyondAnimate.stop();
-        this.props.scrollEnabled && this._indicatorAnimate && this._indicatorAnimate.stop();
+        this.props.scrollEnabled &&
+          this._indicatorAnimate &&
+          this._indicatorAnimate.stop();
         this.props.scrollEnabled && this._indicatorOpacity.setValue(1);
         this._touching = true;
         break;
@@ -200,6 +215,29 @@ export class VerticalScrollView extends React.Component<PropType> {
     }
   }
 
+  _onScroll(addition: number) {
+    let { dampingCoefficient, bounces } = this.props;
+    if (!bounces) dampingCoefficient = 0;
+    let newOffset = -addition;
+    if (addition > 0) {
+      newOffset = -addition * dampingCoefficient;
+    }
+    if (this._layoutConfirmed) {
+      const wHeight = this._wrapperLayout.height;
+      const cHeight = this._contentLayout.height;
+      if (addition < -cHeight + wHeight) {
+        newOffset =
+          cHeight -
+          wHeight +
+          (-addition - (cHeight - wHeight)) * dampingCoefficient;
+      }
+    }
+    if (this._contentOffsetYValue !== newOffset) {
+      this._contentOffsetYValue = newOffset;
+      this.props.onScroll({ x: 0, y: this._contentOffsetYValue });
+    }
+  }
+
   _onLayout = ({ nativeEvent: { layout: layout } }) => {
     this._contentLayout = layout;
     this._onLayoutConfirm();
@@ -234,7 +272,9 @@ export class VerticalScrollView extends React.Component<PropType> {
         useNativeDriver: true
       })
     ]);
-    this._beyondAnimate.start(() => (this._beyondAnimate = null));
+    this._beyondAnimate.start(() => {
+      this._beyondAnimate = null;
+    });
   }
 
   _onTouchEnd(offsetY: number, velocityY: number) {
@@ -303,11 +343,9 @@ interface PropType extends ViewPropTypes {
   contentStyle?: Object,
   decelerationRate?: number,
   scrollEnabled?: boolean,
-
+  onScroll?: (offset: Offset) => any
 
   //键盘处理
   // onContentLayoutChange?: (layout: Frame) => any,
-  onScroll?: (offset: Offset) => any,
   // renderIndicator?: () => React.Element<any>,
-
 }

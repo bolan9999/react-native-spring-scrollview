@@ -20,12 +20,13 @@ export class SpringScrollViewExample extends React.Component {
       <VerticalScrollView
         style={styles.container}
         contentStyle={styles.content}
-        // reboundEasing={Easing.exp}
-        // reboundDuration={500}
-        // decelerationRateWhenOut={0.8}
+        reboundEasing={Easing.cos}
+        reboundDuration={300}
+        decelerationRateWhenOut={0.9}
         showsVerticalScrollIndicator={true}
         bounces={true}
         scrollEnabled={true}
+        // onScroll={(offset)=>console.log("=====>",JSON.stringify(offset))}
       >
         {arr.map(text => <Text key={text} style={styles.text}>{text}</Text>)}
       </VerticalScrollView>
