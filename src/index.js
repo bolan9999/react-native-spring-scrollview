@@ -7,4 +7,4 @@
  *
  */
 
-export * from "./SpringScrollView";
+export * from "./VerticalScrollView";

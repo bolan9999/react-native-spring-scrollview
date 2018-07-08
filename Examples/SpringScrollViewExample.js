@@ -8,21 +8,27 @@
  */
 
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity,Easing } from "react-native";
 // import { SpringScrollView } from "../spring-scrollview";
-import { SpringScrollView } from "../src";
+import { VerticalScrollView } from "../src";
 
 export class SpringScrollViewExample extends React.Component {
   render() {
     const arr = [];
-    for (let i = 0; i < 100; ++i) arr.push(`Text${i}`);
+    for (let i = 0; i < 30; ++i) arr.push(`Text${i}`);
     return (
-      <SpringScrollView
+      <VerticalScrollView
         style={styles.container}
         contentStyle={styles.content}
+        // reboundEasing={Easing.exp}
+        // reboundDuration={500}
+        // decelerationRateWhenOut={0.8}
+        showsVerticalScrollIndicator={true}
+        bounces={true}
+        scrollEnabled={true}
       >
         {arr.map(text => <Text key={text} style={styles.text}>{text}</Text>)}
-      </SpringScrollView>
+      </VerticalScrollView>
     );
   }
 }
@@ -30,7 +36,7 @@ export class SpringScrollViewExample extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "gray"
+    // backgroundColor: "gray"
   },
   content: {
     alignItems: "center",
