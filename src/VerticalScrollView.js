@@ -23,8 +23,8 @@ export class VerticalScrollView extends React.Component<PropType> {
   _touching: boolean = false;
 
   _animatedOffsetYValue: number = 0;
-  _panOffsetYValue2: number = 0;
   _panOffsetYValue: number = 0;
+  _lastPanOffsetYValue: number = 0;
   _contentOffsetYValue: number = 0;
 
   _contentLayout: Frame;
@@ -43,7 +43,8 @@ export class VerticalScrollView extends React.Component<PropType> {
     decelerationRateWhenOut: 0.9,
     reboundEasing: Easing.cos,
     reboundDuration: 300,
-    onScroll: () => null
+    onScroll: () => null,
+    getOffsetYAnimatedValue: ()=>null
   };
 
   constructor(props: PropType) {
@@ -71,9 +72,9 @@ export class VerticalScrollView extends React.Component<PropType> {
           {
             listener: e => {
               const v = e.nativeEvent.translationY;
-              this._panOffsetYValue2 = this._panOffsetYValue + v;
+              this._panOffsetYValue = this._lastPanOffsetYValue + v;
               this._onScroll(
-                this._panOffsetYValue2 + this._animatedOffsetYValue
+                this._panOffsetYValue + this._animatedOffsetYValue
               );
             },
             useNativeDriver: true
@@ -81,14 +82,14 @@ export class VerticalScrollView extends React.Component<PropType> {
         );
     this._animatedOffsetY.addListener(({ value: v }) => {
       this._animatedOffsetYValue = v;
-      this._onScroll(v + this._panOffsetYValue2);
+      this._onScroll(v + this._panOffsetYValue);
       if (this._endAnimate) {
         const beyondOffset =
           -this._contentLayout.height +
           this._wrapperLayout.height -
-          this._panOffsetYValue;
-        if (this._panOffsetYValue + this._animatedOffsetYValue > 0) {
-          this._beginBeyondAnimation(-this._panOffsetYValue);
+          this._lastPanOffsetYValue;
+        if (this._contentOffsetYValue < 0) {
+          this._beginBeyondAnimation(-this._lastPanOffsetYValue);
         } else if (this._animatedOffsetYValue < beyondOffset) {
           this._beginBeyondAnimation(beyondOffset);
         }
@@ -280,7 +281,7 @@ export class VerticalScrollView extends React.Component<PropType> {
   _onTouchEnd(offsetY: number, velocityY: number) {
     this._touching = false;
     if (!this.props.scrollEnabled) return;
-    this._panOffsetYValue += offsetY;
+    this._lastPanOffsetYValue += offsetY;
     this._panOffsetY.extractOffset();
     this._endAnimateVelocity = velocityY;
     this._endAnimate = Animated.decay(this._animatedOffsetY, {
@@ -343,7 +344,8 @@ interface PropType extends ViewPropTypes {
   contentStyle?: Object,
   decelerationRate?: number,
   scrollEnabled?: boolean,
-  onScroll?: (offset: Offset) => any
+  onScroll?: (offset: Offset) => any,
+  getOffsetYAnimatedValue?:(offset:AnimatedWithChildren)=>any
 
   //键盘处理
   // onContentLayoutChange?: (layout: Frame) => any,
