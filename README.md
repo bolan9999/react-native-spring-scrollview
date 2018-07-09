@@ -16,6 +16,9 @@
 
 ## 预览
 
+![Preview](./readme_resources/demo1.gif)
+![Preview](./readme_resources/demo2.gif)
+
 ## 接入步骤
 
 该项目依赖 [react-native-gesture-handler](https://github.com/kmagiera/react-native-gesture-handler), 在接入本库之前请先阅读[react-native-gesture-handler接入文档](https://kmagiera.github.io/react-native-gesture-handler/docs/getting-started.html#installation)正确接入react-native-gesture-handler
