@@ -10,6 +10,7 @@
 import React from "react";
 import { Animated, Easing, StyleSheet, ViewPropTypes } from "react-native";
 import { PanGestureHandler as Pan, State } from "react-native-gesture-handler";
+import { idx } from "./idx";
 
 export class VerticalScrollView extends React.Component<PropType> {
   _panHandler;
@@ -29,7 +30,7 @@ export class VerticalScrollView extends React.Component<PropType> {
 
   _contentLayout: Frame;
   _wrapperLayout: Frame;
-  _layoutConfirmed: boolean = false;
+  _layoutChanged: boolean = false;
   _contentView;
   _indicator;
   _indicatorOpacity: Animated.Value;
@@ -44,7 +45,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     reboundEasing: Easing.cos,
     reboundDuration: 300,
     onScroll: () => null,
-    getOffsetYAnimatedValue: ()=>null
+    getOffsetYAnimatedValue: () => null
   };
 
   constructor(props: PropType) {
@@ -52,34 +53,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     this._panOffsetY = new Animated.Value(0);
     this._animatedOffsetY = new Animated.Value(0);
     this._indicatorOpacity = new Animated.Value(1);
-    this._panHandler = !props.scrollEnabled
-      ? Animated.event(
-          [
-            {
-              nativeEvent: {}
-            }
-          ],
-          { useNativeDriver: true }
-        )
-      : Animated.event(
-          [
-            {
-              nativeEvent: {
-                translationY: this._panOffsetY
-              }
-            }
-          ],
-          {
-            listener: e => {
-              const v = e.nativeEvent.translationY;
-              this._panOffsetYValue = this._lastPanOffsetYValue + v;
-              this._onScroll(
-                this._panOffsetYValue + this._animatedOffsetYValue
-              );
-            },
-            useNativeDriver: true
-          }
-        );
+    this._contentOffsetY = new Animated.Value(0);
     this._animatedOffsetY.addListener(({ value: v }) => {
       this._animatedOffsetYValue = v;
       this._onScroll(v + this._panOffsetYValue);
@@ -95,11 +69,45 @@ export class VerticalScrollView extends React.Component<PropType> {
         }
       }
     });
+    this.componentWillReceiveProps(props);
   }
+
+  componentWillReceiveProps(props) {
+    this._panHandler = !props.scrollEnabled
+      ? Animated.event(
+        [
+          {
+            nativeEvent: {}
+          }
+        ],
+        { useNativeDriver: true }
+      )
+      : Animated.event(
+        [
+          {
+            nativeEvent: {
+              translationY: this._panOffsetY
+            }
+          }
+        ],
+        {
+          listener: e => {
+            const v = e.nativeEvent.translationY;
+            this._panOffsetYValue = this._lastPanOffsetYValue + v;
+            this._onScroll(
+              this._panOffsetYValue + this._animatedOffsetYValue
+            );
+          },
+          useNativeDriver: true
+        }
+      );
+  }
+
   render() {
     const { contentStyle } = this.props;
     this._getContentOffsetY();
     this._getIndicator();
+    this._layoutChanged = false;
     const cStyle = StyleSheet.flatten([
       contentStyle,
       {
@@ -151,7 +159,7 @@ export class VerticalScrollView extends React.Component<PropType> {
   _getContentOffsetY() {
     let { dampingCoefficient, bounces } = this.props;
     if (!bounces) dampingCoefficient = 0;
-    if (this._layoutConfirmed) {
+    if (this._layoutChanged) {
       this._contentOffsetY = Animated.add(
         this._panOffsetY,
         this._animatedOffsetY
@@ -169,24 +177,13 @@ export class VerticalScrollView extends React.Component<PropType> {
           Number.MAX_SAFE_INTEGER * dampingCoefficient
         ]
       });
-    } else {
-      this._contentOffsetY = Animated.add(
-        this._panOffsetY,
-        this._animatedOffsetY
-      ).interpolate({
-        inputRange: [Number.MIN_SAFE_INTEGER, 0, Number.MAX_SAFE_INTEGER],
-        outputRange: [
-          Number.MIN_SAFE_INTEGER,
-          0,
-          Number.MAX_SAFE_INTEGER * dampingCoefficient
-        ]
-      });
+      setTimeout(()=>this.props.getOffsetYAnimatedValue(this._contentOffsetY));
     }
   }
 
   _getIndicator() {
     if (!this.props.showsVerticalScrollIndicator) return null;
-    if (this._layoutConfirmed && !this._indicator) {
+    if (this._layoutChanged) {
       const style = StyleSheet.flatten([
         styles.indicator,
         {
@@ -223,7 +220,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     if (addition > 0) {
       newOffset = -addition * dampingCoefficient;
     }
-    if (this._layoutConfirmed) {
+    if (this._wrapperLayout && this._contentLayout) {
       const wHeight = this._wrapperLayout.height;
       const cHeight = this._contentLayout.height;
       if (addition < -cHeight + wHeight) {
@@ -240,17 +237,26 @@ export class VerticalScrollView extends React.Component<PropType> {
   }
 
   _onLayout = ({ nativeEvent: { layout: layout } }) => {
-    this._contentLayout = layout;
-    this._onLayoutConfirm();
+    const oW = idx(() => this._contentLayout.width, 0);
+    const oH = idx(() => this._contentLayout.height, 0);
+    if (oW !== layout.widget && oH !== layout.height) {
+      this._layoutChanged = true;
+      this._contentLayout = layout;
+      this._onLayoutConfirm();
+    }
   };
   _onWrapperLayout = ({ nativeEvent: { layout: layout } }) => {
-    this._wrapperLayout = layout;
-    this._onLayoutConfirm();
+    const oW = idx(() => this._wrapperLayout.width, 0);
+    const oH = idx(() => this._wrapperLayout.height, 0);
+    if (oW !== layout.widget && oH !== layout.height) {
+      this._layoutChanged = true;
+      this._wrapperLayout = layout;
+      this._onLayoutConfirm();
+    }
   };
 
   _onLayoutConfirm() {
-    if (!this._layoutConfirmed && this._contentLayout && this._wrapperLayout) {
-      this._layoutConfirmed = true;
+    if (this._layoutChanged && this._contentLayout && this._wrapperLayout) {
       this.forceUpdate();
     }
   }
@@ -335,17 +341,17 @@ interface Offset {
 }
 
 interface PropType extends ViewPropTypes {
-  dampingCoefficient?: number,
-  decelerationRateWhenOut?: number,
-  reboundEasing?: (value: number) => number,
-  reboundDuration?: number,
   bounces?: boolean,
-  showsVerticalScrollIndicator?: boolean,
   contentStyle?: Object,
-  decelerationRate?: number,
   scrollEnabled?: boolean,
   onScroll?: (offset: Offset) => any,
-  getOffsetYAnimatedValue?:(offset:AnimatedWithChildren)=>any
+  showsVerticalScrollIndicator?: boolean,
+  decelerationRate?: number,
+  decelerationRateWhenOut?: number,
+  dampingCoefficient?: number,
+  reboundEasing?: (value: number) => number,
+  reboundDuration?: number,
+  getOffsetYAnimatedValue?: (offset: AnimatedWithChildren) => any
 
   //键盘处理
   // onContentLayoutChange?: (layout: Frame) => any,

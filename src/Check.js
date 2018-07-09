@@ -6,7 +6,7 @@
  * Description:
  */
 
-import { idx } from "./idx";
+import { idx } from "/idx";
 
 export function atLeastCheck(source: Object, children: string[]) {
   return !children.every(child => !idx(() => source[child]));
