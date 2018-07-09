@@ -8,7 +8,14 @@
  */
 
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, Easing } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Easing,
+  TextInput,
+  ScrollView
+} from "react-native";
 // import { SpringScrollView } from "../spring-scrollview";
 import { VerticalScrollView } from "../src";
 
@@ -18,11 +25,10 @@ export class SpringScrollViewExample extends React.Component {
     this.state = { scrollEnabled: false };
   }
   render() {
-    const arr = [];
-    for (let i = 0; i < 30; ++i) arr.push(`Text${i}`);
     return (
       <VerticalScrollView
         style={styles.container}
+        ref={ref => (this.ref = ref)}
         contentStyle={styles.content}
         reboundEasing={Easing.cos}
         reboundDuration={300}
@@ -35,13 +41,35 @@ export class SpringScrollViewExample extends React.Component {
           console.log("getOffsetYAnimatedValue");
         }}
       >
-        {arr.map(text =>
-          <Text key={text} style={styles.text}>
-            {text}
-          </Text>
-        )}
+        {this._renderContent()}
       </VerticalScrollView>
     );
+  }
+
+  renderElement1(text) {
+    return <TextInput style={styles.text} placeholder={text} key={text}/>
+  }
+
+  renderElement(text) {
+    return (
+      <TouchableOpacity
+        style={styles.btn}
+        key={text}
+        onPress={() => {
+          this.ref.scrollTo({ x: 0, y: 100000 });
+        }}
+      >
+        <Text style={styles.text}>
+          {text}
+        </Text>
+      </TouchableOpacity>
+    );
+  }
+
+  _renderContent() {
+    const arr = [];
+    for (let i = 0; i < 30; ++i) arr.push(`Text${i}`);
+    return arr.map(this.renderElement.bind(this));
   }
 }
 
@@ -51,11 +79,13 @@ const styles = StyleSheet.create({
     // backgroundColor: "gray"
   },
   content: {
-    alignItems: "center",
+    alignItems: "stretch",
     backgroundColor: "red"
   },
+  btn: {},
   text: {
     marginTop: 40,
-    fontSize: 25
+    fontSize: 25,
+    alignSelf: "stretch"
   }
 });

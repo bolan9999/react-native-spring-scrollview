@@ -8,7 +8,13 @@
  */
 
 import React from "react";
-import { Animated, Easing, StyleSheet, ViewPropTypes } from "react-native";
+import {
+  Animated,
+  Easing,
+  StyleSheet,
+  ViewPropTypes,
+  Keyboard
+} from "react-native";
 import { PanGestureHandler as Pan, State } from "react-native-gesture-handler";
 import { idx } from "./idx";
 
@@ -35,6 +41,8 @@ export class VerticalScrollView extends React.Component<PropType> {
   _indicator;
   _indicatorOpacity: Animated.Value;
   _indicatorAnimate;
+  _keyboardShowSub;
+  _keyboardHideSub;
 
   static defaultProps = {
     decelerationRate: 0.998,
@@ -75,32 +83,32 @@ export class VerticalScrollView extends React.Component<PropType> {
   componentWillReceiveProps(props) {
     this._panHandler = !props.scrollEnabled
       ? Animated.event(
-        [
-          {
-            nativeEvent: {}
-          }
-        ],
-        { useNativeDriver: true }
-      )
-      : Animated.event(
-        [
-          {
-            nativeEvent: {
-              translationY: this._panOffsetY
+          [
+            {
+              nativeEvent: {}
             }
+          ],
+          { useNativeDriver: true }
+        )
+      : Animated.event(
+          [
+            {
+              nativeEvent: {
+                translationY: this._panOffsetY
+              }
+            }
+          ],
+          {
+            listener: e => {
+              const v = e.nativeEvent.translationY;
+              this._panOffsetYValue = this._lastPanOffsetYValue + v;
+              this._onScroll(
+                this._panOffsetYValue + this._animatedOffsetYValue
+              );
+            },
+            useNativeDriver: true
           }
-        ],
-        {
-          listener: e => {
-            const v = e.nativeEvent.translationY;
-            this._panOffsetYValue = this._lastPanOffsetYValue + v;
-            this._onScroll(
-              this._panOffsetYValue + this._animatedOffsetYValue
-            );
-          },
-          useNativeDriver: true
-        }
-      );
+        );
   }
 
   render() {
@@ -136,7 +144,28 @@ export class VerticalScrollView extends React.Component<PropType> {
 
   componentDidMount() {
     this._beginIndicatorDismissAnimation();
+    this._keyboardShowSub = Keyboard.addListener(
+      "keyboardWillShow",
+      this._onKeyboardWillShow
+    );
+    this._keyboardHideSub = Keyboard.addListener(
+      "keyboardWillHide",
+      this._onKeyboardWillHide
+    );
   }
+
+  componentWillUnmount() {
+    this._keyboardShowSub.remove();
+    this._keyboardHideSub.remove();
+  }
+
+  _onKeyboardWillShow = evt => {
+    // console.log("=====>Show", JSON.stringify(evt));
+  };
+
+  _onKeyboardWillHide = evt => {
+    // console.log("=====>Hide", JSON.stringify(evt));
+  };
 
   _onHandlerStateChange = ({ nativeEvent: event }) => {
     switch (event.state) {
@@ -177,7 +206,9 @@ export class VerticalScrollView extends React.Component<PropType> {
           Number.MAX_SAFE_INTEGER * dampingCoefficient
         ]
       });
-      setTimeout(()=>this.props.getOffsetYAnimatedValue(this._contentOffsetY));
+      setTimeout(() =>
+        this.props.getOffsetYAnimatedValue(this._contentOffsetY)
+      );
     }
   }
 
@@ -255,9 +286,29 @@ export class VerticalScrollView extends React.Component<PropType> {
     }
   };
 
+  scrollTo(offset: Offset, animated:boolean=true) {
+    if (offset.y > this._contentLayout.height - this._wrapperLayout.height)
+      offset.y = this._contentLayout.height - this._wrapperLayout.height;
+    if (offset.y < 0) offset.y = 0;
+    const to = -offset.y - this._panOffsetYValue
+    if (!animated) this._animatedOffsetY.setValue(to);
+    Animated.timing(this._animatedOffsetY, {
+      toValue: to,
+      duration: 250,
+      useNativeDriver: true
+    }).start();
+  }
+
   _onLayoutConfirm() {
     if (this._layoutChanged && this._contentLayout && this._wrapperLayout) {
       this.forceUpdate();
+      if (
+        this._contentOffsetYValue < 0 ||
+        this._contentOffsetYValue >
+          this._contentLayout.height - this._wrapperLayout.height
+      ) {
+        this.scrollTo({ x: 0, y: this._contentOffsetYValue });
+      }
     }
   }
 

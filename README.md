@@ -148,8 +148,16 @@ decelerationRateWhenOut | number | 0.9 | 超出内容视图以后松开手指，
 dampingCoefficient | number | 0.5 | 超出内容视图以后，继续滑动的阻尼系数，单位是每毫秒百分比
 reboundEasing | (value: number) => number | Easing.cos | 超出内容视图松开手指完成减速以后的回弹动画函数
 reboundDuration | number | 300 | 回弹的时间
-getOffsetYAnimatedValue | (offset: AnimatedWithChildren) => any | ()=>null | 获得支持原生动画的动画值（该值不可监听）
+getOffsetYAnimatedValue | (offset: Animated.Value) => any | ()=>null | 获得监听滑动偏移并支持原生动画的动画值（该值是合成值，不可监听，不可修改，只能用于原生动画）
 
+### 方法
+scrollTo(offset:Offset, animated:boolean=true):void;
+
+滑动到指定位置。
+
+* Offset: {x:number,y:number},
+* 如果超出范围，将自动矫正到极端位置
+* x坐标暂时没有意义
 
 ## 目标任务
 * 处理键盘
