@@ -13,7 +13,8 @@ import {
   Easing,
   StyleSheet,
   ViewPropTypes,
-  Keyboard
+  Keyboard,
+  Platform
 } from "react-native";
 import { PanGestureHandler as Pan, State } from "react-native-gesture-handler";
 import { idx } from "./idx";
@@ -53,7 +54,9 @@ export class VerticalScrollView extends React.Component<PropType> {
     reboundEasing: Easing.cos,
     reboundDuration: 300,
     onScroll: () => null,
-    getOffsetYAnimatedValue: () => null
+    getOffsetYAnimatedValue: () => null,
+    textInputRefs:[],
+    inputToolBarHeight:44,
   };
 
   constructor(props: PropType) {
@@ -125,6 +128,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     return (
       <Pan
         minDist={0}
+        minOffsetY={5}
         onGestureEvent={this._panHandler}
         onHandlerStateChange={this._onHandlerStateChange}
       >
@@ -145,11 +149,11 @@ export class VerticalScrollView extends React.Component<PropType> {
   componentDidMount() {
     this._beginIndicatorDismissAnimation();
     this._keyboardShowSub = Keyboard.addListener(
-      "keyboardWillShow",
+      Platform.OS==="ios"? "keyboardWillShow":"keyboardDidShow",
       this._onKeyboardWillShow
     );
     this._keyboardHideSub = Keyboard.addListener(
-      "keyboardWillHide",
+      Platform.OS==="ios"? "keyboardWillHide":"keyboardDidHide",
       this._onKeyboardWillHide
     );
   }
@@ -161,10 +165,27 @@ export class VerticalScrollView extends React.Component<PropType> {
 
   _onKeyboardWillShow = evt => {
     // console.log("=====>Show", JSON.stringify(evt));
+    this.props.textInputRefs.every(input=>{
+      if (idx(()=>input.current.isFocused())) {
+        input.current.measure((x,y,w,h,l,t)=>{
+          // console.log("=====>measure",x,y,w,h,l,t );
+          if (t+h>evt.endCoordinates.screenY-this.props.inputToolBarHeight) {
+            let y = this._contentOffsetYValue+t+h-evt.endCoordinates.screenY+this.props.inputToolBarHeight;
+            const maxOffset = this._contentLayout.height-this._wrapperLayout.height;
+            if (y > maxOffset && Platform.OS==="ios") {
+              y = maxOffset + (y-maxOffset)/this.props.dampingCoefficient
+            }
+            this._forceScrollTo({x:0,y:y})
+          }
+        });
+        return false;
+      }
+      return true;
+    });
   };
 
   _onKeyboardWillHide = evt => {
-    // console.log("=====>Hide", JSON.stringify(evt));
+    this.scrollTo({x:0,y:this._contentOffsetYValue});
   };
 
   _onHandlerStateChange = ({ nativeEvent: event }) => {
@@ -179,7 +200,9 @@ export class VerticalScrollView extends React.Component<PropType> {
         this._touching = true;
         break;
       case State.CANCELLED:
+        break;
       case State.FAILED:
+
       case State.END:
         this._onTouchEnd(event.translationY, event.velocityY / 1000);
     }
@@ -285,6 +308,16 @@ export class VerticalScrollView extends React.Component<PropType> {
       this._onLayoutConfirm();
     }
   };
+
+  _forceScrollTo(offset: Offset, animated:boolean=true) {
+    const to = -offset.y - this._panOffsetYValue
+    if (!animated) this._animatedOffsetY.setValue(to);
+    Animated.timing(this._animatedOffsetY, {
+      toValue: to,
+      duration: 250,
+      useNativeDriver: true
+    }).start();
+  }
 
   scrollTo(offset: Offset, animated:boolean=true) {
     if (offset.y > this._contentLayout.height - this._wrapperLayout.height)
@@ -402,7 +435,10 @@ interface PropType extends ViewPropTypes {
   dampingCoefficient?: number,
   reboundEasing?: (value: number) => number,
   reboundDuration?: number,
-  getOffsetYAnimatedValue?: (offset: AnimatedWithChildren) => any
+  getOffsetYAnimatedValue?: (offset: AnimatedWithChildren) => any,
+
+  textInputRefs?: any[];
+  inputToolBarHeight?: number;
 
   //键盘处理
   // onContentLayoutChange?: (layout: Frame) => any,

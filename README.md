@@ -90,6 +90,15 @@ import { StyleSheet, Text, TouchableOpacity, Easing } from "react-native";
 import { VerticalScrollView } from "react-native-spring-scrollview";
 
 export class SpringScrollViewExample extends React.Component {
+  _textInputs;
+  constructor(props) {
+    super(props);
+    this._textInputs=[];
+    for (let i = 0; i < 30; ++i){
+      this._textInputs.push(React.createRef());
+    }
+  }
+
   render() {
     const arr = [];
     for (let i = 0; i < 30; ++i) arr.push(`Text${i}`);
@@ -106,9 +115,10 @@ export class SpringScrollViewExample extends React.Component {
         getOffsetYAnimatedValue={() => {
           console.log("getOffsetYAnimatedValue");
         }}
+        textInputRefs={this._textInputRefs}
       >
-        {arr.map(text =>
-          <Text key={text} style={styles.text}>
+        {arr.map((text,index) =>
+          <TextInput ref={this._textInputs[index]} key={text} style={styles.text}>
             {text}
           </Text>
         )}
@@ -149,6 +159,8 @@ dampingCoefficient | number | 0.5 | 超出内容视图以后，继续滑动的�
 reboundEasing | (value: number) => number | Easing.cos | 超出内容视图松开手指完成减速以后的回弹动画函数
 reboundDuration | number | 300 | 回弹的时间
 getOffsetYAnimatedValue | (offset: Animated.Value) => any | ()=>null | 获得监听滑动偏移并支持原生动画的动画值（该值是合成值，不可监听，不可修改，只能用于原生动画）
+textInputRefs | ReactRef[] | [] | 该属性是用于解决键盘遮挡的问题，如果你的输入框被键盘所遮挡，那么你应当使用React.createRef()方式的引用，然后通过此方式自动处理键盘遮挡问题
+inputToolBarHeight | number | 44 | 在解决键盘遮挡过程中，如果位置不够或者调节过多，则通过描述工具栏高度来小幅修正位置
 
 ### 方法
 scrollTo(offset:Offset, animated:boolean=true):void;
@@ -160,7 +172,6 @@ scrollTo(offset:Offset, animated:boolean=true):void;
 * x坐标暂时没有意义
 
 ## 目标任务
-* 处理键盘
 * 高度自定义的下拉及上拉组件
 * onContentLayoutChange
 * renderIndicator自定义滑动指示器

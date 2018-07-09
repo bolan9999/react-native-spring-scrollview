@@ -20,9 +20,14 @@ import {
 import { VerticalScrollView } from "../src";
 
 export class SpringScrollViewExample extends React.Component {
+  _refs;
   constructor(props) {
     super(props);
     this.state = { scrollEnabled: false };
+    this._refs=[];
+    for (let i = 0; i < 30; ++i){
+      this._refs.push(React.createRef());
+    }
   }
   render() {
     return (
@@ -40,17 +45,19 @@ export class SpringScrollViewExample extends React.Component {
           this.setState({ scrollEnabled: true });
           console.log("getOffsetYAnimatedValue");
         }}
+        textInputRefs={this._refs}
+        inputToolBarHeight={20}
       >
         {this._renderContent()}
       </VerticalScrollView>
     );
   }
 
-  renderElement1(text) {
-    return <TextInput style={styles.text} placeholder={text} key={text}/>
+  renderElement(text,index) {
+    return <TextInput ref={this._refs[index]} style={styles.text} placeholder={text} key={text}/>
   }
 
-  renderElement(text) {
+  renderElement1(text) {
     return (
       <TouchableOpacity
         style={styles.btn}
