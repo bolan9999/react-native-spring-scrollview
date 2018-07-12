@@ -55,8 +55,8 @@ export class VerticalScrollView extends React.Component<PropType> {
     reboundDuration: 300,
     onScroll: () => null,
     getOffsetYAnimatedValue: () => null,
-    textInputRefs:[],
-    inputToolBarHeight:44,
+    textInputRefs: [],
+    inputToolBarHeight: 44
   };
 
   constructor(props: PropType) {
@@ -127,7 +127,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     ]);
     return (
       <Pan
-        minDist={0}
+        minDist={Platform.OS === "ios" ? 0 : 5}
         minOffsetY={5}
         onGestureEvent={this._panHandler}
         onHandlerStateChange={this._onHandlerStateChange}
@@ -149,11 +149,11 @@ export class VerticalScrollView extends React.Component<PropType> {
   componentDidMount() {
     this._beginIndicatorDismissAnimation();
     this._keyboardShowSub = Keyboard.addListener(
-      Platform.OS==="ios"? "keyboardWillShow":"keyboardDidShow",
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
       this._onKeyboardWillShow
     );
     this._keyboardHideSub = Keyboard.addListener(
-      Platform.OS==="ios"? "keyboardWillHide":"keyboardDidHide",
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
       this._onKeyboardWillHide
     );
   }
@@ -165,17 +165,26 @@ export class VerticalScrollView extends React.Component<PropType> {
 
   _onKeyboardWillShow = evt => {
     // console.log("=====>Show", JSON.stringify(evt));
-    this.props.textInputRefs.every(input=>{
-      if (idx(()=>input.current.isFocused())) {
-        input.current.measure((x,y,w,h,l,t)=>{
+    this.props.textInputRefs.every(input => {
+      if (idx(() => input.current.isFocused())) {
+        input.current.measure((x, y, w, h, l, t) => {
           // console.log("=====>measure",x,y,w,h,l,t );
-          if (t+h>evt.endCoordinates.screenY-this.props.inputToolBarHeight) {
-            let y = this._contentOffsetYValue+t+h-evt.endCoordinates.screenY+this.props.inputToolBarHeight;
-            const maxOffset = this._contentLayout.height-this._wrapperLayout.height;
-            if (y > maxOffset && Platform.OS==="ios") {
-              y = maxOffset + (y-maxOffset)/this.props.dampingCoefficient
+          if (
+            t + h >
+            evt.endCoordinates.screenY - this.props.inputToolBarHeight
+          ) {
+            let y =
+              this._contentOffsetYValue +
+              t +
+              h -
+              evt.endCoordinates.screenY +
+              this.props.inputToolBarHeight;
+            const maxOffset =
+              this._contentLayout.height - this._wrapperLayout.height;
+            if (y > maxOffset && Platform.OS === "ios") {
+              y = maxOffset + (y - maxOffset) / this.props.dampingCoefficient;
             }
-            this._forceScrollTo({x:0,y:y})
+            this._forceScrollTo({ x: 0, y: y });
           }
         });
         return false;
@@ -185,7 +194,7 @@ export class VerticalScrollView extends React.Component<PropType> {
   };
 
   _onKeyboardWillHide = evt => {
-    this.scrollTo({x:0,y:this._contentOffsetYValue});
+    this.scrollTo({ x: 0, y: this._contentOffsetYValue });
   };
 
   _onHandlerStateChange = ({ nativeEvent: event }) => {
@@ -309,8 +318,8 @@ export class VerticalScrollView extends React.Component<PropType> {
     }
   };
 
-  _forceScrollTo(offset: Offset, animated:boolean=true) {
-    const to = -offset.y - this._panOffsetYValue
+  _forceScrollTo(offset: Offset, animated: boolean = true) {
+    const to = -offset.y - this._panOffsetYValue;
     if (!animated) this._animatedOffsetY.setValue(to);
     Animated.timing(this._animatedOffsetY, {
       toValue: to,
@@ -319,11 +328,11 @@ export class VerticalScrollView extends React.Component<PropType> {
     }).start();
   }
 
-  scrollTo(offset: Offset, animated:boolean=true) {
+  scrollTo(offset: Offset, animated: boolean = true) {
     if (offset.y > this._contentLayout.height - this._wrapperLayout.height)
       offset.y = this._contentLayout.height - this._wrapperLayout.height;
     if (offset.y < 0) offset.y = 0;
-    const to = -offset.y - this._panOffsetYValue
+    const to = -offset.y - this._panOffsetYValue;
     if (!animated) this._animatedOffsetY.setValue(to);
     Animated.timing(this._animatedOffsetY, {
       toValue: to,
@@ -437,8 +446,8 @@ interface PropType extends ViewPropTypes {
   reboundDuration?: number,
   getOffsetYAnimatedValue?: (offset: AnimatedWithChildren) => any,
 
-  textInputRefs?: any[];
-  inputToolBarHeight?: number;
+  textInputRefs?: any[],
+  inputToolBarHeight?: number
 
   //键盘处理
   // onContentLayoutChange?: (layout: Frame) => any,

@@ -53,11 +53,11 @@ export class SpringScrollViewExample extends React.Component {
     );
   }
 
-  renderElement(text,index) {
+  renderElement1(text,index) {
     return <TextInput ref={this._refs[index]} style={styles.text} placeholder={text} key={text}/>
   }
 
-  renderElement1(text) {
+  renderElement(text) {
     return (
       <TouchableOpacity
         style={styles.btn}
@@ -83,7 +83,6 @@ export class SpringScrollViewExample extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1
-    // backgroundColor: "gray"
   },
   content: {
     alignItems: "stretch",
