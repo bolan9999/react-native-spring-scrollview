@@ -14,19 +14,22 @@ import {
   StyleSheet,
   ViewPropTypes,
   Keyboard,
-  Platform
+  Platform,
+  Text
 } from "react-native";
 import { PanGestureHandler as Pan, State } from "react-native-gesture-handler";
 import { idx } from "./idx";
+import { RefreshHeader } from "./RefreshHeader";
+import { propsEqualExcept } from "./PropsTool";
 
 export class VerticalScrollView extends React.Component<PropType> {
   _panHandler;
   _panOffsetY: Animated.Value;
   _animatedOffsetY: Animated.Value;
-  _endAnimate;
-  _endAnimateVelocity: number = 0;
-  _endAnimateStartTime: number;
-  _beyondAnimate;
+
+  _innerDecelerationVelocity: number = 0;
+  _innerDecelerationStartTime: number;
+
   _contentOffsetY: Animated.Value;
   _touching: boolean = false;
 
@@ -45,6 +48,15 @@ export class VerticalScrollView extends React.Component<PropType> {
   _keyboardShowSub;
   _keyboardHideSub;
 
+  _refreshHeader;
+  _enoughToRefresh: boolean = false;
+  _cancelRefresh: boolean = false;
+
+  _innerDeceleration;
+  _outerDeceleration;
+  _reboundToRefresh;
+  _endRefreshRebound;
+
   static defaultProps = {
     decelerationRate: 0.998,
     showsVerticalScrollIndicator: true,
@@ -56,7 +68,9 @@ export class VerticalScrollView extends React.Component<PropType> {
     onScroll: () => null,
     getOffsetYAnimatedValue: () => null,
     textInputRefs: [],
-    inputToolBarHeight: 44
+    inputToolBarHeight: 44,
+    refreshHeaderHeight: 80,
+    refreshing: false
   };
 
   constructor(props: PropType) {
@@ -68,22 +82,23 @@ export class VerticalScrollView extends React.Component<PropType> {
     this._animatedOffsetY.addListener(({ value: v }) => {
       this._animatedOffsetYValue = v;
       this._onScroll(v + this._panOffsetYValue);
-      if (this._endAnimate) {
+      if (this._innerDeceleration) {
+        //碰边检测
         const beyondOffset =
           -this._contentLayout.height +
           this._wrapperLayout.height -
           this._lastPanOffsetYValue;
         if (this._contentOffsetYValue < 0) {
-          this._beginBeyondAnimation(-this._lastPanOffsetYValue);
+          this._beginOuterDeceleration();
         } else if (this._animatedOffsetYValue < beyondOffset) {
-          this._beginBeyondAnimation(beyondOffset);
+          this._beginOuterDeceleration();
         }
       }
     });
     this.componentWillReceiveProps(props);
   }
 
-  componentWillReceiveProps(props) {
+  componentWillReceiveProps(props: PropType) {
     this._panHandler = !props.scrollEnabled
       ? Animated.event(
           [
@@ -102,16 +117,33 @@ export class VerticalScrollView extends React.Component<PropType> {
             }
           ],
           {
-            listener: e => {
-              const v = e.nativeEvent.translationY;
-              this._panOffsetYValue = this._lastPanOffsetYValue + v;
-              this._onScroll(
-                this._panOffsetYValue + this._animatedOffsetYValue
-              );
-            },
+            listener: this._panListener,
             useNativeDriver: true
           }
         );
+    if (!this._refreshHeader) return;
+    if (props.refreshing === true) {
+      this._beginReboundToRefresh();
+    } else if (props.refreshing === false) {
+      this._beginEndRefreshRebound();
+    }
+  }
+
+  shouldComponentUpdate(nextProps: PropType) {
+    return !propsEqualExcept(
+      nextProps,
+      this.props,
+      [
+        "decelerationRate",
+        "decelerationRateWhenOut",
+        "reboundEasing",
+        "reboundDuration",
+        "textInputRefs",
+        "inputToolBarHeight",
+        "refreshing"
+      ],
+      ["style", "contentStyle"]
+    );
   }
 
   render() {
@@ -125,6 +157,8 @@ export class VerticalScrollView extends React.Component<PropType> {
         transform: [{ translateY: this._contentOffsetY }]
       }
     ]);
+    const style = this._getRefreshHeaderStyle();
+    const Refresh = this.props.refreshHeader;
     return (
       <Pan
         minDist={Platform.OS === "ios" ? 0 : 5}
@@ -133,6 +167,14 @@ export class VerticalScrollView extends React.Component<PropType> {
         onHandlerStateChange={this._onHandlerStateChange}
       >
         <Animated.View {...this.props} onLayout={this._onWrapperLayout}>
+          <Animated.View style={style}>
+            {Refresh &&
+              <Refresh
+                ref={ref => (this._refreshHeader = ref)}
+                offset={this._contentOffsetY}
+                maxHeight={this.props.refreshHeaderHeight}
+              />}
+          </Animated.View>
           <Animated.View
             style={cStyle}
             onLayout={this._onLayout}
@@ -193,25 +235,18 @@ export class VerticalScrollView extends React.Component<PropType> {
     });
   };
 
-  _onKeyboardWillHide = evt => {
+  _onKeyboardWillHide = () => {
     this.scrollTo({ x: 0, y: this._contentOffsetYValue });
   };
 
   _onHandlerStateChange = ({ nativeEvent: event }) => {
     switch (event.state) {
       case State.BEGAN:
-        this._endAnimate && this._endAnimate.stop();
-        this._beyondAnimate && this._beyondAnimate.stop();
-        this.props.scrollEnabled &&
-          this._indicatorAnimate &&
-          this._indicatorAnimate.stop();
-        this.props.scrollEnabled && this._indicatorOpacity.setValue(1);
-        this._touching = true;
+        this._onTouchBegin();
         break;
       case State.CANCELLED:
         break;
       case State.FAILED:
-
       case State.END:
         this._onTouchEnd(event.translationY, event.velocityY / 1000);
     }
@@ -245,7 +280,10 @@ export class VerticalScrollView extends React.Component<PropType> {
   }
 
   _getIndicator() {
-    if (!this.props.showsVerticalScrollIndicator) return null;
+    if (!this.props.showsVerticalScrollIndicator) {
+      this._indicator = null;
+      return;
+    }
     if (this._layoutChanged) {
       const style = StyleSheet.flatten([
         styles.indicator,
@@ -354,27 +392,101 @@ export class VerticalScrollView extends React.Component<PropType> {
     }
   }
 
-  _beginBeyondAnimation(to: number) {
-    const animatedTime = new Date().getTime() - this._endAnimateStartTime;
-    const velocity = this._endAnimateVelocity * Math.pow(0.997, animatedTime);
-    this._endAnimate.stop();
-    if (!this.props.bounces) return this._animatedOffsetY.setValue(to);
-    this._beyondAnimate = Animated.sequence([
-      Animated.decay(this._animatedOffsetY, {
-        velocity: velocity,
-        deceleration: this.props.decelerationRateWhenOut,
-        useNativeDriver: true
-      }),
-      Animated.timing(this._animatedOffsetY, {
-        toValue: to,
-        duration: this.props.reboundDuration,
-        easing: this.props.reboundEasing,
-        useNativeDriver: true
-      })
-    ]);
-    this._beyondAnimate.start(() => {
-      this._beyondAnimate = null;
+  _beginInnerDeceleration(velocity: number) {
+    this._innerDecelerationVelocity = velocity;
+    this._innerDeceleration = Animated.decay(this._animatedOffsetY, {
+      velocity: this._innerDecelerationVelocity,
+      deceleration: this.props.decelerationRate,
+      useNativeDriver: true
     });
+    this._innerDecelerationStartTime = new Date().getTime();
+    this._innerDeceleration.start(({ finished: finished }) => {
+      this._innerDecelerationStartTime = 0;
+      this._innerDeceleration = null;
+      this._innerDecelerationVelocity = 0;
+      if (finished) this._beginIndicatorDismissAnimation();
+    });
+  }
+
+  _beginOuterDeceleration() {
+    const animatedTime =
+      new Date().getTime() - this._innerDecelerationStartTime;
+    const velocity =
+      this._innerDecelerationVelocity *
+      Math.pow(this.props.decelerationRate, animatedTime);
+    this._innerDeceleration.stop();
+    if (!this.props.bounces)
+      return this._animatedOffsetY.setValue(-this._lastPanOffsetYValue);
+    this._outerDeceleration = Animated.decay(this._animatedOffsetY, {
+      velocity: velocity,
+      deceleration: this.props.decelerationRateWhenOut,
+      useNativeDriver: true
+    });
+    this._outerDeceleration.start(({ finished: finished }) => {
+      this._outerDeceleration = null;
+      if (finished) {
+        if (
+          this._enoughToRefresh &&
+          this._contentOffsetYValue < -this.props.refreshHeaderHeight
+        ) {
+          idx(() => this._refreshHeader.changeToState("refreshing"));
+          if (this.props.onRefresh) this.props.onRefresh();
+          else this._beginEndRefreshRebound(false);
+        } else {
+          this._beginEndRefreshRebound(false);
+        }
+      }
+    });
+  }
+
+  _beginReboundToRefresh() {
+    const {
+      dampingCoefficient,
+      refreshHeaderHeight,
+      reboundDuration,
+      reboundEasing
+    } = this.props;
+    this._reboundToRefresh = Animated.timing(this._animatedOffsetY, {
+      toValue: refreshHeaderHeight / dampingCoefficient - this._panOffsetYValue,
+      duration: reboundDuration,
+      easing: reboundEasing,
+      useNativeDriver: true
+    });
+    this._reboundToRefresh.start(({ finished: finished }) => {
+      this._reboundToRefresh = null;
+    });
+  }
+
+  _beginEndRefreshRebound(rebound: boolean = true) {
+    idx(() =>
+      this._refreshHeader.changeToState(rebound ? "rebound" : "cancelRefresh")
+    );
+    this._endRefreshRebound = Animated.timing(this._animatedOffsetY, {
+      toValue: -this._panOffsetYValue,
+      duration: this.props.reboundDuration,
+      easing: this.props.reboundEasing,
+      useNativeDriver: true
+    });
+    this._endRefreshRebound.start(({ finished: finished }) => {
+      this._endRefreshRebound = null;
+      if (finished) {
+        this._enoughToRefresh = false;
+        this._cancelRefresh = false;
+        idx(() => this._refreshHeader.changeToState("waiting"));
+      }
+    });
+  }
+
+  _onTouchBegin() {
+    this._touching = true;
+    if (this.props.scrollEnabled) {
+      this._innerDeceleration && this._innerDeceleration.stop();
+      this._outerDeceleration && this._outerDeceleration.stop();
+      this._reboundToRefresh && this._reboundToRefresh.stop();
+      this._endRefreshRebound && this._endRefreshRebound.stop();
+      this._indicatorAnimate && this._indicatorAnimate.stop();
+      this.props.scrollEnabled && this._indicatorOpacity.setValue(1);
+    }
   }
 
   _onTouchEnd(offsetY: number, velocityY: number) {
@@ -382,19 +494,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     if (!this.props.scrollEnabled) return;
     this._lastPanOffsetYValue += offsetY;
     this._panOffsetY.extractOffset();
-    this._endAnimateVelocity = velocityY;
-    this._endAnimate = Animated.decay(this._animatedOffsetY, {
-      velocity: this._endAnimateVelocity,
-      deceleration: this.props.decelerationRate,
-      useNativeDriver: true
-    });
-    this._endAnimateStartTime = new Date().getTime();
-    this._endAnimate.start(finished => {
-      this._endAnimateStartTime = 0;
-      this._endAnimate = null;
-      this._endAnimateVelocity = 0;
-      if (finished) this._beginIndicatorDismissAnimation();
-    });
+    this._beginInnerDeceleration(velocityY);
   }
 
   _beginIndicatorDismissAnimation() {
@@ -407,6 +507,55 @@ export class VerticalScrollView extends React.Component<PropType> {
       this._indicatorAnimate = null;
     });
   }
+
+  _getRefreshHeaderStyle() {
+    const { refreshHeaderHeight } = this.props;
+    return {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: -refreshHeaderHeight,
+      height: refreshHeaderHeight,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      transform: [
+        {
+          translateY: this._contentOffsetY.interpolate({
+            inputRange: [
+              Number.MIN_SAFE_INTEGER,
+              0,
+              refreshHeaderHeight,
+              Number.MAX_SAFE_INTEGER
+            ],
+            outputRange: [0, 0, refreshHeaderHeight, refreshHeaderHeight]
+          })
+        }
+      ]
+    };
+  }
+
+  _panListener = e => {
+    const v = e.nativeEvent.translationY;
+    const { refreshHeaderHeight } = this.props;
+    this._panOffsetYValue = this._lastPanOffsetYValue + v;
+    this._onScroll(this._panOffsetYValue + this._animatedOffsetYValue);
+    const offset = this._contentOffsetYValue;
+    if (offset < 0) {
+      if (offset > -refreshHeaderHeight) {
+        if (!this._enoughToRefresh) {
+          idx(() => this._refreshHeader.changeToState("pulling"));
+        } else {
+          this._cancelRefresh = true;
+          idx(() => this._refreshHeader.changeToState("pullingCancel"));
+        }
+      } else {
+        this._enoughToRefresh = true;
+        this._cancelRefresh = false;
+        idx(() => this._refreshHeader.changeToState("pullingEnough"));
+      }
+    }
+  };
 }
 
 const styles = StyleSheet.create({
@@ -447,7 +596,13 @@ interface PropType extends ViewPropTypes {
   getOffsetYAnimatedValue?: (offset: AnimatedWithChildren) => any,
 
   textInputRefs?: any[],
-  inputToolBarHeight?: number
+  inputToolBarHeight?: number,
+
+  refreshHeaderHeight?: number,
+  refreshHeader?: RefreshHeader,
+  refreshing?: boolean,
+  onRefresh?: () => any,
+  onCancelRefresh?: () => any
 
   //键盘处理
   // onContentLayoutChange?: (layout: Frame) => any,

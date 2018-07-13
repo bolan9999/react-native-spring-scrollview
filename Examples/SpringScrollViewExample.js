@@ -14,47 +14,62 @@ import {
   TouchableOpacity,
   Easing,
   TextInput,
-  ScrollView
+  ScrollView,
+  View
 } from "react-native";
 // import { SpringScrollView } from "../spring-scrollview";
 import { VerticalScrollView } from "../src";
+import { RefreshHeader } from "../src/RefreshHeader";
+import { NormalHeader } from "../src/NormalHeader";
 
 export class SpringScrollViewExample extends React.Component {
   _refs;
   constructor(props) {
     super(props);
-    this.state = { scrollEnabled: false };
-    this._refs=[];
-    for (let i = 0; i < 30; ++i){
+    this.state = { scrollEnabled: true, refreshing: false };
+    this._refs = [];
+    for (let i = 0; i < 30; ++i) {
       this._refs.push(React.createRef());
     }
   }
   render() {
     return (
-      <VerticalScrollView
-        style={styles.container}
-        ref={ref => (this.ref = ref)}
-        contentStyle={styles.content}
-        reboundEasing={Easing.cos}
-        reboundDuration={300}
-        decelerationRateWhenOut={0.9}
-        showsVerticalScrollIndicator={true}
-        bounces={true}
-        scrollEnabled={this.state.scrollEnabled}
-        getOffsetYAnimatedValue={() => {
-          this.setState({ scrollEnabled: true });
-          console.log("getOffsetYAnimatedValue");
-        }}
-        textInputRefs={this._refs}
-        inputToolBarHeight={20}
-      >
-        {this._renderContent()}
-      </VerticalScrollView>
+      <View style={{ flex: 1 }}>
+        {/*<View style={{ height: 80, zIndex: 99 }} />*/}
+        <VerticalScrollView
+          style={styles.container}
+          ref={ref => (this.ref = ref)}
+          contentStyle={styles.content}
+          reboundEasing={Easing.cos}
+          reboundDuration={300}
+          decelerationRateWhenOut={0.9}
+          showsVerticalScrollIndicator={true}
+          bounces={true}
+          scrollEnabled={this.state.scrollEnabled}
+          textInputRefs={this._refs}
+          inputToolBarHeight={20}
+          refreshHeader={NormalHeader}
+          refreshing={this.state.refreshing}
+          onRefresh={() => {
+            this.setState({ refreshing: true });
+            setTimeout(() => this.setState({ refreshing: false }), 1000);
+          }}
+        >
+          {this._renderContent()}
+        </VerticalScrollView>
+      </View>
     );
   }
 
-  renderElement1(text,index) {
-    return <TextInput ref={this._refs[index]} style={styles.text} placeholder={text} key={text}/>
+  renderElement1(text, index) {
+    return (
+      <TextInput
+        ref={this._refs[index]}
+        style={styles.text}
+        placeholder={text}
+        key={text}
+      />
+    );
   }
 
   renderElement(text) {
@@ -63,12 +78,14 @@ export class SpringScrollViewExample extends React.Component {
         style={styles.btn}
         key={text}
         onPress={() => {
-          this.ref.scrollTo({ x: 0, y: 100000 });
+          // this.ref.scrollTo({ x: 0, y: 100000 });
+          // this.setState({ refreshing: true });
         }}
       >
         <Text style={styles.text}>
           {text}
         </Text>
+        <View style={styles.line} />
       </TouchableOpacity>
     );
   }
@@ -83,15 +100,22 @@ export class SpringScrollViewExample extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1
+    // marginTop:20
+    // overflow: "visible"
   },
   content: {
-    alignItems: "stretch",
-    backgroundColor: "red"
+    // alignItems: "stretch"
+    backgroundColor: "#EEE"
   },
   btn: {},
   text: {
     marginTop: 40,
     fontSize: 25,
+    textAlign: "center",
     alignSelf: "stretch"
+  },
+  line: {
+    height: 1,
+    backgroundColor: "#EEE"
   }
 });
