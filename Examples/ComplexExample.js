@@ -17,14 +17,13 @@ import {
   ScrollView,
   View
 } from "react-native";
-// import { SpringScrollView } from "../spring-scrollview";
 import { VerticalScrollView } from "../src";
 import { RefreshHeader } from "../src/RefreshHeader";
 import { NormalHeader } from "../src/NormalHeader";
 import {LoadingFooter} from "../src/LoadingFooter";
 import {NormalFooter} from "../src/NormalFooter";
 
-export class SpringScrollViewExample extends React.Component {
+export class ComplexExample extends React.Component {
   _refs;
   _scrollView;
   constructor(props) {
@@ -37,12 +36,10 @@ export class SpringScrollViewExample extends React.Component {
   }
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        {/*<View style={{ height: 80, zIndex: 99 }} />*/}
         <VerticalScrollView
           style={styles.container}
           ref={ref => (this._scrollView = ref)}
-          contentStyle={styles.content}
+          // contentStyle={styles.content}
           reboundEasing={Easing.cos}
           reboundDuration={300}
           decelerationRateWhenOut={0.9}
@@ -51,25 +48,25 @@ export class SpringScrollViewExample extends React.Component {
           scrollEnabled={this.state.scrollEnabled}
           textInputRefs={this._refs}
           inputToolBarHeight={20}
-          refreshHeader={NormalHeader}
-          onRefresh={() => {
-            this._scrollView.beginRefresh();
-            setTimeout(() => this._scrollView.endRefresh(), 1000);
-          }}
-          loadingFooter={NormalFooter}
-          loadingFooterHeight={80}
-          onLoading={()=>{
-            this._scrollView.beginLoading();
-            setTimeout(() => this._scrollView.endLoading(), 1000);
-          }}
+          // refreshHeader={NormalHeader}
+          // onRefresh={() => {
+          //   this._scrollView.beginRefresh();
+          //   setTimeout(() => this._scrollView.endRefresh(), 1000);
+          // }}
+          // loadingFooter={NormalFooter}
+          // loadingFooterHeight={80}
+          // onLoading={()=>{
+          //   this._scrollView.beginLoading();
+          //   setTimeout(() => this._scrollView.endLoading(), 1000);
+          // }}
         >
           {this._renderContent()}
         </VerticalScrollView>
-      </View>
+
     );
   }
 
-  renderElement1(text, index) {
+  renderElement(text, index) {
     return (
       <TextInput
         ref={this._refs[index]}
@@ -80,7 +77,7 @@ export class SpringScrollViewExample extends React.Component {
     );
   }
 
-  renderElement(text) {
+  renderElement1(text) {
     return (
       <TouchableOpacity
         style={styles.btn}

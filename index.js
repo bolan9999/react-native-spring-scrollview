@@ -1,7 +1,4 @@
 import { AppRegistry } from "react-native";
-import { SpringScrollViewExample } from "./Examples";
+import { Examples } from "./Examples";
 
-AppRegistry.registerComponent(
-  "SpringScrollViewExample",
-  () => SpringScrollViewExample
-);
+AppRegistry.registerComponent("SpringScrollViewExample", () => Examples);

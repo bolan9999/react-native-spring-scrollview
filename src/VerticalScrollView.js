@@ -25,7 +25,6 @@ import { RefreshHeader } from "./RefreshHeader";
 import { propsEqualExcept } from "./PropsTool";
 import { LoadingFooter } from "./LoadingFooter";
 
-
 export class VerticalScrollView extends React.Component<PropType> {
   _panHandler;
   _panOffsetY: Animated.Value;
@@ -70,6 +69,7 @@ export class VerticalScrollView extends React.Component<PropType> {
   _footerAnimatedValue;
 
   static defaultProps = {
+    bounces: true,
     decelerationRate: 0.998,
     showsVerticalScrollIndicator: true,
     scrollEnabled: true,
@@ -83,7 +83,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     inputToolBarHeight: 44,
     tapToHideKeyboard: true,
     refreshHeaderHeight: 80,
-    loadingFooterHeight: 80,
+    loadingFooterHeight: 80
   };
 
   constructor(props: PropType) {
@@ -101,11 +101,10 @@ export class VerticalScrollView extends React.Component<PropType> {
           -this._contentLayout.height +
           this._wrapperLayout.height -
           this._lastPanOffsetYValue;
-        if (
-          this._contentOffsetYValue < 0 ||
-          this._animatedOffsetYValue < beyondOffset
-        ) {
-          this._beginOuterDeceleration();
+        if (this._contentOffsetYValue < 0.001) {
+          this._beginOuterDeceleration(-this._lastPanOffsetYValue);
+        } else if (this._animatedOffsetYValue < beyondOffset) {
+          this._beginOuterDeceleration(beyondOffset);
         }
       }
     });
@@ -257,19 +256,20 @@ export class VerticalScrollView extends React.Component<PropType> {
     let { dampingCoefficient, bounces } = this.props;
     if (!bounces) dampingCoefficient = 0;
     if (this._layoutChanged) {
+      const bOffset = this._contentLayout.height - this._wrapperLayout.height;
       this._contentOffsetY = Animated.add(
         this._panOffsetY,
         this._animatedOffsetY
       ).interpolate({
         inputRange: [
           Number.MIN_SAFE_INTEGER,
-          -this._contentLayout.height + this._wrapperLayout.height,
+          -bOffset,
           0,
           Number.MAX_SAFE_INTEGER
         ],
         outputRange: [
-          Number.MIN_SAFE_INTEGER * dampingCoefficient,
-          -this._contentLayout.height + this._wrapperLayout.height,
+          -bOffset + Number.MIN_SAFE_INTEGER * dampingCoefficient,
+          -bOffset,
           0,
           Number.MAX_SAFE_INTEGER * dampingCoefficient
         ]
@@ -382,6 +382,8 @@ export class VerticalScrollView extends React.Component<PropType> {
 
   _onLayoutConfirm() {
     if (this._layoutChanged && this._contentLayout && this._wrapperLayout) {
+      if (this._contentLayout.height < this._wrapperLayout.height)
+        this._contentLayout.height = this._wrapperLayout.height;
       this.forceUpdate();
       if (
         this._contentOffsetYValue < 0 ||
@@ -409,7 +411,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     });
   }
 
-  _beginOuterDeceleration() {
+  _beginOuterDeceleration(beyondOffset: number) {
     const animatedTime =
       new Date().getTime() - this._innerDecelerationStartTime;
     const velocity =
@@ -417,7 +419,7 @@ export class VerticalScrollView extends React.Component<PropType> {
       Math.pow(this.props.decelerationRate, animatedTime);
     this._innerDeceleration.stop();
     if (!this.props.bounces)
-      return this._animatedOffsetY.setValue(-this._lastPanOffsetYValue);
+      return this._animatedOffsetY.setValue(beyondOffset);
     this._outerDeceleration = Animated.decay(this._animatedOffsetY, {
       velocity: velocity,
       deceleration: this.props.decelerationRateWhenOut,
