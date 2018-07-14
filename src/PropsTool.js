@@ -29,7 +29,7 @@ export function propsEqualExcept(
       const anotherStyle = StyleSheet.flatten(v2);
       return JSON.stringify(aStyle) === JSON.stringify(anotherStyle);
     }
-    if (typeof v1 === "function" && typeof v2 === "function") return true;
+    if (typeof v1 === "function") return true;
     return idx(() => a[key]) === idx(() => another[key]);
   });
 }

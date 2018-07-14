@@ -21,14 +21,17 @@ import {
 import { VerticalScrollView } from "../src";
 import { RefreshHeader } from "../src/RefreshHeader";
 import { NormalHeader } from "../src/NormalHeader";
+import {LoadingFooter} from "../src/LoadingFooter";
+import {NormalFooter} from "../src/NormalFooter";
 
 export class SpringScrollViewExample extends React.Component {
   _refs;
+  _scrollView;
   constructor(props) {
     super(props);
-    this.state = { scrollEnabled: true, refreshing: false };
+    this.state = { scrollEnabled: true, refreshing: false,loading:false };
     this._refs = [];
-    for (let i = 0; i < 30; ++i) {
+    for (let i = 0; i < 15; ++i) {
       this._refs.push(React.createRef());
     }
   }
@@ -38,7 +41,7 @@ export class SpringScrollViewExample extends React.Component {
         {/*<View style={{ height: 80, zIndex: 99 }} />*/}
         <VerticalScrollView
           style={styles.container}
-          ref={ref => (this.ref = ref)}
+          ref={ref => (this._scrollView = ref)}
           contentStyle={styles.content}
           reboundEasing={Easing.cos}
           reboundDuration={300}
@@ -53,6 +56,13 @@ export class SpringScrollViewExample extends React.Component {
           onRefresh={() => {
             this.setState({ refreshing: true });
             setTimeout(() => this.setState({ refreshing: false }), 1000);
+          }}
+          loadingFooter={NormalFooter}
+          loadingFooterHeight={80}
+          loading={this.state.loading}
+          onLoading={()=>{
+            this.setState({ loading: true });
+            setTimeout(() => this.setState({ loading: false }), 1000);
           }}
         >
           {this._renderContent()}
@@ -92,7 +102,7 @@ export class SpringScrollViewExample extends React.Component {
 
   _renderContent() {
     const arr = [];
-    for (let i = 0; i < 30; ++i) arr.push(`Text${i}`);
+    for (let i = 0; i < this._refs.length; ++i) arr.push(`Text${i}`);
     return arr.map(this.renderElement.bind(this));
   }
 }

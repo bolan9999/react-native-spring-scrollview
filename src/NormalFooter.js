@@ -1,14 +1,13 @@
 /*
  *
  * Created by Stone
- * https://github.com/bolan9999
  * Email: shanshang130@gmail.com
- * Date: 2018/7/13
+ * Date: 2018/7/14
  *
  */
 
 import React from "react";
-import { RefreshHeader, HeaderStatus } from "./RefreshHeader";
+import { LoadingFooter, FooterStatus } from "./LoadingFooter";
 import {
   ActivityIndicator,
   Animated,
@@ -17,11 +16,9 @@ import {
   Text
 } from "react-native";
 
-export class NormalHeader extends RefreshHeader {
-  onStateChange(oldStatus: HeaderStatus, newStatus: HeaderStatus) {
-    // if (newStatus === "waiting" || newStatus === "refreshing") {
+export class NormalFooter extends LoadingFooter {
+  onStateChange(oldStatus: FooterStatus, newStatus: FooterStatus) {
     this.setState({ status: newStatus });
-    // }
   }
 
   render() {
@@ -32,7 +29,7 @@ export class NormalHeader extends RefreshHeader {
           <Text style={styles.text}>
             {this._getTitle()}
           </Text>
-          <Text style={styles.text}>最后更新：2018.7.13</Text>
+          <Text style={styles.text}>最后加载：2018.7.13</Text>
         </View>
       </View>
     );
@@ -40,7 +37,7 @@ export class NormalHeader extends RefreshHeader {
 
   _renderIcon() {
     const s = this.state.status;
-    if (s === "refreshing" || s === "cancelRefresh" || s === "rebound") {
+    if (s === "loading" || s === "cancelLoading" || s === "rebound") {
       return <ActivityIndicator />;
     }
     return (
@@ -55,7 +52,7 @@ export class NormalHeader extends RefreshHeader {
               rotate: this.props.offset.interpolate({
                 inputRange: [
                   0,
-                  this.props.maxHeight-50,
+                  this.props.maxHeight - 50,
                   this.props.maxHeight,
                   Number.MAX_SAFE_INTEGER
                 ],
@@ -70,16 +67,18 @@ export class NormalHeader extends RefreshHeader {
 
   _getTitle() {
     const s = this.state.status;
-    if (s === "pulling" || s === "waiting") {
-      return "下拉可以刷新";
-    } else if (s === "pullingEnough") {
-      return "松开立即刷新";
-    } else if (s === "refreshing") {
-      return "正在刷新数据中...";
-    } else if (s === "pullingCancel") {
-      return "放弃刷新";
-    } else if (s === "cancelRefresh") {
-      return "取消刷新";
+    if (s === "dragging" || s === "waiting") {
+      return "上拉可以加载更多数据";
+    } else if (s === "draggingEnough") {
+      return "松开立即加载";
+    } else if (s === "loading") {
+      return "正在加载数据中...";
+    } else if (s === "draggingCancel") {
+      return "放弃加载";
+    } else if (s === "cancelLoading") {
+      return "取消加载";
+    } else if (s === "rebound") {
+      return "加载完成";
     }
   }
 }
