@@ -30,6 +30,6 @@ export function propsEqualExcept(
       return JSON.stringify(aStyle) === JSON.stringify(anotherStyle);
     }
     if (typeof v1 === "function") return true;
-    return idx(() => a[key]) === idx(() => another[key]);
+    return v1==v2;
   });
 }

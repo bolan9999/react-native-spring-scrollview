@@ -51,10 +51,11 @@ export class NormalFooter extends LoadingFooter {
             {
               rotate: this.props.offset.interpolate({
                 inputRange: [
-                  0,
-                  this.props.maxHeight - 50,
-                  this.props.maxHeight,
-                  Number.MAX_SAFE_INTEGER
+                  Number.MIN_SAFE_INTEGER,
+                  -this.props.maxHeight,
+                  50-this.props.maxHeight,
+
+                  0
                 ],
                 outputRange: ["0deg", "0deg", "180deg", "180deg"]
               })

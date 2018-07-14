@@ -11,9 +11,6 @@ import React from "react";
 import { ActivityIndicator, Animated, Image, Text, View } from "react-native";
 
 export class RefreshHeader extends React.Component<HeaderPropType, StateType> {
-  static defaultProps = {
-    maxHeight: 80
-  };
 
   constructor(props: HeaderPropType) {
     super(props);

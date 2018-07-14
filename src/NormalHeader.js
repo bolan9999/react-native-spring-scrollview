@@ -80,6 +80,8 @@ export class NormalHeader extends RefreshHeader {
       return "放弃刷新";
     } else if (s === "cancelRefresh") {
       return "取消刷新";
+    } else if (s === "rebound") {
+      return "刷新完成";
     }
   }
 }

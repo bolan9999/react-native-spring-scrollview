@@ -20,9 +20,11 @@ import {
 } from "react-native";
 import { PanGestureHandler as Pan, State } from "react-native-gesture-handler";
 import { idx } from "./idx";
+import * as _ from "lodash";
 import { RefreshHeader } from "./RefreshHeader";
 import { propsEqualExcept } from "./PropsTool";
 import { LoadingFooter } from "./LoadingFooter";
+
 
 export class VerticalScrollView extends React.Component<PropType> {
   _panHandler;
@@ -64,6 +66,9 @@ export class VerticalScrollView extends React.Component<PropType> {
   _loadingFooter;
   _endLoadingRebound;
 
+  _headerAnimatedValue;
+  _footerAnimatedValue;
+
   static defaultProps = {
     decelerationRate: 0.998,
     showsVerticalScrollIndicator: true,
@@ -78,9 +83,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     inputToolBarHeight: 44,
     tapToHideKeyboard: true,
     refreshHeaderHeight: 80,
-    refreshing: false,
     loadingFooterHeight: 80,
-    loading: false
   };
 
   constructor(props: PropType) {
@@ -98,9 +101,10 @@ export class VerticalScrollView extends React.Component<PropType> {
           -this._contentLayout.height +
           this._wrapperLayout.height -
           this._lastPanOffsetYValue;
-        if (this._contentOffsetYValue < 0) {
-          this._beginOuterDeceleration();
-        } else if (this._animatedOffsetYValue < beyondOffset) {
+        if (
+          this._contentOffsetYValue < 0 ||
+          this._animatedOffsetYValue < beyondOffset
+        ) {
           this._beginOuterDeceleration();
         }
       }
@@ -131,36 +135,6 @@ export class VerticalScrollView extends React.Component<PropType> {
             useNativeDriver: true
           }
         );
-    if (!this._refreshHeader || !this._loadingFooter) return;
-    if (props.refreshing && !this.props.refreshing) {
-      this._beginReboundToRefresh();
-    } else if (!props.refreshing && this.props.refreshing) {
-      this._beginEndRefreshRebound();
-    }
-    if (props.loading && !this.props.loading) {
-      this._beginReboundLoading();
-    } else if (!props.loading && this.props.loading) {
-      this._beginEndLoadingRebound();
-    }
-  }
-
-  shouldComponentUpdate(nextProps: PropType) {
-    return !propsEqualExcept(
-      nextProps,
-      this.props,
-      [
-        "decelerationRate",
-        "decelerationRateWhenOut",
-        "reboundEasing",
-        "reboundDuration",
-        "textInputRefs",
-        "inputToolBarHeight",
-        "tapToHideKeyboard",
-        "refreshing",
-        "loading"
-      ],
-      ["style", "contentStyle"]
-    );
   }
 
   render() {
@@ -190,7 +164,7 @@ export class VerticalScrollView extends React.Component<PropType> {
             <Animated.View style={headerStyle}>
               <Refresh
                 ref={ref => (this._refreshHeader = ref)}
-                offset={this._contentOffsetY}
+                offset={this._headerAnimatedValue}
                 maxHeight={this.props.refreshHeaderHeight}
               />
             </Animated.View>}
@@ -205,7 +179,7 @@ export class VerticalScrollView extends React.Component<PropType> {
             <Animated.View style={footerStyle}>
               <Loading
                 ref={ref => (this._loadingFooter = ref)}
-                offset={this._contentOffsetY}
+                offset={this._footerAnimatedValue}
                 maxHeight={this.props.loadingFooterHeight}
               />
             </Animated.View>}
@@ -602,6 +576,15 @@ export class VerticalScrollView extends React.Component<PropType> {
 
   _getRefreshHeaderStyle() {
     const { refreshHeaderHeight } = this.props;
+    this._headerAnimatedValue = this._contentOffsetY.interpolate({
+      inputRange: [
+        Number.MIN_SAFE_INTEGER,
+        0,
+        refreshHeaderHeight,
+        Number.MAX_SAFE_INTEGER
+      ],
+      outputRange: [0, 0, refreshHeaderHeight, refreshHeaderHeight]
+    });
     return {
       position: "absolute",
       left: 0,
@@ -613,15 +596,7 @@ export class VerticalScrollView extends React.Component<PropType> {
       alignItems: "center",
       transform: [
         {
-          translateY: this._contentOffsetY.interpolate({
-            inputRange: [
-              Number.MIN_SAFE_INTEGER,
-              0,
-              refreshHeaderHeight,
-              Number.MAX_SAFE_INTEGER
-            ],
-            outputRange: [0, 0, refreshHeaderHeight, refreshHeaderHeight]
-          })
+          translateY: this._headerAnimatedValue
         }
       ]
     };
@@ -632,6 +607,15 @@ export class VerticalScrollView extends React.Component<PropType> {
     const bottom =
       idx(() => this._contentLayout.height, 0) -
       idx(() => this._wrapperLayout.height, 0);
+    this._footerAnimatedValue = this._contentOffsetY.interpolate({
+      inputRange: [
+        Number.MIN_SAFE_INTEGER,
+        -bottom - loadingFooterHeight,
+        -bottom,
+        Number.MAX_SAFE_INTEGER
+      ],
+      outputRange: [-loadingFooterHeight, -loadingFooterHeight, 0, 0]
+    });
     return {
       position: "absolute",
       left: 0,
@@ -640,15 +624,7 @@ export class VerticalScrollView extends React.Component<PropType> {
       height: loadingFooterHeight,
       transform: [
         {
-          translateY: this._contentOffsetY.interpolate({
-            inputRange: [
-              Number.MIN_SAFE_INTEGER,
-              -bottom - loadingFooterHeight,
-              -bottom,
-              Number.MAX_SAFE_INTEGER
-            ],
-            outputRange: [-loadingFooterHeight, -loadingFooterHeight, 0, 0]
-          })
+          translateY: this._footerAnimatedValue
         }
       ]
     };
@@ -691,6 +667,22 @@ export class VerticalScrollView extends React.Component<PropType> {
       }
     }
   };
+
+  beginRefresh() {
+    this._beginReboundToRefresh();
+  }
+
+  endRefresh() {
+    this._beginEndRefreshRebound();
+  }
+
+  beginLoading() {
+    this._beginReboundLoading();
+  }
+
+  endLoading() {
+    this._beginEndLoadingRebound();
+  }
 }
 
 const styles = StyleSheet.create({
@@ -736,13 +728,11 @@ interface PropType extends ViewPropTypes {
 
   refreshHeaderHeight?: number,
   refreshHeader?: RefreshHeader,
-  refreshing?: boolean,
   onRefresh?: () => any,
   onCancelRefresh?: () => any,
 
   loadingFooterHeight?: number,
   loadingFooter?: LoadingFooter,
-  loading?: boolean,
   onLoading?: () => any,
   onCancelLoading?: () => any
 

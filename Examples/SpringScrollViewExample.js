@@ -29,9 +29,9 @@ export class SpringScrollViewExample extends React.Component {
   _scrollView;
   constructor(props) {
     super(props);
-    this.state = { scrollEnabled: true, refreshing: false,loading:false };
+    this.state = { scrollEnabled: true, refreshing: false,loading:false, number:15 };
     this._refs = [];
-    for (let i = 0; i < 15; ++i) {
+    for (let i = 0; i < this.state.number; ++i) {
       this._refs.push(React.createRef());
     }
   }
@@ -52,17 +52,15 @@ export class SpringScrollViewExample extends React.Component {
           textInputRefs={this._refs}
           inputToolBarHeight={20}
           refreshHeader={NormalHeader}
-          refreshing={this.state.refreshing}
           onRefresh={() => {
-            this.setState({ refreshing: true });
-            setTimeout(() => this.setState({ refreshing: false }), 1000);
+            this._scrollView.beginRefresh();
+            setTimeout(() => this._scrollView.endRefresh(), 1000);
           }}
           loadingFooter={NormalFooter}
           loadingFooterHeight={80}
-          loading={this.state.loading}
           onLoading={()=>{
-            this.setState({ loading: true });
-            setTimeout(() => this.setState({ loading: false }), 1000);
+            this._scrollView.beginLoading();
+            setTimeout(() => this._scrollView.endLoading(), 1000);
           }}
         >
           {this._renderContent()}
@@ -102,7 +100,7 @@ export class SpringScrollViewExample extends React.Component {
 
   _renderContent() {
     const arr = [];
-    for (let i = 0; i < this._refs.length; ++i) arr.push(`Text${i}`);
+    for (let i = 0; i < this.state.number; ++i) arr.push(`Text${i}`);
     return arr.map(this.renderElement.bind(this));
   }
 }

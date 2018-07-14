@@ -32,7 +32,7 @@ export class LoadingFooter extends React.Component<FooterPropType, StateType> {
         style={{
           flex: 1,
           alignSelf: "center",
-          lineHeight: 80,
+          lineHeight: this.props.maxHeight,
           textAlign: "center"
         }}
       >
