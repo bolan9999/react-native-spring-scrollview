@@ -39,7 +39,7 @@ export class ComplexExample extends React.Component {
         <VerticalScrollView
           style={styles.container}
           ref={ref => (this._scrollView = ref)}
-          // contentStyle={styles.content}
+          contentStyle={styles.content}
           reboundEasing={Easing.cos}
           reboundDuration={300}
           decelerationRateWhenOut={0.9}
@@ -48,17 +48,17 @@ export class ComplexExample extends React.Component {
           scrollEnabled={this.state.scrollEnabled}
           textInputRefs={this._refs}
           inputToolBarHeight={20}
-          // refreshHeader={NormalHeader}
-          // onRefresh={() => {
-          //   this._scrollView.beginRefresh();
-          //   setTimeout(() => this._scrollView.endRefresh(), 1000);
-          // }}
-          // loadingFooter={NormalFooter}
-          // loadingFooterHeight={80}
-          // onLoading={()=>{
-          //   this._scrollView.beginLoading();
-          //   setTimeout(() => this._scrollView.endLoading(), 1000);
-          // }}
+          refreshHeader={NormalHeader}
+          onRefresh={() => {
+            this._scrollView.beginRefresh();
+            setTimeout(() => this._scrollView.endRefresh(), 1000);
+          }}
+          loadingFooter={NormalFooter}
+          loadingFooterHeight={80}
+          onLoading={()=>{
+            this._scrollView.beginLoading();
+            setTimeout(() => this._scrollView.endLoading(), 1000);
+          }}
         >
           {this._renderContent()}
         </VerticalScrollView>
