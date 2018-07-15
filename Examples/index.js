@@ -10,7 +10,9 @@
 import React from "react";
 import { Button, StyleSheet, View } from "react-native";
 import { InputExample } from "./InputExample";
-import {ComplexExample} from "./ComplexExample";
+import { ComplexExample } from "./ComplexExample";
+import { BouncesAndScrollEnabledExample } from "./BouncesAndScrollEnabledExample";
+import { RefreshAndLoadingExample } from "./RefreshAndLoadingExample";
 
 export class Examples extends React.Component {
   constructor(props) {
@@ -24,9 +26,13 @@ export class Examples extends React.Component {
         return this._renderSelect();
       case 1:
         return <InputExample />;
+      case 2:
+        return <BouncesAndScrollEnabledExample />;
 
+      case 3:
+        return <RefreshAndLoadingExample />;
       case 10:
-        return <ComplexExample/>;
+        return <ComplexExample />;
     }
   }
 
@@ -36,6 +42,16 @@ export class Examples extends React.Component {
         <Button
           onPress={() => this.setState({ select: 1 })}
           title="InputExample"
+        />
+
+        <Button
+          onPress={() => this.setState({ select: 2 })}
+          title="BouncesAndScrollEnabledExample"
+        />
+
+        <Button
+          onPress={() => this.setState({ select: 3 })}
+          title="RefreshAndLoadingExample"
         />
 
         <Button
@@ -49,6 +65,7 @@ export class Examples extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    margin: 20
   }
 });

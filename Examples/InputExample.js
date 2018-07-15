@@ -18,27 +18,24 @@ export class InputExample extends React.Component {
   render() {
     const arr = [];
     for (let i = 0; i < 20; ++i) arr.push(i);
-    return (
+   return (
       <VerticalScrollView
-        style={{ flex: 1 }}
+        style={styles.container}
         contentStyle={styles.content}
-        bounces={false}
+        tapToHideKeyboard={false}
         textInputRefs={[this._topInput, this._bottomInput]}
-        dampingCoefficient={0.5}
       >
         <TextInput
           ref={this._topInput}
-          style={styles.top}
+          style={styles.input}
           placeholder="Keyboard Test Top"
         />
-        {arr.map((i, index) =>
-          <Text key={index} style={styles.text}>
-            Fill Content
-          </Text>
-        )}
+        <Text style={[styles.text, styles.input]}>
+          Keyboard will never cover the focused TextInput
+        </Text>
         <TextInput
           ref={this._bottomInput}
-          style={styles.bottom}
+          style={styles.input}
           placeholder="Keyboard Test Bottom"
         />
       </VerticalScrollView>
@@ -48,19 +45,19 @@ export class InputExample extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "space-between"
+    flex: 1
   },
   content: {
-    alignItems: "stretch"
+    // flex: 1,
+    // justifyContent: "space-between"
   },
-  top: {
-    margin: 50
+  input: {
+    marginHorizontal: 20,
+    marginVertical:100
   },
   text: {
+    marginHorizontal: 20,
+    marginVertical:100,
     fontSize: 30
-  },
-  bottom: {
-    margin: 50
   }
 });

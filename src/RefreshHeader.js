@@ -23,7 +23,7 @@ export class RefreshHeader extends React.Component<HeaderPropType, StateType> {
   }
 
   onStateChange(oldStatus: HeaderStatus, newStatus: HeaderStatus) {
-    console.log("newStatus", newStatus);
+    // console.log("newStatus", newStatus);
     this.setState({ status: newStatus });
   }
 

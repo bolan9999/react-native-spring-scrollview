@@ -22,7 +22,7 @@ export class LoadingFooter extends React.Component<FooterPropType, StateType> {
   }
 
   onStateChange(oldStatus: FooterStatus, newStatus: FooterStatus) {
-    console.log("newStatus", newStatus);
+    // console.log("newStatus", newStatus);
     this.setState({ status: newStatus });
   }
 
