@@ -20,49 +20,54 @@ import {
 import { VerticalScrollView } from "../src";
 import { RefreshHeader } from "../src/RefreshHeader";
 import { NormalHeader } from "../src/NormalHeader";
-import {LoadingFooter} from "../src/LoadingFooter";
-import {NormalFooter} from "../src/NormalFooter";
+import { LoadingFooter } from "../src/LoadingFooter";
+import { NormalFooter } from "../src/NormalFooter";
 
 export class ComplexExample extends React.Component {
   _refs;
   _scrollView;
   constructor(props) {
     super(props);
-    this.state = { scrollEnabled: true, refreshing: false,loading:false, number:15 };
+    this.state = {
+      scrollEnabled: true,
+      refreshing: false,
+      loading: false,
+      number: 15
+    };
     this._refs = [];
     for (let i = 0; i < this.state.number; ++i) {
       this._refs.push(React.createRef());
     }
   }
+
   render() {
     return (
-        <VerticalScrollView
-          style={styles.container}
-          ref={ref => (this._scrollView = ref)}
-          contentStyle={styles.content}
-          reboundEasing={Easing.cos}
-          reboundDuration={300}
-          decelerationRateWhenOut={0.9}
-          showsVerticalScrollIndicator={true}
-          bounces={true}
-          scrollEnabled={this.state.scrollEnabled}
-          textInputRefs={this._refs}
-          inputToolBarHeight={20}
-          refreshHeader={NormalHeader}
-          onRefresh={() => {
-            this._scrollView.beginRefresh();
-            setTimeout(() => this._scrollView.endRefresh(), 1000);
-          }}
-          loadingFooter={NormalFooter}
-          loadingFooterHeight={80}
-          onLoading={()=>{
-            this._scrollView.beginLoading();
-            setTimeout(() => this._scrollView.endLoading(true), 1000);
-          }}
-        >
-          {this._renderContent()}
-        </VerticalScrollView>
-
+      <VerticalScrollView
+        style={styles.container}
+        ref={ref => (this._scrollView = ref)}
+        contentStyle={styles.content}
+        reboundEasing={Easing.cos}
+        reboundDuration={300}
+        decelerationRateWhenOut={0.9}
+        showsVerticalScrollIndicator={true}
+        bounces={true}
+        scrollEnabled={this.state.scrollEnabled}
+        textInputRefs={this._refs}
+        inputToolBarHeight={20}
+        refreshHeader={NormalHeader}
+        onRefresh={() => {
+          this._scrollView.beginRefresh();
+          setTimeout(() => this._scrollView.endRefresh(), 1000);
+        }}
+        loadingFooter={NormalFooter}
+        loadingFooterHeight={80}
+        onLoading={() => {
+          this._scrollView.beginLoading();
+          setTimeout(() => this._scrollView.endLoading(true), 1000);
+        }}
+      >
+        {this._renderContent()}
+      </VerticalScrollView>
     );
   }
 
