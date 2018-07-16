@@ -1,5 +1,5 @@
 * 入门
-    * [欢迎](Welcome)
+    * [欢迎](README)
     * [快速接入](GettingStart)
     * [简单使用](Usage)
 * VerticalScrollView

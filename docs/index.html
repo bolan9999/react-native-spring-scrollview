@@ -37,9 +37,15 @@
       display: flex;
       flex-direction: row;
       align-items: center;
+      justify-content: space-between;
       top: -25px;
       left: 0;
       z-index: 2000;
+    }
+    .left {
+      display: flex;
+      align-items: center;
+      margin-left: 20px;
     }
     .sidebar {
       top: 60px;
@@ -47,26 +53,35 @@
     .image {
       width: 48px;
       height: 48px;
-      margin-left: 20px;
-      margin-right: 20px;
     }
     .title {
+      margin-left: 20px;
       font-size: 30px;
+    }
+    .right {
+      margin-right: 20px;
     }
   </style>
 </head>
 
 <body>
-  <!-- <div class="head"> -->
-  <!-- <img class="image" -->
-  <!-- src="loading.png"> -->
-  <!-- <span class="title">React Native Spring Scrollview -->
-  <!-- <span> -->
-  <!-- </span> -->
-  <!-- </span> -->
-  <!-- </div> -->
 
   <nav class="head">
+
+    <div class="left">
+
+      <img class="image"
+        src="loading.png">
+
+
+      <span class="title">React Native Spring Scrollview
+      </span>
+    </div>
+
+    <div class="right">
+      <a href="https://github.com/bolan9999/react-native-spring-scrollview">GitHub
+      </a>
+    </div>
   </nav>
 
   <div id="app">
@@ -76,12 +91,13 @@
         name: "",
         repo: "",
 
-        loadSidebar:true
+        loadSidebar: true
       };
 
     </script>
 
     <script src="//unpkg.com/docsify/lib/docsify.min.js">
+
     </script>
   </div>
 </body>
