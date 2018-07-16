@@ -127,7 +127,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     this._getIndicator();
     this._layoutChanged = false;
     const cStyle = StyleSheet.flatten([
-      { overflow: "scroll" },
+      // { overflow: "scroll" },
       contentStyle,
       {
         transform: [
