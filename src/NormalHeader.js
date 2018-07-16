@@ -18,11 +18,11 @@ import {
 } from "react-native";
 
 export class NormalHeader extends RefreshHeader {
-  onStateChange(oldStatus: HeaderStatus, newStatus: HeaderStatus) {
-    // if (newStatus === "waiting" || newStatus === "refreshing") {
-    this.setState({ status: newStatus });
-    // }
-  }
+  // onStateChange(oldStatus: HeaderStatus, newStatus: HeaderStatus) {
+  //   // if (newStatus === "waiting" || newStatus === "refreshing") {
+  //   this.setState({ status: newStatus });
+  //   // }
+  // }
 
   render() {
     return (

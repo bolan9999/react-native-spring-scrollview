@@ -10,7 +10,7 @@
 import React from "react";
 import { ActivityIndicator, Animated, Image, Text, View } from "react-native";
 
-export class RefreshHeader extends React.Component<HeaderPropType, StateType> {
+export class RefreshHeader extends React.Component<HeaderPropType, HeaderStateType> {
 
   constructor(props: HeaderPropType) {
     super(props);
@@ -41,7 +41,6 @@ export type HeaderStatus =
   | "pulling"
   | "pullingEnough"
   | "pullingCancel"
-  | "releaseRebound"
   | "refreshing"
   | "cancelRefresh"
   | "rebound";
@@ -51,6 +50,6 @@ interface HeaderPropType {
   maxHeight?:number
 }
 
-interface StateType {
+interface HeaderStateType {
   status?: HeaderStatus
 }

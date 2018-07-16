@@ -17,9 +17,9 @@ import {
 } from "react-native";
 
 export class NormalFooter extends LoadingFooter {
-  onStateChange(oldStatus: FooterStatus, newStatus: FooterStatus) {
-    this.setState({ status: newStatus });
-  }
+  // onStateChange(oldStatus: FooterStatus, newStatus: FooterStatus) {
+  //   this.setState({ status: newStatus });
+  // }
 
   render() {
     return (

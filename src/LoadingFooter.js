@@ -10,7 +10,7 @@
 import React from "react";
 import { Animated, Text } from "react-native";
 
-export class LoadingFooter extends React.Component<FooterPropType, StateType> {
+export class LoadingFooter extends React.Component<FooterPropType, FooterStateType> {
   constructor(props: FooterPropType) {
     super(props);
     this.state = { status: "waiting" };
@@ -57,6 +57,6 @@ interface FooterPropType {
   maxHeight?: number
 }
 
-interface StateType {
+interface FooterStateType {
   status?: FooterStatus
 }

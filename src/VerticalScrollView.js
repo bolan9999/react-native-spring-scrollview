@@ -68,7 +68,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     reboundEasing: Easing.cos,
     reboundDuration: 300,
     onScroll: () => null,
-    getOffsetYAnimatedValue: () => null,
+    getNativeOffset: () => null,
     textInputRefs: [],
     inputToolBarHeight: 44,
     tapToHideKeyboard: true,
@@ -127,6 +127,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     this._getIndicator();
     this._layoutChanged = false;
     const cStyle = StyleSheet.flatten([
+      { overflow: "scroll" },
       contentStyle,
       {
         transform: [
@@ -248,7 +249,7 @@ export class VerticalScrollView extends React.Component<PropType> {
         ]
       });
       setTimeout(() =>
-        this.props.getOffsetYAnimatedValue(this._contentOffsetY)
+        this.props.getNativeOffset(this._contentOffsetY)
       );
     }
   }
@@ -692,7 +693,7 @@ interface PropType extends ViewPropTypes {
   dampingCoefficient?: number,
   reboundEasing?: (value: number) => number,
   reboundDuration?: number,
-  getOffsetYAnimatedValue?: (offset: AnimatedWithChildren) => any,
+  getNativeOffset?: (offset: AnimatedWithChildren) => any,
 
   textInputRefs?: any[],
   tapToHideKeyboard?: boolean,

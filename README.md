@@ -112,8 +112,8 @@ export class SpringScrollViewExample extends React.Component {
         showsVerticalScrollIndicator={true}
         bounces={true}
         scrollEnabled={this.state.scrollEnabled}
-        getOffsetYAnimatedValue={() => {
-          console.log("getOffsetYAnimatedValue");
+        getNativeOffset={() => {
+          console.log("getNativeOffset");
         }}
         textInputRefs={this._textInputRefs}
       >
@@ -151,14 +151,14 @@ const styles = StyleSheet.create({
 bounces | boolean | true | 垂直方向滑动超出内容视图后可以弹性地继续滑动
 contentStyle | ViewStyle | null | 内容视图的样式。注意：transform无效
 scrollEnabled | boolean | true | 是否可以滚动
-onScroll | (offset: Offset) => any | ()=>null | 监听滑动，要使用原生驱动的动画请使用getOffsetYAnimatedValue
+onScroll | (offset: Offset) => any | ()=>null | 监听滑动，要使用原生驱动的动画请使用getNativeOffset
 showsVerticalScrollIndicator | boolean | true | 显示垂直滚动指示器
 decelerationRate | number | 0.998 | 在内容视图内松开手指，减速滑动的阻尼系数，单位是每毫秒百分比
 decelerationRateWhenOut | number | 0.9 | 超出内容视图以后松开手指，减速滑动的阻尼系数，单位是每毫秒百分比
 dampingCoefficient | number | 0.5 | 超出内容视图以后，继续滑动的阻尼系数，单位是每毫秒百分比
 reboundEasing | (value: number) => number | Easing.cos | 超出内容视图松开手指完成减速以后的回弹动画函数
 reboundDuration | number | 300 | 回弹的时间
-getOffsetYAnimatedValue | (offset: Animated.Value) => any | ()=>null | 获得监听滑动偏移并支持原生动画的动画值（该值是合成值，不可监听，不可修改，只能用于原生动画）
+getNativeOffset | (offset: Animated.Value) => any | ()=>null | 获得监听滑动偏移并支持原生动画的动画值（该值是合成值，不可监听，不可修改，只能用于原生动画）
 textInputRefs | ReactRef[] | [] | 该属性是用于解决键盘遮挡的问题，如果你的输入框被键盘所遮挡，那么你应当使用React.createRef()方式的引用，然后通过此方式自动处理键盘遮挡问题
 inputToolBarHeight | number | 44 | 在解决键盘遮挡过程中，如果位置不够或者调节过多，则通过描述工具栏高度来小幅修正位置
 
