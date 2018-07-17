@@ -9,10 +9,10 @@
 
 ### 第二步，使用scrollTo方法
 ```$js
-this._scrollView && this._scrollView.scrollTo({x:0,y:100}, true);
+this._scrollView && this._scrollView.scrollTo({x:0,y:100});
 ```
 
-scrollTo({x:number, y:number}, animated)
+scrollTo({x:number, y:number}, animated=true)
 
 滑动到指定的偏移，注意：
 

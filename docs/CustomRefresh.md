@@ -108,3 +108,7 @@ return (
 
 完整的示例可以查看[NormalHeader](https://github.com/bolan9999/react-native-spring-scrollview/blob/master/src/NormalHeader.js)
 
+### 贡献您的自定义下拉刷新组件
+
+欢迎Fork react-native-spring-scrollview ，添加您精心制作的RefreshHeader， 提交Pull Request 合并到master，给其他人使用。
+

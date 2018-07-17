@@ -24,6 +24,7 @@ export class BouncesAndScrollEnabledExample extends React.Component {
         style={styles.container}
         bounces={this._bounces}
         scrollEnabled={this._scrollEnabled}
+        initOffset={{x:0,y:100}}
       >
         {arr.map((i, index) =>
           <Text key={index} style={styles.text}>

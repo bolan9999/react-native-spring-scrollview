@@ -63,6 +63,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     decelerationRate: 0.998,
     showsVerticalScrollIndicator: true,
     scrollEnabled: true,
+    initOffset:{x:0,y:0},
     dampingCoefficient: 0.5,
     decelerationRateWhenOut: 0.9,
     reboundEasing: Easing.cos,
@@ -78,6 +79,7 @@ export class VerticalScrollView extends React.Component<PropType> {
 
   constructor(props: PropType) {
     super(props);
+    this._animatedOffsetY.setValue(-props.initOffset.y);
     this._animatedOffsetY.addListener(({ value: v }) => {
       this._animatedOffsetYValue = v;
       this._onScroll(v + this._panOffsetYValue);
@@ -127,7 +129,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     this._getIndicator();
     this._layoutChanged = false;
     const cStyle = StyleSheet.flatten([
-      // { overflow: "scroll" },
+      { overflow: "visible" },
       contentStyle,
       {
         transform: [
@@ -686,6 +688,7 @@ interface PropType extends ViewPropTypes {
   bounces?: boolean,
   contentStyle?: Object,
   scrollEnabled?: boolean,
+  initOffset?: Offset;
   onScroll?: (offset: Offset) => any,
   showsVerticalScrollIndicator?: boolean,
   decelerationRate?: number,
