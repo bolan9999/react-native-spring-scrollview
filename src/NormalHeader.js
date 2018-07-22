@@ -55,9 +55,9 @@ export class NormalHeader extends RefreshHeader {
               rotate: this.props.offset.interpolate({
                 inputRange: [
                   0,
-                  this.props.maxHeight-50,
+                  this.props.maxHeight - 50,
                   this.props.maxHeight,
-                  Number.MAX_SAFE_INTEGER
+                  this.props.maxHeight + 1
                 ],
                 outputRange: ["0deg", "0deg", "180deg", "180deg"]
               })

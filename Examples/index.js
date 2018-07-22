@@ -13,6 +13,7 @@ import { InputExample } from "./InputExample";
 import { ComplexExample } from "./ComplexExample";
 import { BouncesAndScrollEnabledExample } from "./BouncesAndScrollEnabledExample";
 import { RefreshAndLoadingExample } from "./RefreshAndLoadingExample";
+import { ScrollToAndOnScrollExample } from "./ScrollToAndOnScrollExample";
 
 export class Examples extends React.Component {
   constructor(props) {
@@ -31,8 +32,10 @@ export class Examples extends React.Component {
 
       case 3:
         return <RefreshAndLoadingExample />;
-      case 10:
+      case 4:
         return <ComplexExample />;
+      case 5:
+        return <ScrollToAndOnScrollExample />;
     }
   }
 
@@ -55,8 +58,12 @@ export class Examples extends React.Component {
         />
 
         <Button
-          onPress={() => this.setState({ select: 10 })}
+          onPress={() => this.setState({ select: 4 })}
           title="ComplexExample"
+        />
+        <Button
+          onPress={() => this.setState({ select: 5 })}
+          title="ScrollToAndOnScrollExample"
         />
       </View>
     );

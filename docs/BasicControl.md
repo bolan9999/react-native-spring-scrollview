@@ -9,3 +9,4 @@ contentStyle | ViewStyle | undefined | 内容视图的样式。注意：transfor
 scrollEnabled | boolean | true | 是否可以滚动
 initOffset | {x:number, y:number} | {x:0,y:0} | 初始化偏移，x值暂时无效，仅第一次初始化有效，后期更改无效
 showsVerticalScrollIndicator | boolean | true | 显示垂直滚动指示器
+

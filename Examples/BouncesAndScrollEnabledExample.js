@@ -12,7 +12,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { VerticalScrollView } from "../src";
 
 export class BouncesAndScrollEnabledExample extends React.Component {
-  _contentCount = 20;
+  _contentCount = 10;
   _bounces = true;
   _scrollEnabled = true;
 

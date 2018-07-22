@@ -63,7 +63,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     decelerationRate: 0.998,
     showsVerticalScrollIndicator: true,
     scrollEnabled: true,
-    initOffset:{x:0,y:0},
+    initOffset: { x: 0, y: 0 },
     dampingCoefficient: 0.5,
     decelerationRateWhenOut: 0.9,
     reboundEasing: Easing.cos,
@@ -74,7 +74,12 @@ export class VerticalScrollView extends React.Component<PropType> {
     inputToolBarHeight: 44,
     tapToHideKeyboard: true,
     refreshHeaderHeight: 80,
-    loadingFooterHeight: 80
+    loadingFooterHeight: 80,
+    onTouchBegin: () => null,
+    onTouchEnd: () => null,
+    onMomentumScrollStart: () => null,
+    onMomentumScrollEnd: () => null,
+    indicatorDismissTimeInterval: 3000
   };
 
   constructor(props: PropType) {
@@ -129,7 +134,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     this._getIndicator();
     this._layoutChanged = false;
     const cStyle = StyleSheet.flatten([
-      { overflow: "visible" },
+      { overflow: "hidden" },
       contentStyle,
       {
         transform: [
@@ -192,6 +197,10 @@ export class VerticalScrollView extends React.Component<PropType> {
     );
   }
 
+  componentDidUpdate(){
+    this._beginIndicatorDismissAnimation();
+  }
+
   componentWillUnmount() {
     this._keyboardShowSub.remove();
     this._keyboardHideSub.remove();
@@ -237,22 +246,15 @@ export class VerticalScrollView extends React.Component<PropType> {
         this._panOffsetY,
         this._animatedOffsetY
       ).interpolate({
-        inputRange: [
-          Number.MIN_SAFE_INTEGER,
-          -bOffset,
-          0,
-          Number.MAX_SAFE_INTEGER
-        ],
+        inputRange: [-bOffset - 1, -bOffset, 0, 1],
         outputRange: [
-          -bOffset + Number.MIN_SAFE_INTEGER * dampingCoefficient,
+          -bOffset - dampingCoefficient,
           -bOffset,
           0,
-          Number.MAX_SAFE_INTEGER * dampingCoefficient
+          dampingCoefficient
         ]
       });
-      setTimeout(() =>
-        this.props.getNativeOffset(this._contentOffsetY)
-      );
+      setTimeout(() => this.props.getNativeOffset(this._contentOffsetY));
     }
   }
 
@@ -261,27 +263,19 @@ export class VerticalScrollView extends React.Component<PropType> {
       this._indicator = null;
       return;
     }
+
     if (this._layoutChanged) {
+      const rate = this._wrapperLayout.height / this._contentLayout.height;
       const style = StyleSheet.flatten([
         styles.indicator,
         {
-          height:
-            this._wrapperLayout.height *
-            this._wrapperLayout.height /
-            this._contentLayout.height,
+          height: this._wrapperLayout.height * rate,
           opacity: this._indicatorOpacity,
           transform: [
             {
               translateY: this._contentOffsetY.interpolate({
-                inputRange: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
-                outputRange: [
-                  Number.MAX_SAFE_INTEGER *
-                    this._wrapperLayout.height /
-                    this._contentLayout.height,
-                  Number.MIN_SAFE_INTEGER *
-                    this._wrapperLayout.height /
-                    this._contentLayout.height
-                ]
+                inputRange: [-1, 1],
+                outputRange: [rate, -rate]
               })
             }
           ]
@@ -317,7 +311,7 @@ export class VerticalScrollView extends React.Component<PropType> {
   _onLayout = ({ nativeEvent: { layout: layout } }) => {
     const oW = idx(() => this._contentLayout.width, 0);
     const oH = idx(() => this._contentLayout.height, 0);
-    if (oW !== layout.widget && oH !== layout.height) {
+    if (oW !== layout.width || oH !== layout.height) {
       this._layoutChanged = true;
       this._contentLayout = layout;
       this._onLayoutConfirm();
@@ -326,20 +320,25 @@ export class VerticalScrollView extends React.Component<PropType> {
   _onWrapperLayout = ({ nativeEvent: { layout: layout } }) => {
     const oW = idx(() => this._wrapperLayout.width, 0);
     const oH = idx(() => this._wrapperLayout.height, 0);
-    if (oW !== layout.widget && oH !== layout.height) {
+    if (oW !== layout.widget || oH !== layout.height) {
       this._layoutChanged = true;
       this._wrapperLayout = layout;
       this._onLayoutConfirm();
     }
   };
 
-  scrollTo(offset: Offset, animated: boolean = true) {
+  scrollTo(offset: Offset, animated: boolean = true): Promise<void> {
     if (offset.y > this._contentLayout.height - this._wrapperLayout.height)
       offset.y = this._contentLayout.height - this._wrapperLayout.height;
     if (offset.y < 0) offset.y = 0;
     const to = -offset.y - this._panOffsetYValue;
-    if (!animated) this._animatedOffsetY.setValue(to);
-    this._timingTo(this._animatedOffsetY, to, 250);
+    return new Promise(r => {
+      if (!animated) {
+        this._animatedOffsetY.setValue(to);
+        r();
+      }
+      this._timingTo(this._animatedOffsetY, to, 250, r);
+    });
   }
 
   _onLayoutConfirm() {
@@ -365,11 +364,15 @@ export class VerticalScrollView extends React.Component<PropType> {
       useNativeDriver: true
     });
     this._innerDecelerationStartTime = new Date().getTime();
+    this.props.onMomentumScrollStart();
     this._innerDeceleration.start(({ finished: finished }) => {
       this._innerDecelerationStartTime = 0;
       this._innerDeceleration = null;
       this._innerDecelerationVelocity = 0;
-      if (finished) this._beginIndicatorDismissAnimation();
+      if (finished) {
+        this.props.onMomentumScrollEnd();
+        this._beginIndicatorDismissAnimation();
+      }
     });
   }
 
@@ -389,6 +392,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     });
     this._outerDeceleration.start(({ finished: finished }) => {
       this._outerDeceleration = null;
+      this.props.onMomentumScrollEnd();
       if (finished) {
         if (this._contentOffsetYValue < -this.props.refreshHeaderHeight) {
           if (this._enoughToRefresh) {
@@ -454,6 +458,7 @@ export class VerticalScrollView extends React.Component<PropType> {
         this._enoughToRefresh = false;
         this._cancelRefresh = false;
         idx(() => this._refreshHeader.changeToState("waiting"));
+        this._beginIndicatorDismissAnimation();
       }
     });
   }
@@ -499,19 +504,21 @@ export class VerticalScrollView extends React.Component<PropType> {
         this._enoughLoadMore = false;
         this._cancelLoadMore = false;
         idx(() => this._loadingFooter.changeToState("waiting"));
+        if (finished) this._beginIndicatorDismissAnimation();
       }
     });
   }
 
   _onTouchBegin() {
     this._touching = true;
+    this.props.onTouchBegin();
     if (this.props.scrollEnabled) {
       this._innerDeceleration && this._innerDeceleration.stop();
       this._outerDeceleration && this._outerDeceleration.stop();
       this._reboundToRefresh && this._reboundToRefresh.stop();
       this._endRefreshRebound && this._endRefreshRebound.stop();
       this._indicatorAnimate && this._indicatorAnimate.stop();
-      this.props.scrollEnabled && this._indicatorOpacity.setValue(1);
+      this._indicatorOpacity.setValue(1);
     }
     if (this.props.tapToHideKeyboard) {
       Keyboard.dismiss();
@@ -520,6 +527,7 @@ export class VerticalScrollView extends React.Component<PropType> {
 
   _onTouchEnd(offsetY: number, velocityY: number) {
     this._touching = false;
+    this.props.onTouchEnd();
     if (!this.props.scrollEnabled) return;
     this._lastPanOffsetYValue += offsetY;
     this._panOffsetY.extractOffset();
@@ -530,23 +538,19 @@ export class VerticalScrollView extends React.Component<PropType> {
     this._indicatorAnimate && this._indicatorAnimate.stop();
     this._indicatorAnimate = Animated.timing(this._indicatorOpacity, {
       toValue: 0,
-      duration: 1000,
+      duration: this.props.indicatorDismissTimeInterval,
       useNativeDriver: true
     });
-    this._indicatorAnimate.start(() => {
+    this._indicatorAnimate.start(({finished:finished}) => {
       this._indicatorAnimate = null;
+      if (!finished) this._indicatorOpacity.setValue(1);
     });
   }
 
   _getRefreshHeaderStyle() {
     const { refreshHeaderHeight } = this.props;
     this._headerAnimatedValue = this._contentOffsetY.interpolate({
-      inputRange: [
-        Number.MIN_SAFE_INTEGER,
-        0,
-        refreshHeaderHeight,
-        Number.MAX_SAFE_INTEGER
-      ],
+      inputRange: [-1, 0, refreshHeaderHeight, refreshHeaderHeight + 1],
       outputRange: [0, 0, refreshHeaderHeight, refreshHeaderHeight]
     });
     return {
@@ -573,10 +577,10 @@ export class VerticalScrollView extends React.Component<PropType> {
       idx(() => this._wrapperLayout.height, 0);
     this._footerAnimatedValue = this._contentOffsetY.interpolate({
       inputRange: [
-        Number.MIN_SAFE_INTEGER,
+        -bottom - loadingFooterHeight - 1,
         -bottom - loadingFooterHeight,
         -bottom,
-        Number.MAX_SAFE_INTEGER
+        -bottom + 1
       ],
       outputRange: [-loadingFooterHeight, -loadingFooterHeight, 0, 0]
     });
@@ -630,12 +634,12 @@ export class VerticalScrollView extends React.Component<PropType> {
     }
   };
 
-  _timingTo(animate, to = 0, duration = 250) {
+  _timingTo(animate, to = 0, duration = 250, callBack = () => null) {
     Animated.timing(animate, {
       toValue: to,
       duration: duration,
       useNativeDriver: true
-    }).start();
+    }).start(callBack);
   }
 
   beginRefresh() {
@@ -688,7 +692,7 @@ interface PropType extends ViewPropTypes {
   bounces?: boolean,
   contentStyle?: Object,
   scrollEnabled?: boolean,
-  initOffset?: Offset;
+  initOffset?: Offset,
   onScroll?: (offset: Offset) => any,
   showsVerticalScrollIndicator?: boolean,
   decelerationRate?: number,
@@ -710,7 +714,14 @@ interface PropType extends ViewPropTypes {
   loadingFooterHeight?: number,
   loadingFooter?: LoadingFooter,
   onLoading?: () => any,
-  onCancelLoading?: () => any
+  onCancelLoading?: () => any,
+
+  onTouchBegin?: () => any,
+  onTouchEnd?: () => any,
+  onMomentumScrollStart?: () => any,
+  onMomentumScrollEnd?: () => any,
+
+  indicatorDismissTimeInterval?: number;
 
   //键盘处理
   // onContentLayoutChange?: (layout: Frame) => any,

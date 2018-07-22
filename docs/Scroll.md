@@ -37,6 +37,38 @@ scrollTo({x:number, y:number}, animated=true)
 * 遮挡键盘的偏移处理当中，该函数不会回调
 * 如果需要提高性能，使用原生动画驱动，则可以考虑使用下面的方法
 
+### onTouchBegin : ()=>any
+手指按下时回调
+```$js
+<VerticalScrollView onTouchBegin={({x:x,y:y})=>{
+    console.log("onTouchBegin");
+} />
+```
+
+### onTouchEnd : ()=>any
+手指按下时回调
+```$js
+<VerticalScrollView onTouchEnd={()=>{
+    console.log("onTouchEnd");
+} />
+```
+
+### onMomentumScrollStart : ()=>any
+手指按下时回调
+```$js
+<VerticalScrollView onMomentumScrollStart={()=>{
+    console.log("onMomentumScrollStart");
+} />
+```
+
+### onMomentumScrollEnd : ()=>any
+手指按下时回调
+```$js
+<VerticalScrollView onMomentumScrollEnd={()=>{
+    console.log("onMomentumScrollEnd");
+} />
+```
+
 # 监听原生偏移值
 
 ### getNativeOffset : (offset: Animated.Value) => any

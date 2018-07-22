@@ -71,7 +71,7 @@ export class ComplexExample extends React.Component {
     );
   }
 
-  renderElement(text, index) {
+  renderElement1(text, index) {
     return (
       <TextInput
         ref={this._refs[index]}
@@ -82,16 +82,9 @@ export class ComplexExample extends React.Component {
     );
   }
 
-  renderElement1(text) {
+  renderElement(text) {
     return (
-      <TouchableOpacity
-        style={styles.btn}
-        key={text}
-        onPress={() => {
-          // this.ref.scrollTo({ x: 0, y: 100000 });
-          // this.setState({ refreshing: true });
-        }}
-      >
+      <TouchableOpacity style={styles.btn} key={text}>
         <Text style={styles.text}>
           {text}
         </Text>
