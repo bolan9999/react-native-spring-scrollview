@@ -57,6 +57,7 @@ export class VerticalScrollView extends React.Component<PropType> {
   _endLoadingRebound;
   _headerAnimatedValue;
   _footerAnimatedValue;
+  _decelating = false;
 
   static defaultProps = {
     bounces: true,
@@ -368,11 +369,13 @@ export class VerticalScrollView extends React.Component<PropType> {
     });
     this._innerDecelerationStartTime = new Date().getTime();
     this.props.onMomentumScrollStart();
+    this._decelating = true;
     this._innerDeceleration.start(({ finished: finished }) => {
       this._innerDecelerationStartTime = 0;
       this._innerDeceleration = null;
       this._innerDecelerationVelocity = 0;
       if (finished) {
+        this._decelating = false;
         this.props.onMomentumScrollEnd();
         this._beginIndicatorDismissAnimation();
       }
@@ -395,6 +398,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     });
     this._outerDeceleration.start(({ finished: finished }) => {
       this._outerDeceleration = null;
+      this._decelating = false;
       this.props.onMomentumScrollEnd();
       if (finished) {
         if (this._contentOffsetYValue < -this.props.refreshHeaderHeight) {
@@ -410,7 +414,8 @@ export class VerticalScrollView extends React.Component<PropType> {
           this._contentLayout.height - this._wrapperLayout.height
         ) {
           if (this._enoughLoadMore) {
-            if (!this.props.allLoaded && this.props.onLoading) this.props.onLoading();
+            if (!this.props.allLoaded && this.props.onLoading)
+              this.props.onLoading();
             else this._beginEndLoadingRebound(false);
             idx(() => this._loadingFooter.changeToState("loading"));
           } else {
@@ -513,6 +518,10 @@ export class VerticalScrollView extends React.Component<PropType> {
   }
 
   _onTouchBegin(event) {
+    if (this._decelating) {
+      this._decelating = false;
+      this.props.onMomentumScrollEnd();
+    }
     this._touching = true;
     this.props.onTouchBegin(event);
     if (this.props.scrollEnabled) {
