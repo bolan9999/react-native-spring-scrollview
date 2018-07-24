@@ -40,7 +40,7 @@ scrollTo({x:number, y:number}, animated=true)
 ### onTouchBegin : ()=>any
 手指按下时回调
 ```$js
-<VerticalScrollView onTouchBegin={({x:x,y:y})=>{
+<VerticalScrollView onTouchBegin={()=>{
     console.log("onTouchBegin");
 } />
 ```

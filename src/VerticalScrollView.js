@@ -197,7 +197,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     );
   }
 
-  componentDidUpdate(){
+  componentDidUpdate() {
     this._beginIndicatorDismissAnimation();
   }
 
@@ -227,13 +227,13 @@ export class VerticalScrollView extends React.Component<PropType> {
   _onHandlerStateChange = ({ nativeEvent: event }) => {
     switch (event.state) {
       case State.BEGAN:
-        this._onTouchBegin();
+        this._onTouchBegin(event);
         break;
       case State.CANCELLED:
         break;
       case State.FAILED:
       case State.END:
-        this._onTouchEnd(event.translationY, event.velocityY / 1000);
+        this._onTouchEnd(event.translationY, event.velocityY / 1000, event);
     }
   };
 
@@ -332,6 +332,7 @@ export class VerticalScrollView extends React.Component<PropType> {
       offset.y = this._contentLayout.height - this._wrapperLayout.height;
     if (offset.y < 0) offset.y = 0;
     const to = -offset.y - this._panOffsetYValue;
+    this._innerDeceleration && this._innerDeceleration.stop();
     return new Promise(r => {
       if (!animated) {
         this._animatedOffsetY.setValue(to);
@@ -509,9 +510,9 @@ export class VerticalScrollView extends React.Component<PropType> {
     });
   }
 
-  _onTouchBegin() {
+  _onTouchBegin(event) {
     this._touching = true;
-    this.props.onTouchBegin();
+    this.props.onTouchBegin(event);
     if (this.props.scrollEnabled) {
       this._innerDeceleration && this._innerDeceleration.stop();
       this._outerDeceleration && this._outerDeceleration.stop();
@@ -525,9 +526,9 @@ export class VerticalScrollView extends React.Component<PropType> {
     }
   }
 
-  _onTouchEnd(offsetY: number, velocityY: number) {
+  _onTouchEnd(offsetY: number, velocityY: number, event) {
     this._touching = false;
-    this.props.onTouchEnd();
+    this.props.onTouchEnd(event);
     if (!this.props.scrollEnabled) return;
     this._lastPanOffsetYValue += offsetY;
     this._panOffsetY.extractOffset();
@@ -541,7 +542,7 @@ export class VerticalScrollView extends React.Component<PropType> {
       duration: this.props.indicatorDismissTimeInterval,
       useNativeDriver: true
     });
-    this._indicatorAnimate.start(({finished:finished}) => {
+    this._indicatorAnimate.start(({ finished: finished }) => {
       this._indicatorAnimate = null;
       if (!finished) this._indicatorOpacity.setValue(1);
     });
@@ -721,7 +722,7 @@ interface PropType extends ViewPropTypes {
   onMomentumScrollStart?: () => any,
   onMomentumScrollEnd?: () => any,
 
-  indicatorDismissTimeInterval?: number;
+  indicatorDismissTimeInterval?: number
 
   //键盘处理
   // onContentLayoutChange?: (layout: Frame) => any,
