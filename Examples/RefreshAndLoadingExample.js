@@ -15,11 +15,11 @@ import { NormalFooter } from "../src/NormalFooter";
 
 export class RefreshAndLoadingExample extends React.Component {
   _scrollView;
-  _step=8;
+  _step = 8;
 
   constructor(props) {
     super(props);
-    this.state = { count: this._step };
+    this.state = { count: this._step, allLoaded: false };
   }
 
   render() {
@@ -35,6 +35,7 @@ export class RefreshAndLoadingExample extends React.Component {
         loadingFooterHeight={60}
         loadingFooter={NormalFooter}
         onLoading={this._onLoading}
+        allLoaded={this.state.allLoaded}
       >
         {arr.map(item =>
           <Text key={item} style={styles.text}>
@@ -57,7 +58,10 @@ export class RefreshAndLoadingExample extends React.Component {
     this._scrollView.beginLoading();
     setTimeout(() => {
       this._scrollView.endLoading();
-      this.setState(p => ({ count: p.count + this._step }));
+      this.setState(p => ({
+        count: p.count + this._step,
+        allLoaded: !p.allLoaded
+      }));
     }, 1000);
   };
 }

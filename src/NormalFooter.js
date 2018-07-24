@@ -17,11 +17,13 @@ import {
 } from "react-native";
 
 export class NormalFooter extends LoadingFooter {
-  // onStateChange(oldStatus: FooterStatus, newStatus: FooterStatus) {
-  //   this.setState({ status: newStatus });
-  // }
-
   render() {
+    if (this.state.status === "allLoaded")
+      return (
+        <View style={styles.container}>
+          <Text>No more data</Text>
+        </View>
+      );
     return (
       <View style={styles.container}>
         {this._renderIcon()}
@@ -29,7 +31,6 @@ export class NormalFooter extends LoadingFooter {
           <Text style={styles.text}>
             {this._getTitle()}
           </Text>
-          <Text style={styles.text}>最后加载：2018.7.13</Text>
         </View>
       </View>
     );
@@ -51,9 +52,9 @@ export class NormalFooter extends LoadingFooter {
             {
               rotate: this.props.offset.interpolate({
                 inputRange: [
-                  -this.props.maxHeight-1,
+                  -this.props.maxHeight - 1,
                   -this.props.maxHeight,
-                  50-this.props.maxHeight,
+                  50 - this.props.maxHeight,
                   0
                 ],
                 outputRange: ["0deg", "0deg", "180deg", "180deg"]
@@ -68,17 +69,17 @@ export class NormalFooter extends LoadingFooter {
   _getTitle() {
     const s = this.state.status;
     if (s === "dragging" || s === "waiting") {
-      return "上拉可以加载更多数据";
+      return "Drag up to load more data";
     } else if (s === "draggingEnough") {
-      return "松开立即加载";
+      return "Release to load more data";
     } else if (s === "loading") {
-      return "正在加载数据中...";
+      return "Loading...";
     } else if (s === "draggingCancel") {
-      return "放弃加载";
+      return "Give up loading";
     } else if (s === "cancelLoading") {
-      return "取消加载";
+      return "Canceled";
     } else if (s === "rebound") {
-      return "加载完成";
+      return "Load completed";
     }
   }
 }

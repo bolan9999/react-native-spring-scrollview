@@ -9,6 +9,7 @@
 * "loading": 加载态：onLoading，此时正在加载中
 * "cancelLoading": 取消加载态: 在数据加载过程中，如果用户下拉，则会进入此状态
 * "rebound": 回弹态: 已经加载完成，正在往回弹的状态
+* "allLoaded": 数据加载完成态，此状态下不会触发刷新，该状态由allLoaded属性控制
 
 ### 流程
 
@@ -43,7 +44,8 @@ export type FooterStatus =
   | "releaseRebound"
   | "loading"
   | "cancelLoading"
-  | "rebound";
+  | "rebound"
+  | "allLoaded";
 
 interface FooterPropType {
   offset?: Animated.Value,

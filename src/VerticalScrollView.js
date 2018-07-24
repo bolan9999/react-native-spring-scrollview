@@ -75,6 +75,7 @@ export class VerticalScrollView extends React.Component<PropType> {
     tapToHideKeyboard: true,
     refreshHeaderHeight: 80,
     loadingFooterHeight: 80,
+    allLoaded: false,
     onTouchBegin: () => null,
     onTouchEnd: () => null,
     onMomentumScrollStart: () => null,
@@ -177,6 +178,7 @@ export class VerticalScrollView extends React.Component<PropType> {
                 ref={ref => (this._loadingFooter = ref)}
                 offset={this._footerAnimatedValue}
                 maxHeight={this.props.loadingFooterHeight}
+                allLoaded={this.props.allLoaded}
               />
             </Animated.View>}
           {this._indicator}
@@ -352,7 +354,7 @@ export class VerticalScrollView extends React.Component<PropType> {
         this._contentOffsetYValue >
           this._contentLayout.height - this._wrapperLayout.height
       ) {
-        this.scrollTo({ x: 0, y: this._contentOffsetYValue });
+        this.scrollTo({ x: 0, y: this._contentOffsetYValue }).then();
       }
     }
   }
@@ -408,7 +410,7 @@ export class VerticalScrollView extends React.Component<PropType> {
           this._contentLayout.height - this._wrapperLayout.height
         ) {
           if (this._enoughLoadMore) {
-            if (this.props.onLoading) this.props.onLoading();
+            if (!this.props.allLoaded && this.props.onLoading) this.props.onLoading();
             else this._beginEndLoadingRebound(false);
             idx(() => this._loadingFooter.changeToState("loading"));
           } else {
@@ -716,6 +718,7 @@ interface PropType extends ViewPropTypes {
   loadingFooter?: LoadingFooter,
   onLoading?: () => any,
   onCancelLoading?: () => any,
+  allLoaded?: boolean,
 
   onTouchBegin?: () => any,
   onTouchEnd?: () => any,

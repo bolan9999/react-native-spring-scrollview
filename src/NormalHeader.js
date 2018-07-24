@@ -18,12 +18,6 @@ import {
 } from "react-native";
 
 export class NormalHeader extends RefreshHeader {
-  // onStateChange(oldStatus: HeaderStatus, newStatus: HeaderStatus) {
-  //   // if (newStatus === "waiting" || newStatus === "refreshing") {
-  //   this.setState({ status: newStatus });
-  //   // }
-  // }
-
   render() {
     return (
       <View style={styles.container}>
@@ -32,7 +26,6 @@ export class NormalHeader extends RefreshHeader {
           <Text style={styles.text}>
             {this._getTitle()}
           </Text>
-          <Text style={styles.text}>最后更新：2018.7.13</Text>
         </View>
       </View>
     );
@@ -71,17 +64,17 @@ export class NormalHeader extends RefreshHeader {
   _getTitle() {
     const s = this.state.status;
     if (s === "pulling" || s === "waiting") {
-      return "下拉可以刷新";
+      return "Pull down to refresh";
     } else if (s === "pullingEnough") {
-      return "松开立即刷新";
+      return "Release to begin refreshing";
     } else if (s === "refreshing") {
-      return "正在刷新数据中...";
+      return "Refreshing...";
     } else if (s === "pullingCancel") {
-      return "放弃刷新";
+      return "Give up refreshing";
     } else if (s === "cancelRefresh") {
-      return "取消刷新";
+      return "Refresh canceled";
     } else if (s === "rebound") {
-      return "刷新完成";
+      return "Refresh completed";
     }
   }
 }

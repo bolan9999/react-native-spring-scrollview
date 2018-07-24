@@ -21,6 +21,7 @@ import { NormalFooter } from "react-native-spring-scrollview/NormalFooter";
   style={styles.container}
   loadingFooterHeight={60}
   loadingFooter={NormalFooter}
+  allLoaded={false}
   onLoading={()=>{
     this._scrollView.beginLoading();
     setTimeOut(()=>{
@@ -71,6 +72,14 @@ import { NormalFooter } from "react-native-spring-scrollview/NormalFooter";
 默认值：()=>null
 
 描述：触发上拉加载回调以后，在加载的过程中，用户可以回拉取消加载，如果你希望在此回调，则可以在此做您的操作。
+
+### allLoaded
+
+类型：boolean
+
+默认值： false
+
+描述：数据是否加载完成。
 
 ### 方法
 

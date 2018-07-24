@@ -10,14 +10,22 @@
 import React from "react";
 import { Animated, Text } from "react-native";
 
-export class LoadingFooter extends React.Component<FooterPropType, FooterStateType> {
+export class LoadingFooter extends React.Component<
+  FooterPropType,
+  FooterStateType
+> {
   constructor(props: FooterPropType) {
     super(props);
-    this.state = { status: "waiting" };
+    this.state = { status: props.allLoaded ? "allLoaded" : "waiting" };
+  }
+
+  componentWillReceiveProps(nextProps: FooterPropType) {
+    if (nextProps.allLoaded) this.setState({ status: "allLoaded" });
   }
 
   changeToState(newStatus: FooterStatus) {
-    this.state.status !== newStatus &&
+    !this.props.allLoaded &&
+      this.state.status !== newStatus &&
       this.onStateChange(this.state.status, newStatus);
   }
 
@@ -50,11 +58,13 @@ export type FooterStatus =
   | "releaseRebound"
   | "loading"
   | "cancelLoading"
-  | "rebound";
+  | "rebound"
+  | "allLoaded";
 
 interface FooterPropType {
   offset?: Animated.Value,
-  maxHeight?: number
+  maxHeight?: number,
+  allLoaded?: boolean
 }
 
 interface FooterStateType {
