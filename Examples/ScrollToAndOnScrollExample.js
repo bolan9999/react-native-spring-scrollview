@@ -10,8 +10,9 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { VerticalScrollView } from "../src";
+import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 
-export class ScrollToAndOnScrollExample extends React.Component {
+class ScrollToAndOnScrollExampleStatic extends React.Component {
   _contentCount = 20;
   _scrollView;
 
@@ -35,7 +36,9 @@ export class ScrollToAndOnScrollExample extends React.Component {
         >
           {arr.map((i, index) =>
             <Text key={index} style={styles.text}>
-              Scroll and Look up the console log to check if 'onScroll','onTouchBegin','onTouchEnd','onMomentumScrollStart' and 'onMomentumScrollEnd' work well!
+              Scroll and Look up the console log to check if
+              'onScroll','onTouchBegin','onTouchEnd','onMomentumScrollStart' and
+              'onMomentumScrollEnd' work well!
             </Text>
           )}
         </VerticalScrollView>
@@ -79,10 +82,14 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     backgroundColor: "gray",
     zIndex: 100,
-    alignItems:"center"
+    alignItems: "center"
   },
   text: {
     fontSize: 16,
     margin: 20
   }
 });
+
+export const ScrollToAndOnScrollExample = gestureHandlerRootHOC(
+  ScrollToAndOnScrollExampleStatic
+);

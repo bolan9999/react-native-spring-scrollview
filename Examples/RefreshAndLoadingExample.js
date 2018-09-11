@@ -12,8 +12,9 @@ import { StyleSheet, Text, View } from "react-native";
 import { VerticalScrollView } from "../src";
 import { NormalHeader } from "../src/NormalHeader";
 import { NormalFooter } from "../src/NormalFooter";
+import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 
-export class RefreshAndLoadingExample extends React.Component {
+class RefreshAndLoadingExampleStatic extends React.Component {
   _scrollView;
   _step = 8;
 
@@ -75,3 +76,7 @@ const styles = StyleSheet.create({
     fontSize: 20
   }
 });
+
+export const RefreshAndLoadingExample = gestureHandlerRootHOC(
+  RefreshAndLoadingExampleStatic
+);

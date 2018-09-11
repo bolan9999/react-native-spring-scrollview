@@ -16,7 +16,11 @@ import {
   Keyboard,
   Platform
 } from "react-native";
-import { PanGestureHandler as Pan, State } from "react-native-gesture-handler";
+import {
+  PanGestureHandler as Pan,
+  State,
+  TapGestureHandler as Tap
+} from "react-native-gesture-handler";
 import { idx } from "./idx";
 import { RefreshHeader } from "./RefreshHeader";
 import { LoadingFooter } from "./LoadingFooter";
@@ -108,26 +112,26 @@ export class VerticalScrollView extends React.Component<PropType> {
   componentWillReceiveProps(props: PropType) {
     this._panHandler = !props.scrollEnabled
       ? Animated.event(
-          [
-            {
-              nativeEvent: {}
-            }
-          ],
-          { useNativeDriver: true }
-        )
-      : Animated.event(
-          [
-            {
-              nativeEvent: {
-                translationY: this._panOffsetY
-              }
-            }
-          ],
+        [
           {
-            listener: this._panListener,
-            useNativeDriver: true
+            nativeEvent: {}
           }
-        );
+        ],
+        { useNativeDriver: true }
+      )
+      : Animated.event(
+        [
+          {
+            nativeEvent: {
+              translationY: this._panOffsetY
+            }
+          }
+        ],
+        {
+          listener: this._panListener,
+          useNativeDriver: true
+        }
+      );
   }
 
   render() {
@@ -152,37 +156,41 @@ export class VerticalScrollView extends React.Component<PropType> {
     const Loading = this.props.loadingFooter;
     return (
       <Pan
-        minDist={Platform.OS === "ios" ? 0 : 5}
-        minOffsetY={5}
+        minDist={30}
+        minDeltaY={30}
         onGestureEvent={this._panHandler}
         onHandlerStateChange={this._onHandlerStateChange}
       >
         <Animated.View {...this.props} onLayout={this._onWrapperLayout}>
-          {Refresh &&
-            <Animated.View style={headerStyle}>
-              <Refresh
-                ref={ref => (this._refreshHeader = ref)}
-                offset={this._headerAnimatedValue}
-                maxHeight={this.props.refreshHeaderHeight}
-              />
-            </Animated.View>}
-          <Animated.View
-            style={cStyle}
-            onLayout={this._onLayout}
-            ref={ref => (this._contentView = ref)}
-          >
-            {this.props.children}
-          </Animated.View>
-          {Loading &&
-            <Animated.View style={footerStyle}>
-              <Loading
-                ref={ref => (this._loadingFooter = ref)}
-                offset={this._footerAnimatedValue}
-                maxHeight={this.props.loadingFooterHeight}
-                allLoaded={this.props.allLoaded}
-              />
-            </Animated.View>}
-          {this._indicator}
+          <Tap onHandlerStateChange={this._onTapStateChange}>
+            <Animated.View style={{flex:1}}>
+              {Refresh &&
+              <Animated.View style={headerStyle}>
+                <Refresh
+                  ref={ref => (this._refreshHeader = ref)}
+                  offset={this._headerAnimatedValue}
+                  maxHeight={this.props.refreshHeaderHeight}
+                />
+              </Animated.View>}
+              <Animated.View
+                style={cStyle}
+                onLayout={this._onLayout}
+                ref={ref => (this._contentView = ref)}
+              >
+                {this.props.children}
+              </Animated.View>
+              {Loading &&
+              <Animated.View style={footerStyle}>
+                <Loading
+                  ref={ref => (this._loadingFooter = ref)}
+                  offset={this._footerAnimatedValue}
+                  maxHeight={this.props.loadingFooterHeight}
+                  allLoaded={this.props.allLoaded}
+                />
+              </Animated.View>}
+              {this._indicator}
+            </Animated.View>
+          </Tap>
         </Animated.View>
       </Pan>
     );
@@ -227,6 +235,21 @@ export class VerticalScrollView extends React.Component<PropType> {
     this._timingTo(this._keyboardOffset);
   };
 
+  _onTapStateChange = ({ nativeEvent: event }) => {
+    switch (event.state) {
+      case State.BEGAN:
+        this._onTouchBegin(event);
+        break;
+      case State.CANCELLED:
+        break;
+      case State.FAILED:
+      case State.END:
+        this._touching = false;
+        this.props.onTouchEnd(event);
+        if (!this.props.scrollEnabled) return;
+    }
+  };
+
   _onHandlerStateChange = ({ nativeEvent: event }) => {
     switch (event.state) {
       case State.BEGAN:
@@ -236,7 +259,7 @@ export class VerticalScrollView extends React.Component<PropType> {
         break;
       case State.FAILED:
       case State.END:
-        this._onTouchEnd(event.translationY, event.velocityY / 1000, event);
+        this._onTouchEnd(event.translationY,  event.velocityY/ 1000, event);
     }
   };
 
@@ -269,6 +292,11 @@ export class VerticalScrollView extends React.Component<PropType> {
 
     if (this._layoutChanged) {
       const rate = this._wrapperLayout.height / this._contentLayout.height;
+      if (this._wrapperLayout.height >= this._contentLayout.height) {
+        this._indicator = null;
+        return;
+      }
+
       const style = StyleSheet.flatten([
         styles.indicator,
         {
@@ -353,7 +381,7 @@ export class VerticalScrollView extends React.Component<PropType> {
       if (
         this._contentOffsetYValue < 0 ||
         this._contentOffsetYValue >
-          this._contentLayout.height - this._wrapperLayout.height
+        this._contentLayout.height - this._wrapperLayout.height
       ) {
         this.scrollTo({ x: 0, y: this._contentOffsetYValue }).then();
       }
@@ -480,10 +508,10 @@ export class VerticalScrollView extends React.Component<PropType> {
     } = this.props;
     this._reboundLoading = Animated.timing(this._animatedOffsetY, {
       toValue:
-        this._wrapperLayout.height -
-        this._contentLayout.height -
-        loadingFooterHeight / dampingCoefficient -
-        this._panOffsetYValue,
+      this._wrapperLayout.height -
+      this._contentLayout.height -
+      loadingFooterHeight / dampingCoefficient -
+      this._panOffsetYValue,
       duration: reboundDuration,
       easing: reboundEasing,
       useNativeDriver: true
@@ -499,9 +527,9 @@ export class VerticalScrollView extends React.Component<PropType> {
     );
     this._endLoadingRebound = Animated.timing(this._animatedOffsetY, {
       toValue:
-        this._wrapperLayout.height -
-        this._contentLayout.height -
-        this._panOffsetYValue,
+      this._wrapperLayout.height -
+      this._contentLayout.height -
+      this._panOffsetYValue,
       duration: this.props.reboundDuration,
       easing: this.props.reboundEasing,
       useNativeDriver: true
@@ -530,7 +558,6 @@ export class VerticalScrollView extends React.Component<PropType> {
       this._reboundToRefresh && this._reboundToRefresh.stop();
       this._endRefreshRebound && this._endRefreshRebound.stop();
       this._indicatorAnimate && this._indicatorAnimate.stop();
-      this._indicatorOpacity.setValue(1);
     }
     if (this.props.tapToHideKeyboard) {
       Keyboard.dismiss();
@@ -548,6 +575,13 @@ export class VerticalScrollView extends React.Component<PropType> {
 
   _beginIndicatorDismissAnimation() {
     this._indicatorAnimate && this._indicatorAnimate.stop();
+    if (
+      idx(() => this._wrapperLayout.height) >=
+      idx(() => this._contentLayout.height)
+    ) {
+      this._indicatorOpacity.setValue(0);
+      return;
+    }
     this._indicatorAnimate = Animated.timing(this._indicatorOpacity, {
       toValue: 0,
       duration: this.props.indicatorDismissTimeInterval,

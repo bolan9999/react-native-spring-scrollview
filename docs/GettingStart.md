@@ -8,53 +8,17 @@
 yarn add react-native-gesture-handler
 react-native link react-native-gesture-handler
 ```
-
-如果不是是用native-navigation或者react-native-navigation则可以直接修改安卓代码
-
-```$java
-package com.swmansion.gesturehandler.react.example;
-
-import com.facebook.react.ReactActivity;
-// 添加这些到项目
-import com.facebook.react.ReactActivityDelegate;
-import com.facebook.react.ReactRootView;
-import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
-// ============
-
-public class MainActivity extends ReactActivity {
-
-  @Override
-  protected String getMainComponentName() {
-    return "Example";
-  }
-
-// 添加这些到项目
-  @Override
-  protected ReactActivityDelegate createReactActivityDelegate() {
-    return new ReactActivityDelegate(this, getMainComponentName()) {
-      @Override
-      protected ReactRootView createRootView() {
-       return new RNGestureHandlerEnabledRootView(MainActivity.this);
-      }
-    };
-  }
-// =============
-}
-```
-iOS则不用修改。
-
-如果是使用native-navigation或者react-native-navigation，需要修改JavaScript代码
-
+使用包装后的组件替代您的ScreenComponent
 ```$js
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler'
-import { Navigation } from 'react-native-navigation';
-import YourScreen from './YourScreen';
 
-export function registerScreens() {
-  Navigation.registerComponent('example.FirstTabScreen', () =>
-    gestureHandlerRootHOC(YourScreen));
-}
+class YourScreen extends React.Component{
+    //...
+};
+
+export const YourScreenWrapper = gestureHandlerRootHOC(YourScreen);
 ```
+在任何地方使用YourScreenWrapper替代YourScreen
 
 到此，[react-native-gesture-handler](https://github.com/kmagiera/react-native-gesture-handler)就已经安装完成。
 

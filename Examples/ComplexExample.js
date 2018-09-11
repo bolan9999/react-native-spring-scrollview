@@ -14,16 +14,14 @@ import {
   TouchableOpacity,
   Easing,
   TextInput,
-  ScrollView,
   View
 } from "react-native";
 import { VerticalScrollView } from "../src";
-import { RefreshHeader } from "../src/RefreshHeader";
 import { NormalHeader } from "../src/NormalHeader";
-import { LoadingFooter } from "../src/LoadingFooter";
 import { NormalFooter } from "../src/NormalFooter";
+import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 
-export class ComplexExample extends React.Component {
+class ComplexExampleStatic extends React.Component {
   _refs;
   _scrollView;
   constructor(props) {
@@ -84,7 +82,11 @@ export class ComplexExample extends React.Component {
 
   renderElement(text) {
     return (
-      <TouchableOpacity style={styles.btn} key={text}>
+      <TouchableOpacity
+        style={styles.btn}
+        key={text}
+        onPress={() => console.log("text")}
+      >
         <Text style={styles.text}>
           {text}
         </Text>
@@ -122,3 +124,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEE"
   }
 });
+
+export const ComplexExample = gestureHandlerRootHOC(ComplexExampleStatic);
