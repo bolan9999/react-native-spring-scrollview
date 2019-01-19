@@ -1,17 +1,18 @@
-/*
+/**
+ * Author: Shi(bolan0000@icloud.com)
+ * Date: 2019/1/18
+ * Copyright (c) 2018, AoTang, Inc.
  *
- * Created by Stone
- * https://github.com/bolan9999
- * Email: shanshang130@gmail.com
- * Date: 2018/7/12
- *
+ * Description:
  */
 
 import React from "react";
 import { ActivityIndicator, Animated, Image, Text, View } from "react-native";
 
-export class RefreshHeader extends React.Component<HeaderPropType, HeaderStateType> {
-
+export class RefreshHeader extends React.Component<
+  HeaderPropType,
+  HeaderStateType
+> {
   constructor(props: HeaderPropType) {
     super(props);
     this.state = { status: "waiting" };
@@ -29,9 +30,9 @@ export class RefreshHeader extends React.Component<HeaderPropType, HeaderStateTy
 
   render() {
     return (
-      <Text style={{alignSelf:"center"}}>
-        {this.state.status}
-      </Text>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ fontSize:18 }}>{this.state.status}</Text>
+      </View>
     );
   }
 }
@@ -46,10 +47,11 @@ export type HeaderStatus =
   | "rebound";
 
 interface HeaderPropType {
-  offset?: Animated.Value,
-  maxHeight?:number
+  offset?: Animated.Value;
+  maxHeight?: number;
+  bottomOffset?: number;
 }
 
 interface HeaderStateType {
-  status?: HeaderStatus
+  status?: HeaderStatus;
 }

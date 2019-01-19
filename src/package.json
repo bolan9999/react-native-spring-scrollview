@@ -19,7 +19,6 @@
   "license": "MIT",
   "peerDependencies": {
     "react": "^16.3.1",
-    "react-native": "^0.50.0",
-    "react-native-gesture-handler": "^1.0.4"
+    "react-native": "^0.50.0"
   }
 }

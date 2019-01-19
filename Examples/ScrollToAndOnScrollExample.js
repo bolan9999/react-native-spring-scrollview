@@ -9,10 +9,9 @@
 
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { VerticalScrollView } from "../src";
-import { gestureHandlerRootHOC } from "react-native-gesture-handler";
+import { SpringScrollView } from "../src";
 
-class ScrollToAndOnScrollExampleStatic extends React.Component {
+export class ScrollToAndOnScrollExample extends React.Component {
   _contentCount = 20;
   _scrollView;
 
@@ -89,7 +88,3 @@ const styles = StyleSheet.create({
     margin: 20
   }
 });
-
-export const ScrollToAndOnScrollExample = gestureHandlerRootHOC(
-  ScrollToAndOnScrollExampleStatic
-);

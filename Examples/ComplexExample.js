@@ -16,12 +16,11 @@ import {
   TextInput,
   View
 } from "react-native";
-import { VerticalScrollView } from "../src";
+import { SpringScrollView } from "../src";
 import { NormalHeader } from "../src/NormalHeader";
 import { NormalFooter } from "../src/NormalFooter";
-import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 
-class ComplexExampleStatic extends React.Component {
+export class ComplexExample extends React.Component {
   _refs;
   _scrollView;
   constructor(props) {
@@ -124,5 +123,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEE"
   }
 });
-
-export const ComplexExample = gestureHandlerRootHOC(ComplexExampleStatic);

@@ -9,10 +9,9 @@
 
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { VerticalScrollView } from "../src";
-import { gestureHandlerRootHOC } from "react-native-gesture-handler";
+import { SpringScrollView } from "../src";
 
-class BouncesAndScrollEnabledExampleStatic extends React.Component {
+export class BouncesAndScrollEnabledExample extends React.Component {
   _contentCount = 20;
   _bounces = true;
   _scrollEnabled = true;
@@ -21,7 +20,7 @@ class BouncesAndScrollEnabledExampleStatic extends React.Component {
     const arr = [];
     for (let i = 0; i < this._contentCount; ++i) arr.push(i);
     return (
-      <VerticalScrollView
+      <SpringScrollView
         style={styles.container}
         bounces={this._bounces}
         scrollEnabled={this._scrollEnabled}
@@ -41,7 +40,7 @@ class BouncesAndScrollEnabledExampleStatic extends React.Component {
             </Text>
           </TouchableOpacity>
         )}
-      </VerticalScrollView>
+      </SpringScrollView>
     );
   }
 }
@@ -55,7 +54,3 @@ const styles = StyleSheet.create({
     margin: 20
   }
 });
-
-export const BouncesAndScrollEnabledExample = gestureHandlerRootHOC(
-  BouncesAndScrollEnabledExampleStatic
-);

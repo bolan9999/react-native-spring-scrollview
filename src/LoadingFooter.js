@@ -1,10 +1,9 @@
-/*
+/**
+ * Author: Shi(bolan0000@icloud.com)
+ * Date: 2019/1/18
+ * Copyright (c) 2018, AoTang, Inc.
  *
- * Created by Stone
- * https://github.com/bolan9999
- * Email: shanshang130@gmail.com
- * Date: 2018/7/14
- *
+ * Description:
  */
 
 import React from "react";
@@ -13,7 +12,7 @@ import { Animated, Text } from "react-native";
 export class LoadingFooter extends React.Component<
   FooterPropType,
   FooterStateType
-> {
+  > {
   constructor(props: FooterPropType) {
     super(props);
     this.state = { status: props.allLoaded ? "allLoaded" : "waiting" };
@@ -25,8 +24,8 @@ export class LoadingFooter extends React.Component<
 
   changeToState(newStatus: FooterStatus) {
     !this.props.allLoaded &&
-      this.state.status !== newStatus &&
-      this.onStateChange(this.state.status, newStatus);
+    this.state.status !== newStatus &&
+    this.onStateChange(this.state.status, newStatus);
   }
 
   onStateChange(oldStatus: FooterStatus, newStatus: FooterStatus) {
@@ -64,7 +63,8 @@ export type FooterStatus =
 interface FooterPropType {
   offset?: Animated.Value,
   maxHeight?: number,
-  allLoaded?: boolean
+  allLoaded?: boolean,
+  bottomOffset?: number;
 }
 
 interface FooterStateType {

@@ -1,5 +1,5 @@
 rootProject.name = 'SpringScrollViewExample'
-include ':react-native-gesture-handler'
-project(':react-native-gesture-handler').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-gesture-handler/android')
+include ':react-native-spring-scroll-view'
+project(':react-native-spring-scroll-view').projectDir = new File(rootProject.projectDir, '../src/android')
 
 include ':app'
