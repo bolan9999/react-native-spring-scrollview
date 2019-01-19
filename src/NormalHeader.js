@@ -41,7 +41,7 @@ export class NormalHeader extends RefreshHeader {
           transform: [
             {
               rotate: offset.interpolate({
-                inputRange: [-maxHeight -1, -maxHeight , -40, -39],
+                inputRange: [-maxHeight -1, -maxHeight , -50, -49],
                 outputRange: ["180deg", "180deg", "0deg", "0deg"]
               })
             }

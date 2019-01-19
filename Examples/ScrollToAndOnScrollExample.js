@@ -8,7 +8,13 @@
  */
 
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Platform
+} from "react-native";
 import { SpringScrollView } from "../src";
 
 export class ScrollToAndOnScrollExample extends React.Component {
@@ -23,24 +29,24 @@ export class ScrollToAndOnScrollExample extends React.Component {
         <TouchableOpacity style={styles.scrollTo} onPress={this._scrollTo}>
           <Text>Tap to ScrollTo y=200</Text>
         </TouchableOpacity>
-        <VerticalScrollView
+        <SpringScrollView
           style={styles.container}
           ref={ref => (this._scrollView = ref)}
           initOffset={{ x: 0, y: 100 }}
           onScroll={this._onScroll}
           onTouchBegin={this._onTouchBegin}
           onTouchEnd={this._onTouchEnd}
-          onMomentumScrollStart={this._onMomentumScrollStart}
+          onMomentumScrollBegin={this.onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
         >
           {arr.map((i, index) =>
             <Text key={index} style={styles.text}>
               Scroll and Look up the console log to check if
-              'onScroll','onTouchBegin','onTouchEnd','onMomentumScrollStart' and
+              'onScroll','onTouchBegin','onTouchEnd','onMomentumScrollBegin' and
               'onMomentumScrollEnd' work well!
             </Text>
           )}
-        </VerticalScrollView>
+        </SpringScrollView>
       </View>
     );
   }
@@ -54,7 +60,7 @@ export class ScrollToAndOnScrollExample extends React.Component {
   };
 
   _onScroll = offset => {
-    // console.log("onScroll", JSON.stringify(offset));
+    console.log("onScroll", JSON.stringify(offset));
   };
 
   _onTouchBegin = () => {
@@ -65,8 +71,8 @@ export class ScrollToAndOnScrollExample extends React.Component {
     console.log("onTouchEnd");
   };
 
-  _onMomentumScrollStart = () => {
-    console.log("onMomentumScrollStart");
+  onMomentumScrollBegin = () => {
+    console.log("onMomentumScrollBegin");
   };
   _onMomentumScrollEnd = () => {
     console.log("onMomentumScrollEnd");
@@ -78,9 +84,11 @@ const styles = StyleSheet.create({
     flex: 1
   },
   scrollTo: {
-    paddingTop: 20,
+    marginTop: Platform.OS === "ios" ? 20 : 0,
     backgroundColor: "gray",
     zIndex: 100,
+    height: 50,
+    justifyContent: "center",
     alignItems: "center"
   },
   text: {

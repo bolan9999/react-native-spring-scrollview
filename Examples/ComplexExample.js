@@ -39,13 +39,10 @@ export class ComplexExample extends React.Component {
 
   render() {
     return (
-      <VerticalScrollView
+      <SpringScrollView
         style={styles.container}
         ref={ref => (this._scrollView = ref)}
         contentStyle={styles.content}
-        reboundEasing={Easing.cos}
-        reboundDuration={300}
-        decelerationRateWhenOut={0.9}
         showsVerticalScrollIndicator={true}
         bounces={true}
         scrollEnabled={this.state.scrollEnabled}
@@ -53,18 +50,16 @@ export class ComplexExample extends React.Component {
         inputToolBarHeight={20}
         refreshHeader={NormalHeader}
         onRefresh={() => {
-          this._scrollView.beginRefresh();
           setTimeout(() => this._scrollView.endRefresh(), 1000);
         }}
         loadingFooter={NormalFooter}
         loadingFooterHeight={80}
         onLoading={() => {
-          this._scrollView.beginLoading();
           setTimeout(() => this._scrollView.endLoading(true), 1000);
         }}
       >
         {this._renderContent()}
-      </VerticalScrollView>
+      </SpringScrollView>
     );
   }
 

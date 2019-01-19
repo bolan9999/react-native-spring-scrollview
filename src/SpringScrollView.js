@@ -272,7 +272,7 @@ export class SpringScrollView extends React.PureComponent<PropType> {
         this._toLoadingStatus("draggingEnough");
       if (offsetY <= maxOffset) this._toLoadingStatus("waiting");
     }
-    this.props.onScroll && this.props.onScroll(e);
+    this.props.onScroll && this.props.onScroll(e.nativeEvent);
   };
 
   _toRefreshStatus(status: HeaderStatus) {
@@ -367,13 +367,17 @@ export class SpringScrollView extends React.PureComponent<PropType> {
     this._indicatorAnimation && this._indicatorAnimation.stop();
     this._indicatorOpacity.setValue(1);
     this.props.tapToHideKeyboard && Keyboard.dismiss();
+    this.props.onTouchBegin && this.props.onTouchBegin();
   };
 
   _onMomentumScrollEnd = () => {
     this._beginIndicatorDismissAnimation();
+    this.props.onMomentumScrollEnd && this.props.onMomentumScrollEnd();
   };
 
   static defaultProps = {
+    bounces: true,
+    scrollEnabled: true,
     refreshHeaderHeight: 60,
     loadingFooterHeight: 60,
     refreshHeader: NormalHeader,
@@ -388,11 +392,11 @@ interface ScrollEventProps {
   offsetY?: Animated.Value
 }
 
-
 interface PropType extends ViewProps {
   style?: ViewStyle,
   contentStyle?: ViewStyle,
   bounces?: boolean,
+  scrollEnabled?: boolean,
   onLayoutChange?: (layout: {
     height: number,
     contentHeight: number

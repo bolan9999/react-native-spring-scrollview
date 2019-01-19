@@ -40,6 +40,11 @@ public class SpringScrollViewManager extends ViewGroupManager {
         view.setBounces(bounces);
     }
 
+    @ReactProp(name = "scrollEnabled")
+    public void setsScrollEnabled(SpringScrollView view, boolean scrollEnabled) {
+        view.setsScrollEnabled(scrollEnabled);
+    }
+
     @Nullable
     @Override
     public Map getExportedCustomBubblingEventTypeConstants() {

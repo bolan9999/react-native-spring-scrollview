@@ -57,6 +57,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     protected void onDetachedFromWindow() {
         setOnTouchListener(null);
         removeOnLayoutChangeListener(this);
+        setOnInterceptTouchEventListener(null);
         super.onDetachedFromWindow();
     }
 
@@ -78,6 +79,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     private void onMove(MotionEvent evt) {
+        if (!mScrollEnabled) return;
         drag(evt.getX() - mLastX, evt.getY() - mLastY);
         mLastX = evt.getX();
         mLastY = evt.getY();
@@ -96,17 +98,13 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             mMomentumScrolling = true;
             sendEvent("onMomentumScrollBegin", null);
         }
+        if (!mScrollEnabled) return;
         if (hitEdgeY()) {
             beginOuterAnimation(vy);
         } else {
             beginInnerAnimation(vy);
         }
     }
-
-//    private void onCancel(MotionEvent evt) {
-//        tracker.clear();
-//        mMoving = false;
-//    }
 
     private ValueAnimator obtainDecelerateAnimator(float initialVelocity, float dampingCoefficient) {
         float v = initialVelocity;
@@ -306,6 +304,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     public void setOffsetY(float y) {
+        if (!mScrollEnabled) return;
         if (!mBounces) {
             if (y > 0) y = 0;
             if (y < mHeight - mContentHeight) y = mHeight - mContentHeight;
@@ -470,11 +469,12 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         mBounces = bounces;
     }
 
+    public void setsScrollEnabled(boolean scrollEnabled) {
+        mScrollEnabled = scrollEnabled;
+    }
+
     @Override
     public boolean onInterceptTouchEvent(ViewGroup v, MotionEvent ev) {
-        if (!mScrollEnabled) {
-            return false;
-        }
         int action = ev.getAction() & MotionEvent.ACTION_MASK;
         switch (action) {
             case MotionEvent.ACTION_DOWN:

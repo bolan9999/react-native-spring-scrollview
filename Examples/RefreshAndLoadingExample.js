@@ -26,14 +26,14 @@ export class RefreshAndLoadingExample extends React.Component {
     const arr = [];
     for (let i = 0; i < this.state.count; ++i) arr.push(i);
     return (
-      <VerticalScrollView
+      <SpringScrollView
         ref={ref => (this._scrollView = ref)}
         style={styles.container}
-        refreshHeaderHeight={60}
-        refreshHeader={NormalHeader}
+        refreshHeaderHeight={80}
+        // refreshHeader={NormalHeader}
         onRefresh={this._onRefresh}
-        loadingFooterHeight={60}
-        loadingFooter={NormalFooter}
+        loadingFooterHeight={80}
+        // loadingFooter={NormalFooter}
         onLoading={this._onLoading}
         allLoaded={this.state.allLoaded}
       >
@@ -42,12 +42,11 @@ export class RefreshAndLoadingExample extends React.Component {
             This is a Normal Refresh and Loading Test
           </Text>
         )}
-      </VerticalScrollView>
+      </SpringScrollView>
     );
   }
 
   _onRefresh = () => {
-    this._scrollView.beginRefresh();
     setTimeout(() => {
       this._scrollView.endRefresh();
       this.setState({ count: this._step });
@@ -55,7 +54,6 @@ export class RefreshAndLoadingExample extends React.Component {
   };
 
   _onLoading = () => {
-    this._scrollView.beginLoading();
     setTimeout(() => {
       this._scrollView.endLoading();
       this.setState(p => ({
@@ -72,6 +70,6 @@ const styles = StyleSheet.create({
   },
   text: {
     margin: 20,
-    fontSize: 20
+    fontSize: 16
   }
 });

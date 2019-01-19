@@ -12,30 +12,33 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SpringScrollView } from "../src";
 
 export class BouncesAndScrollEnabledExample extends React.Component {
-  _contentCount = 20;
-  _bounces = true;
-  _scrollEnabled = true;
+  state = {
+    contentCount: 20,
+    bounces: true,
+    scrollEnabled: true
+  };
 
   render() {
     const arr = [];
-    for (let i = 0; i < this._contentCount; ++i) arr.push(i);
+    for (let i = 0; i < this.state.contentCount; ++i) arr.push(i);
     return (
       <SpringScrollView
         style={styles.container}
-        bounces={this._bounces}
-        scrollEnabled={this._scrollEnabled}
+        bounces={this.state.bounces}
+        scrollEnabled={this.state.scrollEnabled}
         initOffset={{ x: 0, y: 100 }}
       >
         {arr.map((i, index) =>
           <TouchableOpacity
             key={index}
             onPress={() => {
-              this._contentCount = 1;
-              this.forceUpdate();
+              this.setState(p => ({
+                contentCount: p.contentCount === 1 ? 20 : 1
+              }));
             }}
           >
             <Text style={styles.text}>
-              Modify the '_contentCount','_bounces' and '_scrollEnabled' in
+              Modify the 'contentCount','bounces' and 'scrollEnabled' state in
               BouncesExample.js to check if VerticalScrollView works well.
             </Text>
           </TouchableOpacity>
