@@ -35,6 +35,11 @@ public class SpringScrollViewManager extends ViewGroupManager {
         view.setLoadingFooterHeight(height);
     }
 
+    @ReactProp(name = "bounces")
+    public void setBounces(SpringScrollView view, boolean bounces) {
+        view.setBounces(bounces);
+    }
+
     @Nullable
     @Override
     public Map getExportedCustomBubblingEventTypeConstants() {

@@ -388,13 +388,11 @@ interface ScrollEventProps {
   offsetY?: Animated.Value
 }
 
-type DirectionType = "horizontal" | "Vertical" | "both";
 
 interface PropType extends ViewProps {
   style?: ViewStyle,
   contentStyle?: ViewStyle,
   bounces?: boolean,
-  scrollDirection?: DirectionType,
   onLayoutChange?: (layout: {
     height: number,
     contentHeight: number

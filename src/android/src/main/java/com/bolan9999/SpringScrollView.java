@@ -5,8 +5,10 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
+import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -17,23 +19,29 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.common.ReactConstants;
+import com.facebook.react.touch.OnInterceptTouchEventListener;
 import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.EventDispatcher;
+import com.facebook.react.uimanager.events.NativeGestureUtil;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
+import com.facebook.react.views.scroll.ReactScrollViewHelper;
 import com.facebook.react.views.view.ReactViewGroup;
 
-public class SpringScrollView extends ReactViewGroup implements View.OnTouchListener, View.OnLayoutChangeListener {
+public class SpringScrollView extends ReactViewGroup implements View.OnTouchListener, View.OnLayoutChangeListener, OnInterceptTouchEventListener {
     private float mOffsetX, mOffsetY, mLastX, mLastY, mHeight;
     private float mContentHeight, mRefreshHeaderHeight, mLoadingFooterHeight;
-    private boolean mRefreshing, mLoading, mMomentumScrolling;
+    private boolean mRefreshing, mLoading, mMomentumScrolling, mBounces, mMoving, mScrollEnabled;
     private VelocityTracker tracker;
     private ValueAnimator innerAnimation, outerAnimation, reboundAnimation, scrollToAnimation;
 
     @SuppressLint({"NewApi"})
     public SpringScrollView(@NonNull Context context) {
         super(context);
+        mBounces = true;
+        mScrollEnabled = true;
         setClipToOutline(true);
     }
 
@@ -41,6 +49,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     protected void onAttachedToWindow() {
         setOnTouchListener(this);
         addOnLayoutChangeListener(this);
+        setOnInterceptTouchEventListener(this);
         super.onAttachedToWindow();
     }
 
@@ -59,13 +68,13 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private void onDown(MotionEvent evt) {
         mLastX = evt.getX();
         mLastY = evt.getY();
-        tracker = VelocityTracker.obtain();
         cancelAllAnimations();
         if (mMomentumScrolling) {
             mMomentumScrolling = false;
             sendEvent("onMomentumScrollEnd", null);
         }
         sendEvent("onTouchBegin", null);
+        tracker = VelocityTracker.obtain();
     }
 
     private void onMove(MotionEvent evt) {
@@ -73,6 +82,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         mLastX = evt.getX();
         mLastY = evt.getY();
         tracker.addMovement(evt);
+        mMoving = true;
     }
 
     private void onUp(MotionEvent evt) {
@@ -80,6 +90,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         tracker.computeCurrentVelocity(1);
         float vy = tracker.getYVelocity();
         tracker.clear();
+        mMoving = false;
         sendEvent("onTouchEnd", null);
         if (!mMomentumScrolling) {
             mMomentumScrolling = true;
@@ -92,9 +103,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         }
     }
 
-    private void onCancel(MotionEvent evt) {
-        tracker.clear();
-    }
+//    private void onCancel(MotionEvent evt) {
+//        tracker.clear();
+//        mMoving = false;
+//    }
 
     private ValueAnimator obtainDecelerateAnimator(float initialVelocity, float dampingCoefficient) {
         float v = initialVelocity;
@@ -294,6 +306,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     public void setOffsetY(float y) {
+        if (!mBounces) {
+            if (y > 0) y = 0;
+            if (y < mHeight - mContentHeight) y = mHeight - mContentHeight;
+        }
+        if (mOffsetY == y) return;
         mOffsetY = y;
         View child = getChildAt(0);
         if (child != null) child.setTranslationY(mOffsetY);
@@ -303,24 +320,14 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return true;
-    }
-
-    @Override
     public boolean onTouch(View view, MotionEvent evt) {
-        switch (evt.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                onDown(evt);
-                break;
+        switch (evt.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_MOVE:
                 onMove(evt);
                 break;
             case MotionEvent.ACTION_UP:
-                onUp(evt);
-                break;
             case MotionEvent.ACTION_CANCEL:
-                onCancel(evt);
+                onUp(evt);
                 break;
         }
         return true;
@@ -457,5 +464,28 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             }
         });
         scrollToAnimation.start();
+    }
+
+    public void setBounces(boolean bounces) {
+        mBounces = bounces;
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(ViewGroup v, MotionEvent ev) {
+        if (!mScrollEnabled) {
+            return false;
+        }
+        int action = ev.getAction() & MotionEvent.ACTION_MASK;
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                onDown(ev);
+                return false;
+            case MotionEvent.ACTION_MOVE:
+                if (ev.getX() == mLastX && ev.getY() == mLastY) return false;
+                NativeGestureUtil.notifyNativeGestureStarted(this, ev);
+                ReactScrollViewHelper.emitScrollBeginDragEvent(this);
+                return true;
+        }
+        return false;
     }
 }
