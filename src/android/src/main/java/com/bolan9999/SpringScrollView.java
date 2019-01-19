@@ -35,13 +35,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private float mContentHeight, mRefreshHeaderHeight, mLoadingFooterHeight;
     private boolean mRefreshing, mLoading, mMomentumScrolling, mBounces, mMoving, mScrollEnabled;
     private VelocityTracker tracker;
-    private ValueAnimator innerAnimation, outerAnimation, reboundAnimation, scrollToAnimation;
+    private ValueAnimator innerAnimation, outerAnimation, reboundAnimation, scrollToAnimation, mRefreshAnimation, mLoadingAnimation;
 
     @SuppressLint({"NewApi"})
     public SpringScrollView(@NonNull Context context) {
         super(context);
-        mBounces = true;
-        mScrollEnabled = true;
         setClipToOutline(true);
     }
 
@@ -148,7 +146,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
             @Override
             public void onAnimationCancel(Animator animator) {
-                beginReboundAnimation();
             }
 
             @Override
@@ -218,19 +215,18 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         float endValue;
         if (mOffsetY > 0) {
             endValue = 0;
-            if (mRefreshHeaderHeight > 0 && mOffsetY > mRefreshHeaderHeight) {
+            if (!mRefreshing && mRefreshHeaderHeight > 0 && mOffsetY > mRefreshHeaderHeight) {
                 endValue += mRefreshHeaderHeight;
-                WritableMap event = Arguments.createMap();
-                if (!mRefreshing) sendEvent("onRefresh", event);
                 mRefreshing = true;
+                sendEvent("onRefresh", null);
+                Log.i("Log", "beginRefresh");
             }
         } else {
             endValue = mHeight - mContentHeight;
-            if (mLoadingFooterHeight > 0 && mOffsetY < mHeight - mContentHeight - mRefreshHeaderHeight) {
+            if (!mLoading && mLoadingFooterHeight > 0 && mOffsetY < mHeight - mContentHeight - mRefreshHeaderHeight) {
                 endValue -= mLoadingFooterHeight;
-                WritableMap event = Arguments.createMap();
-                if (!mLoading) sendEvent("onLoading", event);
                 mLoading = true;
+                sendEvent("onLoading", null);
             }
         }
         reboundAnimation = ValueAnimator.ofFloat(mOffsetY, endValue);
@@ -258,7 +254,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
             @Override
             public void onAnimationCancel(Animator animator) {
-                this.onAnimationEnd(animator);
             }
 
             @Override
@@ -286,6 +281,14 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             scrollToAnimation.cancel();
             scrollToAnimation = null;
         }
+        if (mRefreshAnimation != null) {
+            mRefreshAnimation.cancel();
+            mRefreshAnimation = null;
+        }
+        if (mLoadingAnimation != null) {
+            mLoadingAnimation.cancel();
+            mLoadingAnimation = null;
+        }
     }
 
 
@@ -310,12 +313,14 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             if (y < mHeight - mContentHeight) y = mHeight - mContentHeight;
         }
         if (mOffsetY == y) return;
+        if (y == 0 && mRefreshing) mRefreshing = false;
+        if (y == mHeight - mContentHeight && mLoading) mLoading = false;
         mOffsetY = y;
         View child = getChildAt(0);
         if (child != null) child.setTranslationY(mOffsetY);
         WritableMap event = Arguments.createMap();
         event.putDouble("offsetY", -PixelUtil.toDIPFromPixel(y));
-        sendEvent("onScroll", event);
+        sendOnScrollEvent(event);
     }
 
     @Override
@@ -371,80 +376,43 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         mLoadingFooterHeight = PixelUtil.toPixelFromDIP(height);
     }
 
-    private void sendEvent(final String evtName, WritableMap event) {
+    private void sendOnScrollEvent(WritableMap event) {
         if (event == null) event = Arguments.createMap();
         EventDispatcher eventDispatcher = ((ReactContext) getContext())
                 .getNativeModule(UIManagerModule.class)
                 .getEventDispatcher();
-        eventDispatcher.dispatchEvent(ScrollEvent.obtain(getId(), evtName, event));
+        eventDispatcher.dispatchEvent(ScrollEvent.obtain(getId(), "onScroll", event));
+    }
+
+    private void sendEvent(String evtName, WritableMap event) {
+        if (event == null) event = Arguments.createMap();
+        ((ReactContext) getContext()).getJSModule(RCTEventEmitter.class).receiveEvent(getId(), evtName, event);
     }
 
     public void endRefresh() {
-        reboundAnimation = ValueAnimator.ofFloat(mOffsetY, 0);
-        reboundAnimation.setDuration(500);
-        reboundAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
-        reboundAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        mRefreshAnimation = ValueAnimator.ofFloat(mOffsetY, 0);
+        mRefreshAnimation.setDuration(500);
+        mRefreshAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
+        mRefreshAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
                 setOffsetY((float) animator.getAnimatedValue());
             }
         });
-        reboundAnimation.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                mRefreshing = false;
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-                mRefreshing = false;
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-
-            }
-        });
-        reboundAnimation.start();
+        mRefreshAnimation.start();
     }
 
     public void endLoading() {
-        reboundAnimation = ValueAnimator.ofFloat(mOffsetY, mHeight - mContentHeight);
-        reboundAnimation.setDuration(500);
-        reboundAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
-        reboundAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        mLoadingAnimation = ValueAnimator.ofFloat(mOffsetY, mHeight - mContentHeight);
+        mLoadingAnimation.setDuration(500);
+        mLoadingAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
+        mLoadingAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
                 setOffsetY((float) animator.getAnimatedValue());
             }
         });
-        reboundAnimation.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                mLoading = false;
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-                mLoading = false;
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-
-            }
-        });
-        reboundAnimation.start();
+        mLoadingAnimation.start();
     }
 
     public void scrollTo(float x, float y, boolean animated) {

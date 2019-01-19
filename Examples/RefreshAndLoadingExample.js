@@ -15,7 +15,7 @@ import { NormalFooter } from "../src/NormalFooter";
 
 export class RefreshAndLoadingExample extends React.Component {
   _scrollView;
-  _step = 8;
+  _step = 15;
 
   constructor(props) {
     super(props);

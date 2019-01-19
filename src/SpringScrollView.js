@@ -83,7 +83,8 @@ export class SpringScrollView extends React.PureComponent<PropType> {
       onRefresh,
       onLoading,
       refreshHeader: Refresh,
-      loadingFooter: Footer
+      loadingFooter: Footer,
+      showsVerticalScrollIndicator
     } = this.props;
     const measured =
       this._height !== undefined && this._contentHeight !== undefined;
@@ -122,7 +123,9 @@ export class SpringScrollView extends React.PureComponent<PropType> {
               bottomOffset={this._contentHeight - this._height}
             />
           </Animated.View>}
-        {measured && <Animated.View style={this._getIndicatorStyle()} />}
+        {measured &&
+          showsVerticalScrollIndicator &&
+          <Animated.View style={this._getIndicatorStyle()} />}
       </SpringScrollViewNative>
     );
   }
@@ -378,13 +381,15 @@ export class SpringScrollView extends React.PureComponent<PropType> {
   static defaultProps = {
     bounces: true,
     scrollEnabled: true,
-    refreshHeaderHeight: 60,
-    loadingFooterHeight: 60,
+    refreshHeaderHeight: 100,
+    loadingFooterHeight: 100,
     refreshHeader: NormalHeader,
     loadingFooter: NormalFooter,
     textInputRefs: [],
     inputToolBarHeight: 44,
-    tapToHideKeyboard: true
+    tapToHideKeyboard: true,
+    showsVerticalScrollIndicator: true,
+    showsHorizontalScrollIndicator: true
   };
 }
 
@@ -397,6 +402,8 @@ interface PropType extends ViewProps {
   contentStyle?: ViewStyle,
   bounces?: boolean,
   scrollEnabled?: boolean,
+  showsVerticalScrollIndicator?: boolean,
+  showsHorizontalScrollIndicator?: boolean,
   onLayoutChange?: (layout: {
     height: number,
     contentHeight: number

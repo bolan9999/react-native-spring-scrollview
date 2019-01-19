@@ -48,8 +48,8 @@ export class NormalFooter extends LoadingFooter {
             {
               rotate: offset.interpolate({
                 inputRange: [
-                  bottomOffset - 1 + 50,
-                  bottomOffset + 50,
+                  bottomOffset - 1 + 55,
+                  bottomOffset + 55,
                   bottomOffset + maxHeight,
                   bottomOffset + maxHeight + 1
                 ],

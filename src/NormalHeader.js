@@ -41,7 +41,7 @@ export class NormalHeader extends RefreshHeader {
           transform: [
             {
               rotate: offset.interpolate({
-                inputRange: [-maxHeight -1, -maxHeight , -50, -49],
+                inputRange: [-maxHeight -1-20, -maxHeight-20 , -80, -79],
                 outputRange: ["180deg", "180deg", "0deg", "0deg"]
               })
             }
@@ -83,6 +83,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     fontSize: 18,
     color: "#666",
-    width:160
+    width:170
   }
 });

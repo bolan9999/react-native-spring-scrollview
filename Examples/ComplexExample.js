@@ -43,19 +43,21 @@ export class ComplexExample extends React.Component {
         style={styles.container}
         ref={ref => (this._scrollView = ref)}
         contentStyle={styles.content}
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={false}
         bounces={true}
         scrollEnabled={this.state.scrollEnabled}
         textInputRefs={this._refs}
         inputToolBarHeight={20}
         refreshHeader={NormalHeader}
         onRefresh={() => {
+          console.log("onRefresh");
           setTimeout(() => this._scrollView.endRefresh(), 1000);
         }}
         loadingFooter={NormalFooter}
         loadingFooterHeight={80}
         onLoading={() => {
-          setTimeout(() => this._scrollView.endLoading(true), 1000);
+          console.log("onLoading");
+          setTimeout(() => this._scrollView.endLoading(), 1000);
         }}
       >
         {this._renderContent()}
@@ -108,8 +110,8 @@ const styles = StyleSheet.create({
   },
   btn: {},
   text: {
-    marginTop: 40,
-    fontSize: 25,
+    marginVertical: 20,
+    fontSize: 20,
     textAlign: "center",
     alignSelf: "stretch"
   },
