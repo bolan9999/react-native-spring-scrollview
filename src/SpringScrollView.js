@@ -77,6 +77,7 @@ export class SpringScrollView extends React.PureComponent<PropType> {
 
   render() {
     const {
+      style,
       children,
       refreshHeaderHeight,
       loadingFooterHeight,
@@ -92,6 +93,7 @@ export class SpringScrollView extends React.PureComponent<PropType> {
       <SpringScrollViewNative
         {...this.props}
         ref={ref => (this._scrollView = ref)}
+        style={[{ flexGrow: 1 }, style]}
         onScroll={this._event}
         refreshHeaderHeight={onRefresh ? refreshHeaderHeight : 0}
         loadingFooterHeight={onLoading ? loadingFooterHeight : 0}
@@ -169,7 +171,7 @@ export class SpringScrollView extends React.PureComponent<PropType> {
     );
   }
 
-  scrollToBegin(animated: boolean) {
+  scrollToTop(animated: boolean) {
     return this.scrollTo({ x: 0, y: 0 }, animated);
   }
 
@@ -388,6 +390,7 @@ export class SpringScrollView extends React.PureComponent<PropType> {
     textInputRefs: [],
     inputToolBarHeight: 44,
     tapToHideKeyboard: true,
+    initOffset: { x: 0, y: 0 },
     showsVerticalScrollIndicator: true,
     showsHorizontalScrollIndicator: true
   };
@@ -402,6 +405,7 @@ interface PropType extends ViewProps {
   contentStyle?: ViewStyle,
   bounces?: boolean,
   scrollEnabled?: boolean,
+  initOffset?: Offset,
   showsVerticalScrollIndicator?: boolean,
   showsHorizontalScrollIndicator?: boolean,
   onLayoutChange?: (layout: {

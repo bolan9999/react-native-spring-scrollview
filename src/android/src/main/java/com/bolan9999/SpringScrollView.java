@@ -34,12 +34,15 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private float mOffsetX, mOffsetY, mLastX, mLastY, mHeight;
     private float mContentHeight, mRefreshHeaderHeight, mLoadingFooterHeight;
     private boolean mRefreshing, mLoading, mMomentumScrolling, mBounces, mMoving, mScrollEnabled;
+    private boolean mCanInitialOffset;
     private VelocityTracker tracker;
     private ValueAnimator innerAnimation, outerAnimation, reboundAnimation, scrollToAnimation, mRefreshAnimation, mLoadingAnimation;
 
     @SuppressLint({"NewApi"})
     public SpringScrollView(@NonNull Context context) {
         super(context);
+        mCanInitialOffset = true;
+        mScrollEnabled = true;
         setClipToOutline(true);
     }
 
@@ -48,6 +51,16 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         setOnTouchListener(this);
         addOnLayoutChangeListener(this);
         setOnInterceptTouchEventListener(this);
+        View child = getChildAt(0);
+        if (child != null) {
+            if (mOffsetY != 0) child.setTranslationY(mOffsetY);
+            child.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                    setLayoutHeight(mHeight, i3 - i1);
+                }
+            });
+        }
         super.onAttachedToWindow();
     }
 
@@ -119,7 +132,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
-                setOffsetY((float) animator.getAnimatedValue());
+                moveToOffsetY((float) animator.getAnimatedValue());
             }
         });
         return animator;
@@ -235,7 +248,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         reboundAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
-                setOffsetY((float) animator.getAnimatedValue());
+                moveToOffsetY((float) animator.getAnimatedValue());
             }
         });
         reboundAnimation.addListener(new Animator.AnimatorListener() {
@@ -294,7 +307,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
     private void drag(float x, float y) {
         y *= getDampingCoefficient();
-        setOffsetY(mOffsetY + y);
+        moveToOffsetY(mOffsetY + y);
     }
 
     private float getDampingCoefficient() {
@@ -306,7 +319,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         return c / (mHeight * mHeight) * (overshoot * overshoot) - 2 * c / mHeight * overshoot + c;
     }
 
-    public void setOffsetY(float y) {
+    private void moveToOffsetY(float y) {
         if (!mScrollEnabled) return;
         if (!mBounces) {
             if (y > 0) y = 0;
@@ -315,6 +328,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         if (mOffsetY == y) return;
         if (y == 0 && mRefreshing) mRefreshing = false;
         if (y == mHeight - mContentHeight && mLoading) mLoading = false;
+        setOffsetY(y);
+    }
+
+    public void setOffsetY(float y) {
+        mCanInitialOffset = false;
         mOffsetY = y;
         View child = getChildAt(0);
         if (child != null) child.setTranslationY(mOffsetY);
@@ -348,12 +366,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         assert child != null;
         float contentHeight = child.getMeasuredHeight();
         setLayoutHeight(getHeight(), contentHeight);
-        child.addOnLayoutChangeListener(new OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
-                setLayoutHeight(mHeight, i3 - i1);
-            }
-        });
     }
 
     private void setLayoutHeight(float height, float contentHeight) {
@@ -396,7 +408,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         mRefreshAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
-                setOffsetY((float) animator.getAnimatedValue());
+                moveToOffsetY((float) animator.getAnimatedValue());
             }
         });
         mRefreshAnimation.start();
@@ -409,7 +421,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         mLoadingAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
-                setOffsetY((float) animator.getAnimatedValue());
+                moveToOffsetY((float) animator.getAnimatedValue());
             }
         });
         mLoadingAnimation.start();
@@ -418,7 +430,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     public void scrollTo(float x, float y, boolean animated) {
         y = PixelUtil.toPixelFromDIP(-y);
         if (!animated) {
-            setOffsetY(y);
+            moveToOffsetY(y);
             return;
         }
         scrollToAnimation = ValueAnimator.ofFloat(mOffsetY, y);
@@ -427,7 +439,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         scrollToAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
-                setOffsetY((float) animator.getAnimatedValue());
+                moveToOffsetY((float) animator.getAnimatedValue());
             }
         });
         scrollToAnimation.start();
@@ -437,7 +449,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         mBounces = bounces;
     }
 
-    public void setsScrollEnabled(boolean scrollEnabled) {
+    public void setScrollEnabled(boolean scrollEnabled) {
         mScrollEnabled = scrollEnabled;
     }
 
@@ -455,5 +467,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
                 return true;
         }
         return false;
+    }
+
+    public void setInitOffset(float x, float y) {
+        if (mCanInitialOffset) {
+            setOffsetY(PixelUtil.toPixelFromDIP(y));
+        }
     }
 }

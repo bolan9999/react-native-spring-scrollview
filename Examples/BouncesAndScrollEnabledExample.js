@@ -8,14 +8,15 @@
  */
 
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { SpringScrollView } from "../src";
 
 export class BouncesAndScrollEnabledExample extends React.Component {
   state = {
     contentCount: 20,
     bounces: true,
-    scrollEnabled: true
+    scrollEnabled: true,
+    showsVerticalScrollIndicator:false
   };
 
   render() {
@@ -24,9 +25,8 @@ export class BouncesAndScrollEnabledExample extends React.Component {
     return (
       <SpringScrollView
         style={styles.container}
-        bounces={this.state.bounces}
-        scrollEnabled={this.state.scrollEnabled}
-        initOffset={{ x: 0, y: 100 }}
+        {...this.state}
+        initOffset={{ x: 0, y: 550 }}
       >
         {arr.map((i, index) =>
           <TouchableOpacity

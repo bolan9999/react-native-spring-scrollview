@@ -29,11 +29,7 @@ export class RefreshAndLoadingExample extends React.Component {
       <SpringScrollView
         ref={ref => (this._scrollView = ref)}
         style={styles.container}
-        refreshHeaderHeight={80}
-        // refreshHeader={NormalHeader}
         onRefresh={this._onRefresh}
-        loadingFooterHeight={80}
-        // loadingFooter={NormalFooter}
         onLoading={this._onLoading}
         allLoaded={this.state.allLoaded}
       >

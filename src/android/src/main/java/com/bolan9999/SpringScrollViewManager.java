@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -41,8 +42,15 @@ public class SpringScrollViewManager extends ViewGroupManager {
     }
 
     @ReactProp(name = "scrollEnabled")
-    public void setsScrollEnabled(SpringScrollView view, boolean scrollEnabled) {
-        view.setsScrollEnabled(scrollEnabled);
+    public void setScrollEnabled(SpringScrollView view, boolean scrollEnabled) {
+        view.setScrollEnabled(scrollEnabled);
+    }
+
+    @ReactProp(name = "initOffset")
+    public void setInitOffset(SpringScrollView view, ReadableMap offset) {
+        float x = (float) -offset.getDouble("x");
+        float y = (float) -offset.getDouble("y");
+        view.setInitOffset(x,y);
     }
 
     @Nullable
