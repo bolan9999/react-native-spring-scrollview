@@ -6,6 +6,7 @@ import android.view.View;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
+import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
@@ -28,11 +29,13 @@ public class SpringScrollViewManager extends ViewGroupManager {
 
     @ReactProp(name = "refreshHeaderHeight")
     public void setRefreshHeaderHeight(SpringScrollView view, float height) {
+        height = PixelUtil.toPixelFromDIP(height);
         view.setRefreshHeaderHeight(height);
     }
 
     @ReactProp(name = "loadingFooterHeight")
     public void setLoadingFooterHeight(SpringScrollView view, float height) {
+        height = PixelUtil.toPixelFromDIP(height);
         view.setLoadingFooterHeight(height);
     }
 
@@ -48,9 +51,9 @@ public class SpringScrollViewManager extends ViewGroupManager {
 
     @ReactProp(name = "initOffset")
     public void setInitOffset(SpringScrollView view, ReadableMap offset) {
-        float x = (float) -offset.getDouble("x");
-        float y = (float) -offset.getDouble("y");
-        view.setInitOffset(x,y);
+        float x = PixelUtil.toPixelFromDIP(-offset.getDouble("x"));
+        float y = PixelUtil.toPixelFromDIP(-offset.getDouble("y"));
+        view.setInitOffset(x, y);
     }
 
     @Nullable
@@ -96,8 +99,8 @@ public class SpringScrollViewManager extends ViewGroupManager {
                 break;
             case 10002:
                 scrollView.scrollTo(
-                        (float) args.getDouble(0),
-                        (float) args.getDouble(1),
+                        PixelUtil.toPixelFromDIP(args.getDouble(0)),
+                        PixelUtil.toPixelFromDIP(args.getDouble(1)),
                         args.getBoolean(2));
                 break;
         }

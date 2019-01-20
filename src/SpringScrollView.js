@@ -93,7 +93,7 @@ export class SpringScrollView extends React.PureComponent<PropType> {
       <SpringScrollViewNative
         {...this.props}
         ref={ref => (this._scrollView = ref)}
-        style={[{ flexGrow: 1 }, style]}
+        style={[{ flex: 1 }, style]}
         onScroll={this._event}
         refreshHeaderHeight={onRefresh ? refreshHeaderHeight : 0}
         loadingFooterHeight={onLoading ? loadingFooterHeight : 0}

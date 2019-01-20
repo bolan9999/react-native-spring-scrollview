@@ -11,19 +11,13 @@ import android.view.VelocityTracker;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.common.ReactConstants;
 import com.facebook.react.touch.OnInterceptTouchEventListener;
 import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.uimanager.UIManagerModule;
-import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.EventDispatcher;
 import com.facebook.react.uimanager.events.NativeGestureUtil;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
@@ -31,18 +25,16 @@ import com.facebook.react.views.scroll.ReactScrollViewHelper;
 import com.facebook.react.views.view.ReactViewGroup;
 
 public class SpringScrollView extends ReactViewGroup implements View.OnTouchListener, View.OnLayoutChangeListener, OnInterceptTouchEventListener {
-    private float mOffsetX, mOffsetY, mLastX, mLastY, mHeight;
+    private float mOffsetX, mOffsetY, mLastX, mLastY, mHeight, mInitOffsetX, mInitOffsetY;
     private float mContentHeight, mRefreshHeaderHeight, mLoadingFooterHeight;
     private boolean mRefreshing, mLoading, mMomentumScrolling, mBounces, mMoving, mScrollEnabled;
-    private boolean mCanInitialOffset;
     private VelocityTracker tracker;
+    private OnLayoutChangeListener onChildLayoutChangeListener;
     private ValueAnimator innerAnimation, outerAnimation, reboundAnimation, scrollToAnimation, mRefreshAnimation, mLoadingAnimation;
 
     @SuppressLint({"NewApi"})
     public SpringScrollView(@NonNull Context context) {
         super(context);
-        mCanInitialOffset = true;
-        mScrollEnabled = true;
         setClipToOutline(true);
     }
 
@@ -53,13 +45,15 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         setOnInterceptTouchEventListener(this);
         View child = getChildAt(0);
         if (child != null) {
-            if (mOffsetY != 0) child.setTranslationY(mOffsetY);
-            child.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+            if (mInitOffsetY != 0) setOffsetY(mInitOffsetY);
+            onChildLayoutChangeListener = new OnLayoutChangeListener() {
                 @Override
                 public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
                     setLayoutHeight(mHeight, i3 - i1);
                 }
-            });
+            };
+            child.addOnLayoutChangeListener(onChildLayoutChangeListener);
+
         }
         super.onAttachedToWindow();
     }
@@ -69,6 +63,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         setOnTouchListener(null);
         removeOnLayoutChangeListener(this);
         setOnInterceptTouchEventListener(null);
+        View child = getChildAt(0);
+        if (child != null) {
+            child.removeOnLayoutChangeListener(onChildLayoutChangeListener);
+        }
         super.onDetachedFromWindow();
     }
 
@@ -332,7 +330,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     public void setOffsetY(float y) {
-        mCanInitialOffset = false;
         mOffsetY = y;
         View child = getChildAt(0);
         if (child != null) child.setTranslationY(mOffsetY);
@@ -381,11 +378,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     public void setRefreshHeaderHeight(float height) {
-        mRefreshHeaderHeight = PixelUtil.toPixelFromDIP(height);
+        mRefreshHeaderHeight = height;
     }
 
     public void setLoadingFooterHeight(float height) {
-        mLoadingFooterHeight = PixelUtil.toPixelFromDIP(height);
+        mLoadingFooterHeight = height;
     }
 
     private void sendOnScrollEvent(WritableMap event) {
@@ -428,7 +425,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     public void scrollTo(float x, float y, boolean animated) {
-        y = PixelUtil.toPixelFromDIP(-y);
+        y = -y;
         if (!animated) {
             moveToOffsetY(y);
             return;
@@ -470,8 +467,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     public void setInitOffset(float x, float y) {
-        if (mCanInitialOffset) {
-            setOffsetY(PixelUtil.toPixelFromDIP(y));
-        }
+        mInitOffsetX = x;
+        mInitOffsetY = y;
     }
 }
