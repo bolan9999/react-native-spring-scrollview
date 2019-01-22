@@ -60,7 +60,7 @@ export class ScrollToAndOnScrollExample extends React.Component {
   };
 
   _onScroll = offset => {
-    console.log("onScroll", JSON.stringify(offset));
+    console.log("onScroll", JSON.stringify(offset.nativeEvent));
   };
 
   _onTouchBegin = () => {

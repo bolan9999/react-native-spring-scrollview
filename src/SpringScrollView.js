@@ -15,6 +15,7 @@ import {
   UIManager,
   Keyboard,
   Platform,
+  NativeModules,
   ViewProps,
   ViewStyle
 } from "react-native";
@@ -63,8 +64,10 @@ export class SpringScrollView extends React.PureComponent<PropType> {
       [
         {
           nativeEvent: {
-            offsetY: this._offsetY,
-            ...props.scrollEventExtract
+            contentOffset: {
+              y: this._offsetY,
+              ...props.scrollEventExtract
+            }
           }
         }
       ],
@@ -82,6 +85,44 @@ export class SpringScrollView extends React.PureComponent<PropType> {
       refreshHeaderHeight,
       loadingFooterHeight,
       onRefresh,
+      onLoading
+    } = this.props;
+    return (
+      <View {...this.props} style={[{ flex: 1 }, style]}>
+        <SpringScrollViewNative
+          {...this.props}
+          ref={ref => (this._scrollView = ref)}
+          style={[{ flex: 1 }, style]}
+          onScroll={this._event}
+          refreshHeaderHeight={onRefresh ? refreshHeaderHeight : 0}
+          loadingFooterHeight={onLoading ? loadingFooterHeight : 0}
+          // onSpringScrollRefresh={this._onRefresh}
+          // onSpringScrollLoading={this._onLoading}
+          onLayout={this._onWrapperLayoutChange}
+          onTouchBegin={this._onTouchBegin}
+          onMomentumScrollEnd={this._onMomentumScrollEnd}
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+        >
+          <SpringScrollContentViewNative
+            style={this.props.contentStyle}
+            collapsable={false}
+            onLayout={this._onContentLayoutChange}
+          >
+            {children}
+          </SpringScrollContentViewNative>
+          {Platform.OS === "android" && this.renderExternal()}
+        </SpringScrollViewNative>
+        {Platform.OS === "ios" && this.renderExternal()}
+      </View>
+    );
+  }
+
+  renderExternal() {
+    const {
+      refreshHeaderHeight,
+      loadingFooterHeight,
+      onRefresh,
       onLoading,
       refreshHeader: Refresh,
       loadingFooter: Footer,
@@ -89,47 +130,30 @@ export class SpringScrollView extends React.PureComponent<PropType> {
     } = this.props;
     const measured =
       this._height !== undefined && this._contentHeight !== undefined;
-    return (
-      <SpringScrollViewNative
-        {...this.props}
-        ref={ref => (this._scrollView = ref)}
-        style={[{ flex: 1 }, style]}
-        onScroll={this._event}
-        refreshHeaderHeight={onRefresh ? refreshHeaderHeight : 0}
-        loadingFooterHeight={onLoading ? loadingFooterHeight : 0}
-        onRefresh={this._onRefresh}
-        onLoading={this._onLoading}
-        onLayoutChange={this._onLayout}
-        onTouchBegin={this._onTouchBegin}
-        onMomentumScrollEnd={this._onMomentumScrollEnd}
-      >
-        <View style={this.props.contentStyle} collapsable={false}>
-          {children}
-        </View>
-        {measured &&
-          onRefresh &&
-          <Animated.View style={this._getRefreshHeaderStyle()}>
-            <Refresh
-              ref={ref => (this._refreshHeader = ref)}
-              offset={this._offsetY}
-              maxHeight={refreshHeaderHeight}
-            />
-          </Animated.View>}
-        {measured &&
-          onLoading &&
-          <Animated.View style={this._getLoadingFooterStyle()}>
-            <Footer
-              ref={ref => (this._loadingFooter = ref)}
-              offset={this._offsetY}
-              maxHeight={loadingFooterHeight}
-              bottomOffset={this._contentHeight - this._height}
-            />
-          </Animated.View>}
-        {measured &&
-          showsVerticalScrollIndicator &&
-          <Animated.View style={this._getIndicatorStyle()} />}
-      </SpringScrollViewNative>
-    );
+    if (!measured) return null;
+    return [
+      onRefresh &&
+        <Animated.View style={this._getRefreshHeaderStyle()} key={"refresh"}>
+          <Refresh
+            ref={ref => (this._refreshHeader = ref)}
+            offset={this._offsetY}
+            maxHeight={refreshHeaderHeight}
+          />
+        </Animated.View>,
+
+      onLoading &&
+        <Animated.View style={this._getLoadingFooterStyle()} key={"loading"}>
+          <Footer
+            ref={ref => (this._loadingFooter = ref)}
+            offset={this._offsetY}
+            maxHeight={loadingFooterHeight}
+            bottomOffset={this._contentHeight - this._height}
+          />
+        </Animated.View>,
+
+      showsVerticalScrollIndicator &&
+        <Animated.View style={this._getIndicatorStyle()} key={"indicator"} />
+    ];
   }
 
   componentDidMount() {
@@ -154,11 +178,20 @@ export class SpringScrollView extends React.PureComponent<PropType> {
   }
 
   scrollTo(offset: Offset, animated: boolean = true) {
-    UIManager.dispatchViewManagerCommand(
-      findNodeHandle(this._scrollView),
-      10002,
-      [offset.x, offset.y, animated]
-    );
+    if (Platform.OS === "ios") {
+      NativeModules.SpringScrollView.scrollTo(
+        findNodeHandle(this._scrollView),
+        offset.x,
+        offset.y,
+        animated
+      );
+    } else if (Platform.OS === "android"){
+      UIManager.dispatchViewManagerCommand(
+        findNodeHandle(this._scrollView),
+        10002,
+        [offset.x, offset.y, animated]
+      );
+    }
     return new Promise((resolve, reject) => {
       setTimeout(resolve, 550);
     });
@@ -183,19 +216,32 @@ export class SpringScrollView extends React.PureComponent<PropType> {
   }
 
   endRefresh() {
-    UIManager.dispatchViewManagerCommand(
-      findNodeHandle(this._scrollView),
-      10000,
-      []
-    );
+    if (Platform.OS === "ios") {
+      NativeModules.SpringScrollView.endRefresh(
+        findNodeHandle(this._scrollView)
+      );
+    } else if (Platform.OS === "android"){
+      UIManager.dispatchViewManagerCommand(
+        findNodeHandle(this._scrollView),
+        10000,
+        []
+      );
+    }
   }
 
   endLoading() {
-    UIManager.dispatchViewManagerCommand(
-      findNodeHandle(this._scrollView),
-      10001,
-      []
-    );
+    console.log("CCscrollView endLoading");
+    if (Platform.OS === "ios") {
+      NativeModules.SpringScrollView.endLoading(
+        findNodeHandle(this._scrollView)
+      );
+    } else if (Platform.OS === "android"){
+      UIManager.dispatchViewManagerCommand(
+        findNodeHandle(this._scrollView),
+        10000,
+        []
+      );
+    }
   }
 
   _onKeyboardWillShow = evt => {
@@ -233,13 +279,6 @@ export class SpringScrollView extends React.PureComponent<PropType> {
     });
   }
 
-  _onRefresh = () => {
-    if (this._refreshStatus === "pullingEnough") {
-      this._toRefreshStatus("refreshing");
-      this.props.onRefresh && this.props.onRefresh();
-    }
-  };
-
   _onLoading = () => {
     if (this._loadingStatus === "draggingEnough") {
       this._toLoadingStatus("loading");
@@ -248,34 +287,16 @@ export class SpringScrollView extends React.PureComponent<PropType> {
   };
 
   _onScroll = e => {
-    const { offsetY } = e.nativeEvent;
-    this._offsetYValue = offsetY;
-    const rHeight = this.props.refreshHeaderHeight;
-    const lHeight = this.props.loadingFooterHeight;
-    const maxOffset = this._contentHeight - this._height;
-    if (this.props.onRefresh) {
-      if (offsetY < 0 && offsetY > -rHeight) {
-        if (this._refreshStatus === "waiting") this._toRefreshStatus("pulling");
-        if (this._refreshStatus === "refreshing")
-          this._toRefreshStatus("rebound");
-      }
-      if (offsetY < -rHeight && this._refreshStatus === "pulling") {
-        this._toRefreshStatus("pullingEnough");
-      }
-      if (offsetY >= 0) {
-        this._toRefreshStatus("waiting");
-      }
+    const { contentOffset,refreshStatus,loadingStatus } = e.nativeEvent;
+    // console.log("refresh=====>", JSON.stringify(refreshStatus));
+    this._offsetYValue = contentOffset.y;
+    if (this._refreshStatus !== refreshStatus){
+      this._toRefreshStatus(refreshStatus);
+      this.props.onRefresh &&refreshStatus === "refreshing" && this.props.onRefresh();
     }
-
-    if (this.props.onLoading) {
-      if (offsetY > maxOffset && offsetY < maxOffset + lHeight) {
-        if (this._loadingStatus === "waiting")
-          this._toLoadingStatus("dragging");
-        if (this._loadingStatus === "loading") this._toLoadingStatus("rebound");
-      }
-      if (offsetY >= maxOffset + lHeight && this._loadingStatus === "dragging")
-        this._toLoadingStatus("draggingEnough");
-      if (offsetY <= maxOffset) this._toLoadingStatus("waiting");
+    if (this._loadingStatus !== loadingStatus){
+      this._toLoadingStatus(loadingStatus)
+      this.props.onLoading && loadingStatus === "loading" && this.props.onLoading();
     }
     this.props.onScroll && this.props.onScroll(e.nativeEvent);
   };
@@ -356,15 +377,27 @@ export class SpringScrollView extends React.PureComponent<PropType> {
     };
   }
 
-  _onLayout = ({ nativeEvent: { height, contentHeight } }) => {
-    if (this._height !== height || this._contentHeight !== contentHeight) {
+  _onWrapperLayoutChange = ({
+    nativeEvent: { layout: { x, y, width, height } }
+  }) => {
+    if (this._height !== height) {
       this._height = height;
-      this._contentHeight = contentHeight;
-      if (this._offsetYValue > contentHeight - height) this.scrollToEnd();
-      const { onLayoutChange } = this.props;
-      if (!(onLayoutChange && onLayoutChange({ height, contentHeight }))) {
-        this.forceUpdate();
-      }
+      if (!this._contentHeight) return;
+      if (this._offsetYValue > this._contentHeight - this._height)
+        this.scrollToEnd();
+      this.forceUpdate();
+    }
+  };
+
+  _onContentLayoutChange = ({
+    nativeEvent: { layout: { x, y, width, height } }
+  }) => {
+    if (this._contentHeight !== height) {
+      this._contentHeight = height;
+      if (!this._height) return;
+      if (this._offsetYValue > this._contentHeight - this._height)
+        this.scrollToEnd();
+      this.forceUpdate();
     }
   };
 
@@ -431,3 +464,8 @@ interface PropType extends ViewProps {
 const SpringScrollViewNative = Animated.createAnimatedComponent(
   requireNativeComponent("SpringScrollView")
 );
+
+const SpringScrollContentViewNative =
+  Platform.OS === "ios"
+    ? requireNativeComponent("SpringScrollContentView")
+    : View;

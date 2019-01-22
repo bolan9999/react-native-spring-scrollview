@@ -43,7 +43,6 @@ export type HeaderStatus =
   | "pullingEnough"
   | "pullingCancel"
   | "refreshing"
-  | "cancelRefresh"
   | "rebound";
 
 interface HeaderPropType {

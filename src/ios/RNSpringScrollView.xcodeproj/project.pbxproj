@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B3E7B58A1CC2AC0600A0062D /* RNSpringScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNSpringScrollView.m */; };
+		8E1C9AC721F57FA4008C7B52 /* STSpringScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E1C9AC621F57FA4008C7B52 /* STSpringScrollView.m */; };
+		8E1C9ACA21F5803B008C7B52 /* STSpringScrollViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E1C9AC921F5803B008C7B52 /* STSpringScrollViewManager.m */; };
+		8E1C9AD021F5810F008C7B52 /* STSpringScrollContentViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E1C9ACF21F5810F008C7B52 /* STSpringScrollContentViewManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,8 +26,12 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libRNSpringScrollView.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNSpringScrollView.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		B3E7B5881CC2AC0600A0062D /* RNSpringScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSpringScrollView.h; sourceTree = "<group>"; };
-		B3E7B5891CC2AC0600A0062D /* RNSpringScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSpringScrollView.m; sourceTree = "<group>"; };
+		8E1C9AC521F57FA4008C7B52 /* STSpringScrollView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = STSpringScrollView.h; sourceTree = "<group>"; };
+		8E1C9AC621F57FA4008C7B52 /* STSpringScrollView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = STSpringScrollView.m; sourceTree = "<group>"; };
+		8E1C9AC821F5803B008C7B52 /* STSpringScrollViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = STSpringScrollViewManager.h; sourceTree = "<group>"; };
+		8E1C9AC921F5803B008C7B52 /* STSpringScrollViewManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = STSpringScrollViewManager.m; sourceTree = "<group>"; };
+		8E1C9ACE21F5810F008C7B52 /* STSpringScrollContentViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = STSpringScrollContentViewManager.h; sourceTree = "<group>"; };
+		8E1C9ACF21F5810F008C7B52 /* STSpringScrollContentViewManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = STSpringScrollContentViewManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,10 +56,22 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				B3E7B5881CC2AC0600A0062D /* RNSpringScrollView.h */,
-				B3E7B5891CC2AC0600A0062D /* RNSpringScrollView.m */,
+				8E1C9AB421F57BD3008C7B52 /* SpringScrollView */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		8E1C9AB421F57BD3008C7B52 /* SpringScrollView */ = {
+			isa = PBXGroup;
+			children = (
+				8E1C9AC521F57FA4008C7B52 /* STSpringScrollView.h */,
+				8E1C9AC621F57FA4008C7B52 /* STSpringScrollView.m */,
+				8E1C9AC821F5803B008C7B52 /* STSpringScrollViewManager.h */,
+				8E1C9AC921F5803B008C7B52 /* STSpringScrollViewManager.m */,
+				8E1C9ACE21F5810F008C7B52 /* STSpringScrollContentViewManager.h */,
+				8E1C9ACF21F5810F008C7B52 /* STSpringScrollContentViewManager.m */,
+			);
+			path = SpringScrollView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,7 +130,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B3E7B58A1CC2AC0600A0062D /* RNSpringScrollView.m in Sources */,
+				8E1C9AC721F57FA4008C7B52 /* STSpringScrollView.m in Sources */,
+				8E1C9AD021F5810F008C7B52 /* STSpringScrollContentViewManager.m in Sources */,
+				8E1C9ACA21F5803B008C7B52 /* STSpringScrollViewManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -204,7 +224,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
-				"$(inherited)",
+					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",

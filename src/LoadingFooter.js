@@ -54,9 +54,7 @@ export type FooterStatus =
   | "dragging"
   | "draggingEnough"
   | "draggingCancel"
-  | "releaseRebound"
   | "loading"
-  | "cancelLoading"
   | "rebound"
   | "allLoaded";
 

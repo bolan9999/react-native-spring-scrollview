@@ -53,7 +53,7 @@ export class NormalFooter extends LoadingFooter {
                   bottomOffset + maxHeight,
                   bottomOffset + maxHeight + 1
                 ],
-                outputRange: ["180deg", "180deg", "360deg", "360deg"]
+                outputRange: ["180deg", "180deg", "0deg", "0deg"]
               })
             }
           ]
