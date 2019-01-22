@@ -44,11 +44,11 @@ RCT_EXPORT_METHOD(endLoading:(nonnull NSNumber *)reactTag){
      }];
 }
 
-RCT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)reactTag offsetX:(NSNumber *)offsetX offsetY:(NSNumber *)offsetY animated:(BOOL) animated){
+RCT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)reactTag offsetX:(CGFloat)offsetX offsetY:(CGFloat)offsetY animated:(BOOL) animated){
     [self.bridge.uiManager addUIBlock:
      ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry){
          STSpringScrollView *view = viewRegistry[reactTag];
-         [view scrollToOffset:CGPointMake(offsetX.floatValue, offsetY.floatValue) animated:animated];
+         [view scrollToOffset:CGPointMake(offsetX, offsetY) animated:animated];
      }];
 }
 

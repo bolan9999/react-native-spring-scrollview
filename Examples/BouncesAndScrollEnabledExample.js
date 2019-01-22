@@ -16,7 +16,7 @@ export class BouncesAndScrollEnabledExample extends React.Component {
     contentCount: 20,
     bounces: true,
     scrollEnabled: true,
-    showsVerticalScrollIndicator:false
+    showsVerticalScrollIndicator:true
   };
 
   render() {

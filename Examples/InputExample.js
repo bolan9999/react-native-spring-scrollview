@@ -9,7 +9,7 @@
 
 import React from "react";
 import { SpringScrollView } from "../src";
-import { TextInput, StyleSheet, Text } from "react-native";
+import {TextInput, StyleSheet, Text, ScrollView} from "react-native";
 
 export class InputExample extends React.Component {
   _topInput = React.createRef();
