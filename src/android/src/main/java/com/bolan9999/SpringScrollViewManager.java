@@ -49,11 +49,11 @@ public class SpringScrollViewManager extends ViewGroupManager {
         view.setScrollEnabled(scrollEnabled);
     }
 
-    @ReactProp(name = "initOffset")
-    public void setInitOffset(SpringScrollView view, ReadableMap offset) {
+    @ReactProp(name = "initContentOffset")
+    public void setInitContentOffset(SpringScrollView view, ReadableMap offset) {
         float x = PixelUtil.toPixelFromDIP(-offset.getDouble("x"));
         float y = PixelUtil.toPixelFromDIP(-offset.getDouble("y"));
-        view.setInitOffset(x, y);
+        view.setInitContentOffset(x, y);
     }
 
     @Nullable
@@ -63,15 +63,15 @@ public class SpringScrollViewManager extends ViewGroupManager {
                 .put("onScroll", MapBuilder.of(
                         "phasedRegistrationNames",
                         MapBuilder.of("bubbled", "onScroll")))
-                .put("onRefresh", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onRefresh")))
-                .put("onLoading", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onLoading")))
-                .put("onLayoutChange", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onLayoutChange")))
+//                .put("onRefresh", MapBuilder.of(
+//                        "phasedRegistrationNames",
+//                        MapBuilder.of("bubbled", "onRefresh")))
+//                .put("onLoading", MapBuilder.of(
+//                        "phasedRegistrationNames",
+//                        MapBuilder.of("bubbled", "onLoading")))
+//                .put("onLayoutChange", MapBuilder.of(
+//                        "phasedRegistrationNames",
+//                        MapBuilder.of("bubbled", "onLayoutChange")))
                 .put("onTouchBegin", MapBuilder.of(
                         "phasedRegistrationNames",
                         MapBuilder.of("bubbled", "onTouchBegin")))
