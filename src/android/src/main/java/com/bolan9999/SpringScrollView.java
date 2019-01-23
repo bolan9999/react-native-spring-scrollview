@@ -5,7 +5,6 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewGroup;
@@ -24,18 +23,14 @@ import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.facebook.react.views.scroll.ReactScrollViewHelper;
 import com.facebook.react.views.view.ReactViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SpringScrollView extends ReactViewGroup implements View.OnTouchListener, View.OnLayoutChangeListener, OnInterceptTouchEventListener {
-    private float mOffsetX, mOffsetY, mLastX, mLastY, mHeight;
-    private float mContentHeight, mRefreshHeaderHeight, mLoadingFooterHeight;
-    private boolean mMomentumScrolling, mBounces, mMoving, mScrollEnabled;
+    private float lastX, lastY, height;
+    private float contentHeight, refreshHeaderHeight, loadingFooterHeight;
+    private boolean momentumScrolling, bounces, moving, scrollEnabled;
     private VelocityTracker tracker;
-    private OnLayoutChangeListener onChildLayoutChangeListener;
-    private ValueAnimator innerAnimation, outerAnimation, reboundAnimation, scrollToAnimation, mRefreshAnimation, mLoadingAnimation;
+    private ValueAnimator innerAnimation, outerAnimation, reboundAnimation, scrollToAnimation, refreshAnimation, mLoadingAnimation;
     private String refreshStatus, loadingStatus;
-    private Offset initContentOffset;
+    private Offset contentOffset, initContentOffset;
     private EdgeInsets contentInsets;
 
     @SuppressLint({"NewApi"})
@@ -43,6 +38,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         super(context);
         refreshStatus = loadingStatus = "waiting";
         initContentOffset = new Offset();
+        contentOffset = new Offset();
         contentInsets = new EdgeInsets();
         setClipToOutline(true);
     }
@@ -55,13 +51,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         View child = getChildAt(0);
         if (child != null) {
             if (initContentOffset.y != 0) setOffsetY(initContentOffset.y);
-            onChildLayoutChangeListener = new OnLayoutChangeListener() {
-                @Override
-                public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
-                    setLayoutHeight(mHeight, i3 - i1);
-                }
-            };
-            child.addOnLayoutChangeListener(onChildLayoutChangeListener);
+            child.addOnLayoutChangeListener(this);
         }
         super.onAttachedToWindow();
     }
@@ -73,22 +63,26 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         setOnInterceptTouchEventListener(null);
         View child = getChildAt(0);
         if (child != null) {
-            child.removeOnLayoutChangeListener(onChildLayoutChangeListener);
+            child.removeOnLayoutChangeListener(this);
         }
         super.onDetachedFromWindow();
     }
 
     @Override
     public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
-        setLayoutHeight(i3 - i1, mContentHeight);
+        if (this == view) {
+            setLayoutHeight(i3 - i1, contentHeight);
+        } else {
+            setLayoutHeight(height, i3 - i1);
+        }
     }
 
     private void onDown(MotionEvent evt) {
-        mLastX = evt.getX();
-        mLastY = evt.getY();
+        lastX = evt.getX();
+        lastY = evt.getY();
         cancelAllAnimations();
-        if (mMomentumScrolling) {
-            mMomentumScrolling = false;
+        if (momentumScrolling) {
+            momentumScrolling = false;
             sendEvent("onMomentumScrollEnd", null);
         }
         sendEvent("onTouchBegin", null);
@@ -96,12 +90,12 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     private void onMove(MotionEvent evt) {
-        if (!mScrollEnabled) return;
-        drag(evt.getX() - mLastX, evt.getY() - mLastY);
-        mLastX = evt.getX();
-        mLastY = evt.getY();
+        if (!scrollEnabled) return;
+        drag(evt.getX() - lastX, evt.getY() - lastY);
+        lastX = evt.getX();
+        lastY = evt.getY();
         tracker.addMovement(evt);
-        mMoving = true;
+        moving = true;
     }
 
     private void onUp(MotionEvent evt) {
@@ -109,21 +103,21 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         tracker.computeCurrentVelocity(1);
         float vy = tracker.getYVelocity();
         tracker.clear();
-        mMoving = false;
+        moving = false;
         sendEvent("onTouchEnd", null);
-        if (!mMomentumScrolling) {
-            mMomentumScrolling = true;
+        if (!momentumScrolling) {
+            momentumScrolling = true;
             sendEvent("onMomentumScrollBegin", null);
         }
         if (shouldRefresh()) {
             refreshStatus = "refreshing";
-            contentInsets.top = mRefreshHeaderHeight;
+            contentInsets.top = refreshHeaderHeight;
         }
         if (shouldLoad()) {
             loadingStatus = "loading";
-            contentInsets.bottom = mLoadingFooterHeight;
+            contentInsets.bottom = loadingFooterHeight;
         }
-        if (!mScrollEnabled) return;
+        if (!scrollEnabled) return;
         if (hitEdgeY()) {
             beginOuterAnimation(vy);
         } else {
@@ -140,7 +134,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             v *= dampingCoefficient;
             duration++;
         }
-        ValueAnimator animator = ValueAnimator.ofFloat(mOffsetY, mOffsetY + displacement);
+        ValueAnimator animator = ValueAnimator.ofFloat(contentOffset.y, contentOffset.y + displacement);
         animator.setDuration(duration);
         animator.setInterpolator(new DecelerateInterpolator(1.5f));
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -185,8 +179,8 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
     private void beginInnerAnimation(final float initialVelocity) {
         if (Math.abs(initialVelocity) < 0.1f) {
-            if (mMomentumScrolling) {
-                mMomentumScrolling = false;
+            if (momentumScrolling) {
+                momentumScrolling = false;
                 sendEvent("onMomentumScrollEnd", null);
             }
             return;
@@ -196,7 +190,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         innerAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
-//                float value = (float) animator.getAnimatedValue();
                 if (overshootHead() || overshootFooter()) {
                     long interval = System.currentTimeMillis() - beginTimeInterval;
                     float v = initialVelocity;
@@ -216,8 +209,8 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                if (mMomentumScrolling) {
-                    mMomentumScrolling = false;
+                if (momentumScrolling) {
+                    momentumScrolling = false;
                     sendEvent("onMomentumScrollEnd", null);
                 }
             }
@@ -243,9 +236,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         if (overshootHead()) {
             endValue = contentInsets.top;
         } else {
-            endValue = mHeight - mContentHeight-contentInsets.bottom;
+            endValue = height - contentHeight - contentInsets.bottom;
         }
-        reboundAnimation = ValueAnimator.ofFloat(mOffsetY, endValue);
+        reboundAnimation = ValueAnimator.ofFloat(contentOffset.y, endValue);
         reboundAnimation.setDuration(500);
         reboundAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
         reboundAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -262,8 +255,8 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                if (mMomentumScrolling) {
-                    mMomentumScrolling = false;
+                if (momentumScrolling) {
+                    momentumScrolling = false;
                     sendEvent("onMomentumScrollEnd", null);
                 }
             }
@@ -297,9 +290,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             scrollToAnimation.cancel();
             scrollToAnimation = null;
         }
-        if (mRefreshAnimation != null) {
-            mRefreshAnimation.cancel();
-            mRefreshAnimation = null;
+        if (refreshAnimation != null) {
+            refreshAnimation.cancel();
+            refreshAnimation = null;
         }
         if (mLoadingAnimation != null) {
             mLoadingAnimation.cancel();
@@ -310,32 +303,33 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
     private void drag(float x, float y) {
         y *= getDampingCoefficient();
-        moveToOffsetY(mOffsetY + y);
+        moveToOffsetY(contentOffset.y + y);
     }
 
     private float getDampingCoefficient() {
         if (!hitEdgeY()) {
             return 1;
         }
-        float overshoot = overshootHead() ? mOffsetY : mHeight - mContentHeight - mOffsetY;
+        float overshoot = overshootHead() ? contentOffset.y : height - contentHeight - contentOffset.y;
         float c = 0.8f;
-        return c / (mHeight * mHeight) * (overshoot * overshoot) - 2 * c / mHeight * overshoot + c;
+        return c / (height * height) * (overshoot * overshoot) - 2 * c / height * overshoot + c;
     }
 
     private void moveToOffsetY(float y) {
-        if (!mScrollEnabled) return;
-        if (!mBounces) {
+        if (!scrollEnabled) return;
+        if (!bounces) {
             if (y > contentInsets.top) y = contentInsets.top;
-            if (y < mHeight - mContentHeight-contentInsets.bottom) y = mHeight - mContentHeight-contentInsets.bottom;
+            if (y < height - contentHeight - contentInsets.bottom)
+                y = height - contentHeight - contentInsets.bottom;
         }
-        if (mOffsetY == y) return;
-        if (shouldPulling()){
+        if (contentOffset.y == y) return;
+        if (shouldPulling()) {
             refreshStatus = "pulling";
         } else if (shouldPullingEnough()) {
             refreshStatus = "pullingEnough";
         } else if (shouldPullingCancel()) {
             refreshStatus = "pullingCancel";
-        } else if (shouldWaiting()){
+        } else if (shouldWaiting()) {
             refreshStatus = "waiting";
         }
         if (shouldDragging()) {
@@ -351,14 +345,14 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     public void setOffsetY(float y) {
-        mOffsetY = y;
+        contentOffset.y = y;
         View child = getChildAt(0);
-        if (child != null) child.setTranslationY(mOffsetY);
+        if (child != null) child.setTranslationY(contentOffset.y);
         WritableMap event = Arguments.createMap();
-        WritableMap contentOffset = Arguments.createMap();
-        contentOffset.putDouble("x", -PixelUtil.toDIPFromPixel(mOffsetX));
-        contentOffset.putDouble("y", -PixelUtil.toDIPFromPixel(mOffsetY));
-        event.putMap("contentOffset", contentOffset);
+        WritableMap contentOffsetMap = Arguments.createMap();
+        contentOffsetMap.putDouble("x", -PixelUtil.toDIPFromPixel(contentOffset.x));
+        contentOffsetMap.putDouble("y", -PixelUtil.toDIPFromPixel(contentOffset.y));
+        event.putMap("contentOffset", contentOffsetMap);
         event.putString("refreshStatus", refreshStatus);
         event.putString("loadingStatus", loadingStatus);
         sendOnScrollEvent(event);
@@ -392,19 +386,19 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     private void setLayoutHeight(float height, float contentHeight) {
-        if (mHeight != height || mContentHeight != contentHeight) {
-            mHeight = height;
-            mContentHeight = contentHeight;
-            if (mContentHeight < mHeight) mContentHeight = mHeight;
+        if (this.height != height || this.contentHeight != contentHeight) {
+            this.height = height;
+            this.contentHeight = contentHeight;
+            if (this.contentHeight < this.height) this.contentHeight = this.height;
         }
     }
 
     public void setRefreshHeaderHeight(float height) {
-        mRefreshHeaderHeight = height;
+        refreshHeaderHeight = height;
     }
 
     public void setLoadingFooterHeight(float height) {
-        mLoadingFooterHeight = height;
+        loadingFooterHeight = height;
     }
 
     private void sendOnScrollEvent(WritableMap event) {
@@ -423,16 +417,16 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     public void endRefresh() {
         if (!refreshStatus.equals("refreshing")) return;
         refreshStatus = "rebound";
-        mRefreshAnimation = ValueAnimator.ofFloat(mOffsetY, 0);
-        mRefreshAnimation.setDuration(500);
-        mRefreshAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
-        mRefreshAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        refreshAnimation = ValueAnimator.ofFloat(contentOffset.y, 0);
+        refreshAnimation.setDuration(500);
+        refreshAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
+        refreshAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
                 moveToOffsetY((float) animator.getAnimatedValue());
             }
         });
-        mRefreshAnimation.addListener(new Animator.AnimatorListener() {
+        refreshAnimation.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -453,13 +447,13 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
             }
         });
-        mRefreshAnimation.start();
+        refreshAnimation.start();
     }
 
     public void endLoading() {
         if (!loadingStatus.equals("loading")) return;
         loadingStatus = "rebound";
-        mLoadingAnimation = ValueAnimator.ofFloat(mOffsetY, mHeight - mContentHeight);
+        mLoadingAnimation = ValueAnimator.ofFloat(contentOffset.y, height - contentHeight);
         mLoadingAnimation.setDuration(500);
         mLoadingAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
         mLoadingAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -498,7 +492,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             moveToOffsetY(y);
             return;
         }
-        scrollToAnimation = ValueAnimator.ofFloat(mOffsetY, y);
+        scrollToAnimation = ValueAnimator.ofFloat(contentOffset.y, y);
         scrollToAnimation.setDuration(500);
         scrollToAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
         scrollToAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -511,11 +505,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     public void setBounces(boolean bounces) {
-        mBounces = bounces;
+        this.bounces = bounces;
     }
 
     public void setScrollEnabled(boolean scrollEnabled) {
-        mScrollEnabled = scrollEnabled;
+        this.scrollEnabled = scrollEnabled;
     }
 
     @Override
@@ -526,7 +520,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
                 onDown(ev);
                 return false;
             case MotionEvent.ACTION_MOVE:
-                if (ev.getX() == mLastX && ev.getY() == mLastY) return false;
+                if (ev.getX() == lastX && ev.getY() == lastY) return false;
                 NativeGestureUtil.notifyNativeGestureStarted(this, ev);
                 ReactScrollViewHelper.emitScrollBeginDragEvent(this);
                 return true;
@@ -540,65 +534,65 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     private boolean overshootHead() {
-        return mOffsetY > contentInsets.top;
+        return contentOffset.y > contentInsets.top;
     }
 
     private boolean overshootRefresh() {
-        return mOffsetY > contentInsets.top + mRefreshHeaderHeight;
+        return contentOffset.y > contentInsets.top + refreshHeaderHeight;
     }
 
     private boolean overshootFooter() {
-        return mOffsetY < mHeight - mContentHeight;
+        return contentOffset.y < height - contentHeight;
     }
 
     private boolean overshootLoading() {
-        return mOffsetY < mHeight - mContentHeight - mLoadingFooterHeight;
+        return contentOffset.y < height - contentHeight - loadingFooterHeight;
     }
 
     private boolean shouldPulling() {
-        return mRefreshHeaderHeight > 0 && overshootHead() &&
+        return refreshHeaderHeight > 0 && overshootHead() &&
                 (refreshStatus.equals("waiting") || refreshStatus.equals("pullingCancel"));
     }
 
     private boolean shouldPullingEnough() {
-        return mRefreshHeaderHeight > 0 && overshootRefresh() &&
+        return refreshHeaderHeight > 0 && overshootRefresh() &&
                 refreshStatus.equals("pulling");
     }
 
     private boolean shouldRefresh() {
-        return mRefreshHeaderHeight > 0 && overshootRefresh() && refreshStatus.equals("pullingEnough");
+        return refreshHeaderHeight > 0 && overshootRefresh() && refreshStatus.equals("pullingEnough");
     }
 
     private boolean shouldPullingCancel() {
-        return mRefreshHeaderHeight > 0 && refreshStatus.equals("pullingEnough")
+        return refreshHeaderHeight > 0 && refreshStatus.equals("pullingEnough")
                 && overshootHead() && !overshootRefresh();
     }
 
     private boolean shouldWaiting() {
-        return mRefreshHeaderHeight > 0 && !overshootHead() &&
+        return refreshHeaderHeight > 0 && !overshootHead() &&
                 (refreshStatus.equals("rebound") || refreshStatus.equals("pullingCancel"));
     }
 
     private boolean shouldDragging() {
-        return mLoadingFooterHeight > 0 && overshootFooter() &&
+        return loadingFooterHeight > 0 && overshootFooter() &&
                 (loadingStatus.equals("waiting") || loadingStatus.equals("draggingCancel"));
     }
 
     private boolean shouldDraggingEnough() {
-        return mLoadingFooterHeight > 0 && overshootLoading() && loadingStatus.equals("dragging");
+        return loadingFooterHeight > 0 && overshootLoading() && loadingStatus.equals("dragging");
     }
 
     private boolean shouldLoad() {
-        return mLoadingFooterHeight > 0 && overshootLoading() && loadingStatus.equals("draggingEnough");
+        return loadingFooterHeight > 0 && overshootLoading() && loadingStatus.equals("draggingEnough");
     }
 
     private boolean shouldDraggingCancel() {
-        return mLoadingFooterHeight > 0 && loadingStatus.equals("draggingEnough") &&
+        return loadingFooterHeight > 0 && loadingStatus.equals("draggingEnough") &&
                 overshootFooter() && !overshootLoading();
     }
 
     private boolean shouldFooterWaiting() {
-        return mLoadingFooterHeight > 0 && !overshootFooter() &&
+        return loadingFooterHeight > 0 && !overshootFooter() &&
                 (loadingStatus.equals("rebound") || loadingStatus.equals("draggingCancel"));
     }
 }
