@@ -33,14 +33,13 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private Offset contentOffset, initContentOffset;
     private EdgeInsets contentInsets;
 
-    @SuppressLint({"NewApi"})
     public SpringScrollView(@NonNull Context context) {
         super(context);
         refreshStatus = loadingStatus = "waiting";
         initContentOffset = new Offset();
         contentOffset = new Offset();
         contentInsets = new EdgeInsets();
-        setClipToOutline(true);
+        setClipChildren(false);
     }
 
     @Override

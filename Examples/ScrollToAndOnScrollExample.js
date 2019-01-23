@@ -13,13 +13,18 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Platform
+  Platform,
+  Animated
 } from "react-native";
 import { SpringScrollView } from "../src";
 
 export class ScrollToAndOnScrollExample extends React.Component {
   _contentCount = 20;
   _scrollView;
+  _nativeOffset = {
+    x: new Animated.Value(0),
+    y: new Animated.Value(0)
+  };
 
   render() {
     const arr = [];
@@ -32,12 +37,12 @@ export class ScrollToAndOnScrollExample extends React.Component {
         <SpringScrollView
           style={styles.container}
           ref={ref => (this._scrollView = ref)}
-          initOffset={{ x: 0, y: 100 }}
           onScroll={this._onScroll}
           onTouchBegin={this._onTouchBegin}
           onTouchEnd={this._onTouchEnd}
           onMomentumScrollBegin={this.onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
+          onNativeContentOffsetExtract={this._nativeOffset}
         >
           {arr.map((i, index) =>
             <Text key={index} style={styles.text}>
@@ -46,10 +51,25 @@ export class ScrollToAndOnScrollExample extends React.Component {
               'onMomentumScrollEnd' work well!
             </Text>
           )}
+          <Animated.View style={this._stickyHeaderStyle}>
+            <Text>Test `onNativeContentOffsetExtract`</Text>
+          </Animated.View>
         </SpringScrollView>
       </View>
     );
   }
+
+  _stickyHeaderStyle = {
+    position: "absolute",
+    top: 20,
+    left: 0,
+    right: 0,
+    height: 40,
+    justifyContent:"center",
+    alignItems:"center",
+    backgroundColor: "red",
+    transform: [{ translateY: this._nativeOffset.y }]
+  };
 
   _scrollTo = () => {
     if (this._scrollView) {

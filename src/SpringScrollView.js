@@ -45,29 +45,27 @@ export class SpringScrollView extends React.PureComponent<PropType> {
 
   constructor(props: PropType) {
     super(props);
+    props.onNativeContentOffsetExtract.x.setValue(props.initialContentOffset.x);
+    props.onNativeContentOffsetExtract.y.setValue(props.initialContentOffset.y);
     this.obtainScrollEvent(props);
   }
 
   componentWillReceiveProps(nextProps: PropType) {
-    if (nextProps.scrollEventExtract !== this.props.scrollEventExtract) {
+    if (nextProps.onNativeContentOffsetExtract !== this.props.onNativeContentOffsetExtract) {
       this.obtainScrollEvent(nextProps);
     }
   }
 
   obtainScrollEvent(props: PropType) {
     if (!props) props = {};
-    if (props.scrollEventExtract && props.scrollEventExtract.offsetY) {
-      this._offsetY = props.scrollEventExtract.offsetY;
-    } else {
-      this._offsetY = new Animated.Value(props.initialContentOffset.y);
-    }
+    this._offsetY = props.onNativeContentOffsetExtract.y;
     this._event = Animated.event(
       [
         {
           nativeEvent: {
             contentOffset: {
+              ...props.onNativeContentOffsetExtract,
               y: this._offsetY,
-              ...props.scrollEventExtract
             }
           }
         }
@@ -103,7 +101,7 @@ export class SpringScrollView extends React.PureComponent<PropType> {
           onTouchStart={this._onTouchBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
           showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
+          scrollEventThrottle={1}
         >
           <SpringScrollContentViewNative
             style={this.props.contentStyle}
@@ -437,12 +435,17 @@ export class SpringScrollView extends React.PureComponent<PropType> {
     initOffset: { x: 0, y: 0 },
     showsVerticalScrollIndicator: true,
     showsHorizontalScrollIndicator: true,
-    initialContentOffset: { x: 0, y: 0 }
+    initialContentOffset: { x: 0, y: 0 },
+    onNativeContentOffsetExtract: {
+      x: new Animated.Value(0),
+      y: new Animated.Value(0)
+    }
   };
 }
 
-interface ScrollEventProps {
-  offsetY?: Animated.Value
+interface NativeContentOffset {
+  x?: Animated.Value,
+  y?: Animated.Value
 }
 
 interface PropType extends ViewProps {
@@ -453,24 +456,20 @@ interface PropType extends ViewProps {
   initialContentOffset?: Offset,
   showsVerticalScrollIndicator?: boolean,
   showsHorizontalScrollIndicator?: boolean,
-  onLayoutChange?: (layout: {
-    height: number,
-    contentHeight: number
-  }) => boolean,
   refreshHeaderHeight?: number,
   loadingFooterHeight?: number,
   refreshHeader?: RefreshHeader,
   loadingFooter?: LoadingFooter,
   onRefresh?: () => any,
   onLoading?: () => any,
-  scrollEventExtract?: ScrollEventProps,
   textInputRefs?: any[],
   inputToolBarHeight?: number,
   tapToHideKeyboard?: boolean,
   onTouchBegin?: () => any,
   onTouchEnd?: () => any,
   onMomentumScrollBegin?: () => any,
-  onMomentumScrollEnd?: () => any
+  onMomentumScrollEnd?: () => any,
+  onNativeContentOffsetExtract?: NativeContentOffset
 }
 
 const SpringScrollViewNative = Animated.createAnimatedComponent(
