@@ -11,10 +11,9 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.facebook.react.bridge.JavaScriptModule;
 
-public class RNSpringScrollViewPackage implements ReactPackage {
+public class SpringScrollViewPackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-//        return Arrays.<NativeModule>asList(new RNSpringScrollViewModule(reactContext));
         return Collections.emptyList();
     }
 

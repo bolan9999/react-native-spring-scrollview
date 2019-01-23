@@ -16,7 +16,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-public class SpringScrollViewManager extends ViewGroupManager {
+class SpringScrollViewManager extends ViewGroupManager {
     @Override
     public String getName() {
         return "SpringScrollView";
@@ -63,15 +63,6 @@ public class SpringScrollViewManager extends ViewGroupManager {
                 .put("onScroll", MapBuilder.of(
                         "phasedRegistrationNames",
                         MapBuilder.of("bubbled", "onScroll")))
-//                .put("onRefresh", MapBuilder.of(
-//                        "phasedRegistrationNames",
-//                        MapBuilder.of("bubbled", "onRefresh")))
-//                .put("onLoading", MapBuilder.of(
-//                        "phasedRegistrationNames",
-//                        MapBuilder.of("bubbled", "onLoading")))
-//                .put("onLayoutChange", MapBuilder.of(
-//                        "phasedRegistrationNames",
-//                        MapBuilder.of("bubbled", "onLayoutChange")))
                 .put("onTouchBegin", MapBuilder.of(
                         "phasedRegistrationNames",
                         MapBuilder.of("bubbled", "onTouchBegin")))

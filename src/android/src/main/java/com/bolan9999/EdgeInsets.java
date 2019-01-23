@@ -1,5 +1,5 @@
 package com.bolan9999;
 
-public class EdgeInsets {
+class EdgeInsets {
     public float top,bottom,left,right;
 }

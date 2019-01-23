@@ -26,7 +26,7 @@ import com.facebook.react.views.view.ReactViewGroup;
 public class SpringScrollView extends ReactViewGroup implements View.OnTouchListener, View.OnLayoutChangeListener, OnInterceptTouchEventListener {
     private float lastX, lastY, height;
     private float contentHeight, refreshHeaderHeight, loadingFooterHeight;
-    private boolean momentumScrolling, bounces, moving, scrollEnabled;
+    private boolean momentumScrolling, bounces, scrollEnabled;
     private VelocityTracker tracker;
     private ValueAnimator innerAnimation, outerAnimation, reboundAnimation, scrollToAnimation, refreshAnimation, mLoadingAnimation;
     private String refreshStatus, loadingStatus;
@@ -95,7 +95,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         lastX = evt.getX();
         lastY = evt.getY();
         tracker.addMovement(evt);
-        moving = true;
     }
 
     private void onUp(MotionEvent evt) {
@@ -103,7 +102,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         tracker.computeCurrentVelocity(1);
         float vy = tracker.getYVelocity();
         tracker.clear();
-        moving = false;
         sendEvent("onTouchEnd", null);
         if (!momentumScrolling) {
             momentumScrolling = true;

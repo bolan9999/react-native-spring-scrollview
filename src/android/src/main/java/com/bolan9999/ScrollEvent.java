@@ -4,7 +4,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
-public class ScrollEvent extends Event {
+class ScrollEvent extends Event {
     private String evtName;
     private WritableMap param;
 
