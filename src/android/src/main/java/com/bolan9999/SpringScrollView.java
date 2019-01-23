@@ -356,7 +356,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     public void endRefresh() {
         if (!refreshStatus.equals("refreshing")) return;
         refreshStatus = "rebound";
-        refreshAnimation = new DecelerateAnimation(contentOffset.y,0,500) {
+        refreshAnimation = new DecelerateAnimation(contentOffset.y, 0, 500) {
             @Override
             void onEnd() {
                 contentInsets.top = 0;
@@ -368,7 +368,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     public void endLoading() {
         if (!loadingStatus.equals("loading")) return;
         loadingStatus = "rebound";
-        mLoadingAnimation = new DecelerateAnimation(contentOffset.y,height - contentHeight,500) {
+        mLoadingAnimation = new DecelerateAnimation(contentOffset.y, height - contentHeight, 500) {
             @Override
             void onEnd() {
                 contentInsets.bottom = 0;
@@ -383,7 +383,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             moveToOffsetY(y);
             return;
         }
-        scrollToAnimation = new DecelerateAnimation(contentOffset.y, y,500);
+        scrollToAnimation = new DecelerateAnimation(contentOffset.y, y, 500);
         scrollToAnimation.start();
     }
 
@@ -495,7 +495,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             animator.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
-
                 }
 
                 @Override
@@ -505,12 +504,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
                 @Override
                 public void onAnimationCancel(Animator animation) {
-
                 }
 
                 @Override
                 public void onAnimationRepeat(Animator animation) {
-
                 }
             });
             animator.start();
@@ -520,7 +517,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             animator.cancel();
         }
 
-        void onEnd(){
+        void onEnd() {
 
         }
 

@@ -49,7 +49,7 @@ class SpringScrollViewManager extends ViewGroupManager {
         view.setScrollEnabled(scrollEnabled);
     }
 
-    @ReactProp(name = "initContentOffset")
+    @ReactProp(name = "initialContentOffset")
     public void setInitContentOffset(SpringScrollView view, ReadableMap offset) {
         float x = PixelUtil.toPixelFromDIP(-offset.getDouble("x"));
         float y = PixelUtil.toPixelFromDIP(-offset.getDouble("y"));

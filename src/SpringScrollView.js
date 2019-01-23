@@ -59,7 +59,7 @@ export class SpringScrollView extends React.PureComponent<PropType> {
     if (props.scrollEventExtract && props.scrollEventExtract.offsetY) {
       this._offsetY = props.scrollEventExtract.offsetY;
     } else {
-      this._offsetY = new Animated.Value(0);
+      this._offsetY = new Animated.Value(props.initialContentOffset.y);
     }
     this._event = Animated.event(
       [
@@ -289,7 +289,11 @@ export class SpringScrollView extends React.PureComponent<PropType> {
   };
 
   _onScroll = e => {
-    const { contentOffset:{x,y}, refreshStatus, loadingStatus } = e.nativeEvent;
+    const {
+      contentOffset: { x, y },
+      refreshStatus,
+      loadingStatus
+    } = e.nativeEvent;
     this._offsetYValue = y;
     if (this._refreshStatus !== refreshStatus) {
       this._toRefreshStatus(refreshStatus);
@@ -303,8 +307,7 @@ export class SpringScrollView extends React.PureComponent<PropType> {
         loadingStatus === "loading" &&
         this.props.onLoading();
     }
-    this.props.onScroll &&
-      this.props.onScroll(e);
+    this.props.onScroll && this.props.onScroll(e);
   };
 
   _toRefreshStatus(status: HeaderStatus) {
@@ -433,7 +436,8 @@ export class SpringScrollView extends React.PureComponent<PropType> {
     tapToHideKeyboard: true,
     initOffset: { x: 0, y: 0 },
     showsVerticalScrollIndicator: true,
-    showsHorizontalScrollIndicator: true
+    showsHorizontalScrollIndicator: true,
+    initialContentOffset: { x: 0, y: 0 }
   };
 }
 
@@ -446,7 +450,7 @@ interface PropType extends ViewProps {
   contentStyle?: ViewStyle,
   bounces?: boolean,
   scrollEnabled?: boolean,
-  initContentOffset?: Offset,
+  initialContentOffset?: Offset,
   showsVerticalScrollIndicator?: boolean,
   showsHorizontalScrollIndicator?: boolean,
   onLayoutChange?: (layout: {

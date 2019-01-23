@@ -20,8 +20,7 @@
 RCT_EXPORT_MODULE(SpringScrollView)
 RCT_EXPORT_VIEW_PROPERTY(refreshHeaderHeight, float)
 RCT_EXPORT_VIEW_PROPERTY(loadingFooterHeight, float)
-RCT_EXPORT_VIEW_PROPERTY(onSpringScrollRefresh, RCTBubblingEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onSpringScrollLoading, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(initialContentOffset, id)
 
 - (UIView *)view
 {

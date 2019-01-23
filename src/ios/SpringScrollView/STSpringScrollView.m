@@ -12,11 +12,10 @@
 @property(nonatomic, assign) float refreshHeaderHeight;
 @property(nonatomic, assign) float loadingFooterHeight;
 @property(nonatomic, assign) UIEdgeInsets orgInsets;
-@property(nonatomic, copy) RCTBubblingEventBlock onSpringScrollRefresh;
-@property(nonatomic, copy) RCTBubblingEventBlock onSpringScrollLoading;
 @property(nonatomic, copy) NSString *refreshStatus;
 @property(nonatomic, copy) NSString *loadingStatus;
 @property(nonatomic, assign) BOOL orgScrollEnabled;
+@property(nonatomic, copy) NSDictionary *initialContentOffset;
 @end
 
 @implementation STSpringScrollView
@@ -26,6 +25,13 @@
         self.refreshStatus = self.loadingStatus = @"waiting";
     }
     return self;
+}
+
+- (void)setInitialContentOffset:(NSDictionary *)initialContentOffset{
+    if (!_initialContentOffset && initialContentOffset) {
+        _initialContentOffset = initialContentOffset;
+        [self.scrollView setContentOffset:CGPointMake([[initialContentOffset objectForKey:@"x"] floatValue], [[initialContentOffset objectForKey:@"y"] floatValue])];
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{

@@ -26,7 +26,7 @@ export class BouncesAndScrollEnabledExample extends React.Component {
       <SpringScrollView
         style={styles.container}
         {...this.state}
-        initContentOffset={{ x: 0, y: 550 }}
+        initialContentOffset={{ x: 0, y: 550 }}
       >
         {arr.map((i, index) =>
           <TouchableOpacity
