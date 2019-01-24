@@ -10,8 +10,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SpringScrollView } from "../src";
-import { NormalHeader } from "../src/NormalHeader";
-import { NormalFooter } from "../src/NormalFooter";
 
 export class RefreshAndLoadingExample extends React.Component {
   _scrollView;
@@ -19,7 +17,12 @@ export class RefreshAndLoadingExample extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { count: this._step, allLoaded: false };
+    this.state = {
+      count: this._step,
+      allLoaded: false,
+      refreshStyle: "stickyContent",
+      loadingStyle: "stickyContent"
+    };
   }
 
   render() {
@@ -31,6 +34,8 @@ export class RefreshAndLoadingExample extends React.Component {
         style={styles.container}
         onRefresh={this._onRefresh}
         onLoading={this._onLoading}
+        refreshStyle={this.state.refreshStyle}
+        loadingStyle={this.state.loadingStyle}
         allLoaded={this.state.allLoaded}
       >
         {arr.map(item =>
@@ -62,10 +67,13 @@ export class RefreshAndLoadingExample extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor:"lightgray"
   },
   text: {
-    margin: 20,
-    fontSize: 16
+    paddingVertical: 20,
+    fontSize: 16,
+    textAlign:"center",
+    backgroundColor:"white"
   }
 });

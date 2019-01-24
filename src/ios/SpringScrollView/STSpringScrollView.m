@@ -193,6 +193,9 @@
 
 - (void)setAllLoaded:(BOOL)allLoaded{
     self.loadingStatus = allLoaded?@"allLoaded":@"waiting";
+    if (allLoaded && !UIEdgeInsetsEqualToEdgeInsets(self.orgInsets, self.scrollView.contentInset)) {
+        [self.scrollView setContentInset:self.orgInsets];
+    }
 }
 
 @end

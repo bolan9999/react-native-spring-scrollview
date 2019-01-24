@@ -7,7 +7,9 @@
  *
  */
 
-export type LargeListDataType = { items: any[] }[];
+import {Animated, ViewProps, ViewStyle} from "react-native";
+import {RefreshHeader} from "./RefreshHeader";
+import {LoadingFooter} from "./LoadingFooter";
 
 export interface IndexPath {
   section: number,
@@ -19,46 +21,37 @@ export interface Offset {
   y: number
 }
 
-export interface LargeListPropType {
-  data: LargeListDataType,
-  heightForSection?: (section: number) => number,
-  renderSection?: (section: number) => React.Node<any>,
-  heightForIndexPath: (indexPath: IndexPath) => number,
-  renderIndexPath: (indexPath: IndexPath) => React.Node<any>,
-  renderHeader?: () => React.ReactElement<any>,
-  renderFooter?: () => React.ReactElement<any>,
-
-  groupCount?: number,
-  groupMinHeight?: number,
-  updateTimeInterval?: number
+export interface NativeContentOffset {
+  x?: Animated.Value,
+  y?: Animated.Value
 }
 
-export interface GroupPropType {
-  indexes: IndexPath[],
-  criticalPoint: number[],
-  input: number[],
-  output: number[],
-  data: LargeListDataType,
-  heightForSection?: (section: number) => number,
-  heightForIndexPath: (indexPath: IndexPath) => number,
-  renderSection?: (section: number) => React.Node<any>,
-  renderIndexPath: (indexPath: IndexPath) => React.Node<any>,
-  offset?: number,
-  updateTimeInterval: number
-}
+export type RefreshStyle = "topping" | "stickyScrollView" | "stickyContent";
 
-export interface SectionContainerPropType {
-  tops: number[],
-  nativeOffset: Animated.Value,
-  data: LargeListDataType,
-  heightForSection?: (section: number) => number,
-  renderSection?: (section: number) => React.Node<any>
-}
+export type LoadingStyle = "bottoming" | "stickyScrollView" | "stickyContent";
 
-export interface SectionPropType {
-  tops: number[],
-  section: number,
-  nativeOffset: Animated.Value,
-  heightForSection: (section: number) => number,
-  renderSection?: (section: number) => React.Node<any>
+export interface SpringScrollViewPropType extends ViewProps {
+  style?: ViewStyle,
+  contentStyle?: ViewStyle,
+  bounces?: boolean,
+  scrollEnabled?: boolean,
+  initialContentOffset?: Offset,
+  showsVerticalScrollIndicator?: boolean,
+  showsHorizontalScrollIndicator?: boolean,
+  refreshHeaderHeight?: number,
+  loadingFooterHeight?: number,
+  refreshHeader?: RefreshHeader,
+  loadingFooter?: LoadingFooter,
+  onRefresh?: () => any,
+  onLoading?: () => any,
+  textInputRefs?: any[],
+  inputToolBarHeight?: number,
+  tapToHideKeyboard?: boolean,
+  onTouchBegin?: () => any,
+  onTouchEnd?: () => any,
+  onMomentumScrollBegin?: () => any,
+  onMomentumScrollEnd?: () => any,
+  onNativeContentOffsetExtract?: NativeContentOffset,
+  refreshStyle?: RefreshStyle,
+  loadingStyle?: LoadingStyle;
 }

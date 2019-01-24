@@ -46,10 +46,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         setOnTouchListener(this);
         addOnLayoutChangeListener(this);
         setOnInterceptTouchEventListener(this);
-        View child = getChildAt(0);
+        ViewGroup child = (ViewGroup) getChildAt(0);
         if (child != null) {
             if (initContentOffset.y != 0) setOffsetY(initContentOffset.y);
             child.addOnLayoutChangeListener(this);
+            child.setClipChildren(false);
         }
         super.onAttachedToWindow();
     }
@@ -377,6 +378,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
     public void setAllLoaded(boolean allLoaded) {
         loadingStatus = allLoaded ? "allLoaded" : "waiting";
+        if (allLoaded) {
+            contentInsets.bottom = 0;
+        }
     }
 
     public void scrollTo(float x, float y, boolean animated) {
