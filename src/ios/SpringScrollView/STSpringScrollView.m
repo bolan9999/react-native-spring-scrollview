@@ -16,6 +16,7 @@
 @property(nonatomic, copy) NSString *loadingStatus;
 @property(nonatomic, assign) BOOL orgScrollEnabled;
 @property(nonatomic, copy) NSDictionary *initialContentOffset;
+@property(nonatomic, assign) BOOL allLoaded;
 @end
 
 @implementation STSpringScrollView
@@ -188,6 +189,10 @@
     if (!animated) {
         [self sendScrollEventWithName:@"onScroll" scrollView:self.scrollView userData:@{}];
     }
+}
+
+- (void)setAllLoaded:(BOOL)allLoaded{
+    self.loadingStatus = allLoaded?@"allLoaded":@"waiting";
 }
 
 @end

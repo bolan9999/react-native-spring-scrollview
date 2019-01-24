@@ -2,7 +2,6 @@ package com.bolan9999;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.MotionEvent;
@@ -374,6 +373,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             }
         };
         mLoadingAnimation.start();
+    }
+
+    public void setAllLoaded(boolean allLoaded) {
+        loadingStatus = allLoaded ? "allLoaded" : "waiting";
     }
 
     public void scrollTo(float x, float y, boolean animated) {

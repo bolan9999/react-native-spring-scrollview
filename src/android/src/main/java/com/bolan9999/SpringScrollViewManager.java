@@ -56,6 +56,11 @@ class SpringScrollViewManager extends ViewGroupManager {
         view.setInitContentOffset(x, y);
     }
 
+    @ReactProp(name = "allLoaded")
+    public void setAllLoaded(SpringScrollView view, boolean allLoaded) {
+        view.setAllLoaded(allLoaded);
+    }
+
     @Nullable
     @Override
     public Map getExportedCustomBubblingEventTypeConstants() {
