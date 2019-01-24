@@ -193,12 +193,14 @@ export class SpringScrollView extends React.PureComponent<PropType> {
       );
     }
     return new Promise((resolve, reject) => {
-      setTimeout(resolve, 550);
+      if (animated)
+        setTimeout(resolve, 500);
+      else resolve();
     });
   }
 
   scroll(offset: Offset, animated: boolean = true) {
-    console.log("scroll=====>", JSON.stringify(offset));
+    // console.log("scroll=====>", JSON.stringify(offset));
     return this.scrollTo(
       { x: offset.x, y: offset.y + this._offsetYValue },
       animated

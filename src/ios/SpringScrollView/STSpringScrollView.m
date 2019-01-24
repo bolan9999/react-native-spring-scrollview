@@ -183,4 +183,11 @@
     [super sendScrollEventWithName:eventName scrollView:scrollView userData:data];
 }
 
+- (void)scrollToOffset:(CGPoint)offset animated:(BOOL)animated{
+    [super scrollToOffset:offset animated:animated];
+    if (!animated) {
+        [self sendScrollEventWithName:@"onScroll" scrollView:self.scrollView userData:@{}];
+    }
+}
+
 @end

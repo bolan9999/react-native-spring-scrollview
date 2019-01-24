@@ -378,6 +378,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
     public void scrollTo(float x, float y, boolean animated) {
         y = -y;
+        cancelAllAnimations();
         if (!animated) {
             moveToOffsetY(y);
             return;
