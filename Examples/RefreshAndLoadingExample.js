@@ -9,33 +9,33 @@
 
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { VerticalScrollView } from "../src";
-import { NormalHeader } from "../src/NormalHeader";
-import { NormalFooter } from "../src/NormalFooter";
-import { gestureHandlerRootHOC } from "react-native-gesture-handler";
+import { SpringScrollView } from "../src";
 
-class RefreshAndLoadingExampleStatic extends React.Component {
+export class RefreshAndLoadingExample extends React.Component {
   _scrollView;
-  _step = 8;
+  _step = 15;
 
   constructor(props) {
     super(props);
-    this.state = { count: this._step, allLoaded: false };
+    this.state = {
+      count: this._step,
+      allLoaded: false,
+      refreshStyle: "stickyContent",
+      loadingStyle: "stickyContent"
+    };
   }
 
   render() {
     const arr = [];
     for (let i = 0; i < this.state.count; ++i) arr.push(i);
     return (
-      <VerticalScrollView
+      <SpringScrollView
         ref={ref => (this._scrollView = ref)}
         style={styles.container}
-        refreshHeaderHeight={60}
-        refreshHeader={NormalHeader}
         onRefresh={this._onRefresh}
-        loadingFooterHeight={60}
-        loadingFooter={NormalFooter}
         onLoading={this._onLoading}
+        refreshStyle={this.state.refreshStyle}
+        loadingStyle={this.state.loadingStyle}
         allLoaded={this.state.allLoaded}
       >
         {arr.map(item =>
@@ -43,12 +43,11 @@ class RefreshAndLoadingExampleStatic extends React.Component {
             This is a Normal Refresh and Loading Test
           </Text>
         )}
-      </VerticalScrollView>
+      </SpringScrollView>
     );
   }
 
   _onRefresh = () => {
-    this._scrollView.beginRefresh();
     setTimeout(() => {
       this._scrollView.endRefresh();
       this.setState({ count: this._step });
@@ -56,7 +55,6 @@ class RefreshAndLoadingExampleStatic extends React.Component {
   };
 
   _onLoading = () => {
-    this._scrollView.beginLoading();
     setTimeout(() => {
       this._scrollView.endLoading();
       this.setState(p => ({
@@ -69,14 +67,13 @@ class RefreshAndLoadingExampleStatic extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor:"lightgray"
   },
   text: {
-    margin: 20,
-    fontSize: 20
+    paddingVertical: 20,
+    fontSize: 16,
+    textAlign:"center",
+    backgroundColor:"white"
   }
 });
-
-export const RefreshAndLoadingExample = gestureHandlerRootHOC(
-  RefreshAndLoadingExampleStatic
-);

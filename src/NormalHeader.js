@@ -1,10 +1,9 @@
-/*
+/**
+ * Author: Shi(bolan0000@icloud.com)
+ * Date: 2019/1/18
+ * Copyright (c) 2018, AoTang, Inc.
  *
- * Created by Stone
- * https://github.com/bolan9999
- * Email: shanshang130@gmail.com
- * Date: 2018/7/13
- *
+ * Description:
  */
 
 import React from "react";
@@ -23,9 +22,7 @@ export class NormalHeader extends RefreshHeader {
       <View style={styles.container}>
         {this._renderIcon()}
         <View style={styles.rContainer}>
-          <Text style={styles.text}>
-            {this._getTitle()}
-          </Text>
+          <Text style={styles.text}>{this._getTitle()}</Text>
         </View>
       </View>
     );
@@ -36,23 +33,16 @@ export class NormalHeader extends RefreshHeader {
     if (s === "refreshing" || s === "cancelRefresh" || s === "rebound") {
       return <ActivityIndicator />;
     }
+    const { maxHeight, offset } = this.props;
     return (
       <Animated.Image
         source={require("./arrow.png")}
-        resizeMode="center"
         style={{
-          width: 24,
-          height: 24,
           transform: [
             {
-              rotate: this.props.offset.interpolate({
-                inputRange: [
-                  0,
-                  this.props.maxHeight - 50,
-                  this.props.maxHeight,
-                  this.props.maxHeight + 1
-                ],
-                outputRange: ["0deg", "0deg", "180deg", "180deg"]
+              rotate: offset.interpolate({
+                inputRange: [-maxHeight -1-20, -maxHeight-20 , -80, -79],
+                outputRange: ["180deg", "180deg", "0deg", "0deg"]
               })
             }
           ]
@@ -66,9 +56,9 @@ export class NormalHeader extends RefreshHeader {
     if (s === "pulling" || s === "waiting") {
       return "Pull down to refresh";
     } else if (s === "pullingEnough") {
-      return "Release to begin refreshing";
+      return "Release to refresh";
     } else if (s === "refreshing") {
-      return "Refreshing...";
+      return "Refreshing ...";
     } else if (s === "pullingCancel") {
       return "Give up refreshing";
     } else if (s === "cancelRefresh") {
@@ -91,6 +81,8 @@ const styles = StyleSheet.create({
   },
   text: {
     marginVertical: 5,
-    color: "#666"
+    fontSize: 18,
+    color: "#666",
+    width:170
   }
 });

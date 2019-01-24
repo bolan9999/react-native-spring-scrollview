@@ -8,22 +8,19 @@
  */
 
 import React from "react";
-import { VerticalScrollView } from "../src";
-import { TextInput, StyleSheet, Text } from "react-native";
-import { gestureHandlerRootHOC } from "react-native-gesture-handler";
+import { SpringScrollView } from "../src";
+import {TextInput, StyleSheet, Text, ScrollView} from "react-native";
 
-class InputExampleStatic extends React.Component {
+export class InputExample extends React.Component {
   _topInput = React.createRef();
   _bottomInput = React.createRef();
 
   render() {
-    const arr = [];
-    for (let i = 0; i < 20; ++i) arr.push(i);
     return (
-      <VerticalScrollView
+      <SpringScrollView
         style={styles.container}
         contentStyle={styles.content}
-        tapToHideKeyboard={false}
+        tapToHideKeyboard={true}
         textInputRefs={[this._topInput, this._bottomInput]}
       >
         <TextInput
@@ -39,7 +36,7 @@ class InputExampleStatic extends React.Component {
           style={styles.input}
           placeholder="Keyboard Test Bottom"
         />
-      </VerticalScrollView>
+      </SpringScrollView>
     );
   }
 }
@@ -63,4 +60,3 @@ const styles = StyleSheet.create({
   }
 });
 
-export const InputExample = gestureHandlerRootHOC(InputExampleStatic);

@@ -1,9 +1,9 @@
-/*
+/**
+ * Author: Shi(bolan0000@icloud.com)
+ * Date: 2019/1/18
+ * Copyright (c) 2018, AoTang, Inc.
  *
- * Created by Stone
- * Email: shanshang130@gmail.com
- * Date: 2018/7/14
- *
+ * Description:
  */
 
 import React from "react";
@@ -28,9 +28,7 @@ export class NormalFooter extends LoadingFooter {
       <View style={styles.container}>
         {this._renderIcon()}
         <View style={styles.rContainer}>
-          <Text style={styles.text}>
-            {this._getTitle()}
-          </Text>
+          <Text style={styles.text}>{this._getTitle()}</Text>
         </View>
       </View>
     );
@@ -41,23 +39,21 @@ export class NormalFooter extends LoadingFooter {
     if (s === "loading" || s === "cancelLoading" || s === "rebound") {
       return <ActivityIndicator />;
     }
+    const { maxHeight, offset, bottomOffset } = this.props;
     return (
       <Animated.Image
         source={require("./arrow.png")}
-        resizeMode="center"
         style={{
-          width: 24,
-          height: 24,
           transform: [
             {
-              rotate: this.props.offset.interpolate({
+              rotate: offset.interpolate({
                 inputRange: [
-                  -this.props.maxHeight - 1,
-                  -this.props.maxHeight,
-                  50 - this.props.maxHeight,
-                  0
+                  bottomOffset - 1 + 55,
+                  bottomOffset + 55,
+                  bottomOffset + maxHeight,
+                  bottomOffset + maxHeight + 1
                 ],
-                outputRange: ["0deg", "0deg", "180deg", "180deg"]
+                outputRange: ["180deg", "180deg", "0deg", "0deg"]
               })
             }
           ]
@@ -69,11 +65,11 @@ export class NormalFooter extends LoadingFooter {
   _getTitle() {
     const s = this.state.status;
     if (s === "dragging" || s === "waiting") {
-      return "Drag up to load more data";
+      return "Drag up to load";
     } else if (s === "draggingEnough") {
-      return "Release to load more data";
+      return "Release to load";
     } else if (s === "loading") {
-      return "Loading...";
+      return "Loading ...";
     } else if (s === "draggingCancel") {
       return "Give up loading";
     } else if (s === "cancelLoading") {
@@ -96,6 +92,8 @@ const styles = StyleSheet.create({
   },
   text: {
     marginVertical: 5,
-    color: "#666"
+    fontSize: 18,
+    color: "#666",
+    width: 160
   }
 });

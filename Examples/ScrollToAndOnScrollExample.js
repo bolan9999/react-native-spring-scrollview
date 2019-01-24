@@ -8,13 +8,22 @@
  */
 
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { VerticalScrollView } from "../src";
-import { gestureHandlerRootHOC } from "react-native-gesture-handler";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Platform,
+  Animated
+} from "react-native";
+import { SpringScrollView } from "../src";
 
-class ScrollToAndOnScrollExampleStatic extends React.Component {
+export class ScrollToAndOnScrollExample extends React.Component {
   _contentCount = 20;
   _scrollView;
+  _nativeOffset = {
+    y: new Animated.Value(0)
+  };
 
   render() {
     const arr = [];
@@ -24,27 +33,42 @@ class ScrollToAndOnScrollExampleStatic extends React.Component {
         <TouchableOpacity style={styles.scrollTo} onPress={this._scrollTo}>
           <Text>Tap to ScrollTo y=200</Text>
         </TouchableOpacity>
-        <VerticalScrollView
+        <SpringScrollView
           style={styles.container}
           ref={ref => (this._scrollView = ref)}
-          initOffset={{ x: 0, y: 100 }}
           onScroll={this._onScroll}
           onTouchBegin={this._onTouchBegin}
           onTouchEnd={this._onTouchEnd}
-          onMomentumScrollStart={this._onMomentumScrollStart}
+          onMomentumScrollBegin={this.onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
+          onNativeContentOffsetExtract={this._nativeOffset}
         >
           {arr.map((i, index) =>
             <Text key={index} style={styles.text}>
               Scroll and Look up the console log to check if
-              'onScroll','onTouchBegin','onTouchEnd','onMomentumScrollStart' and
+              'onScroll','onTouchBegin','onTouchEnd','onMomentumScrollBegin' and
               'onMomentumScrollEnd' work well!
             </Text>
           )}
-        </VerticalScrollView>
+          <Animated.View style={this._stickyHeaderStyle}>
+            <Text>Test `onNativeContentOffsetExtract`</Text>
+          </Animated.View>
+        </SpringScrollView>
       </View>
     );
   }
+
+  _stickyHeaderStyle = {
+    position: "absolute",
+    top: 20,
+    left: 0,
+    right: 0,
+    height: 40,
+    justifyContent:"center",
+    alignItems:"center",
+    backgroundColor: "red",
+    transform: [{ translateY: this._nativeOffset.y }]
+  };
 
   _scrollTo = () => {
     if (this._scrollView) {
@@ -55,7 +79,7 @@ class ScrollToAndOnScrollExampleStatic extends React.Component {
   };
 
   _onScroll = offset => {
-    // console.log("onScroll", JSON.stringify(offset));
+    console.log("onScroll", offset.nativeEvent);
   };
 
   _onTouchBegin = () => {
@@ -66,8 +90,8 @@ class ScrollToAndOnScrollExampleStatic extends React.Component {
     console.log("onTouchEnd");
   };
 
-  _onMomentumScrollStart = () => {
-    console.log("onMomentumScrollStart");
+  onMomentumScrollBegin = () => {
+    console.log("onMomentumScrollBegin");
   };
   _onMomentumScrollEnd = () => {
     console.log("onMomentumScrollEnd");
@@ -79,9 +103,11 @@ const styles = StyleSheet.create({
     flex: 1
   },
   scrollTo: {
-    paddingTop: 20,
+    marginTop: Platform.OS === "ios" ? 20 : 0,
     backgroundColor: "gray",
     zIndex: 100,
+    height: 50,
+    justifyContent: "center",
     alignItems: "center"
   },
   text: {
@@ -89,7 +115,3 @@ const styles = StyleSheet.create({
     margin: 20
   }
 });
-
-export const ScrollToAndOnScrollExample = gestureHandlerRootHOC(
-  ScrollToAndOnScrollExampleStatic
-);

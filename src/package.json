@@ -1,6 +1,6 @@
 {
   "name": "react-native-spring-scrollview",
-  "version": "0.0.24",
+  "version": "2.0.1",
   "description": "An cross-platform (iOS & Android) spring ScrollView",
   "main": "index.js",
   "scripts": {
@@ -19,7 +19,6 @@
   "license": "MIT",
   "peerDependencies": {
     "react": "^16.3.1",
-    "react-native": "^0.50.0",
-    "react-native-gesture-handler": "^1.0.4"
+    "react-native": "^0.50.0"
   }
 }

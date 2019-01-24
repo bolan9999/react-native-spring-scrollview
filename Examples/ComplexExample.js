@@ -16,12 +16,11 @@ import {
   TextInput,
   View
 } from "react-native";
-import { VerticalScrollView } from "../src";
+import { SpringScrollView } from "../src";
 import { NormalHeader } from "../src/NormalHeader";
 import { NormalFooter } from "../src/NormalFooter";
-import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 
-class ComplexExampleStatic extends React.Component {
+export class ComplexExample extends React.Component {
   _refs;
   _scrollView;
   constructor(props) {
@@ -40,32 +39,29 @@ class ComplexExampleStatic extends React.Component {
 
   render() {
     return (
-      <VerticalScrollView
+      <SpringScrollView
         style={styles.container}
         ref={ref => (this._scrollView = ref)}
         contentStyle={styles.content}
-        reboundEasing={Easing.cos}
-        reboundDuration={300}
-        decelerationRateWhenOut={0.9}
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={false}
         bounces={true}
         scrollEnabled={this.state.scrollEnabled}
         textInputRefs={this._refs}
         inputToolBarHeight={20}
         refreshHeader={NormalHeader}
         onRefresh={() => {
-          this._scrollView.beginRefresh();
+          console.log("onRefresh");
           setTimeout(() => this._scrollView.endRefresh(), 1000);
         }}
         loadingFooter={NormalFooter}
         loadingFooterHeight={80}
         onLoading={() => {
-          this._scrollView.beginLoading();
-          setTimeout(() => this._scrollView.endLoading(true), 1000);
+          console.log("onLoading");
+          setTimeout(() => this._scrollView.endLoading(), 1000);
         }}
       >
         {this._renderContent()}
-      </VerticalScrollView>
+      </SpringScrollView>
     );
   }
 
@@ -114,8 +110,8 @@ const styles = StyleSheet.create({
   },
   btn: {},
   text: {
-    marginTop: 40,
-    fontSize: 25,
+    marginVertical: 20,
+    fontSize: 20,
     textAlign: "center",
     alignSelf: "stretch"
   },
@@ -124,5 +120,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEE"
   }
 });
-
-export const ComplexExample = gestureHandlerRootHOC(ComplexExampleStatic);
