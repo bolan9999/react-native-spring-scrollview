@@ -43,11 +43,10 @@ export class SpringScrollView extends React.PureComponent<
   _refreshStatus: HeaderStatus = "waiting";
   _loadingStatus: FooterStatus = "waiting";
   _indicatorAnimation;
+  _nativeOffset;
 
   constructor(props: SpringScrollViewPropType) {
     super(props);
-    props.onNativeContentOffsetExtract.x.setValue(props.initialContentOffset.x);
-    props.onNativeContentOffsetExtract.y.setValue(props.initialContentOffset.y);
     this.obtainScrollEvent(props);
   }
 
@@ -63,14 +62,17 @@ export class SpringScrollView extends React.PureComponent<
   obtainScrollEvent(props: SpringScrollViewPropType) {
     if (!props) props = {};
     this._offsetY = props.onNativeContentOffsetExtract.y;
+    this._nativeOffset = {
+      x: new Animated.Value(0),
+      y: new Animated.Value(0),
+      ...props.onNativeContentOffsetExtract
+    };
+    this._offsetY = this._nativeOffset.y;
     this._event = Animated.event(
       [
         {
           nativeEvent: {
-            contentOffset: {
-              ...props.onNativeContentOffsetExtract,
-              y: this._offsetY
-            }
+            contentOffset: this._nativeOffset
           }
         }
       ],
@@ -106,6 +108,7 @@ export class SpringScrollView extends React.PureComponent<
           onMomentumScrollEnd={this._onMomentumScrollEnd}
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={1}
+          onNativeContentOffsetExtract={this._nativeOffset}
         >
           <SpringScrollContentViewNative
             style={this.props.contentStyle}
@@ -382,10 +385,13 @@ export class SpringScrollView extends React.PureComponent<
       backgroundColor: "#A8A8A8",
       transform: [
         {
-          translateY: Animated.add(Animated.multiply(
-            this._offsetY,
-            this._height / this._contentHeight
-          ),this._offsetY)
+          translateY: Animated.add(
+            Animated.multiply(
+              this._offsetY,
+              this._height / this._contentHeight
+            ),
+            this._offsetY
+          )
         }
       ]
     };
@@ -418,7 +424,7 @@ export class SpringScrollView extends React.PureComponent<
         "unsupported value: '",
         refreshStyle,
         "' for refreshStyle in SpringScrollView, " +
-        "select one in 'topping','stickyScrollView','stickyContent' please"
+          "select one in 'topping','stickyScrollView','stickyContent' please"
       );
     }
     return {
@@ -469,7 +475,7 @@ export class SpringScrollView extends React.PureComponent<
         "unsupported value: '",
         loadingStyle,
         "' for loadingStyle in SpringScrollView, " +
-        "select one in 'bottoming','stickyScrollView','stickyContent' please"
+          "select one in 'bottoming','stickyScrollView','stickyContent' please"
       );
     }
     return {

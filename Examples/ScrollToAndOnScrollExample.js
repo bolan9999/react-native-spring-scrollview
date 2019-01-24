@@ -22,7 +22,6 @@ export class ScrollToAndOnScrollExample extends React.Component {
   _contentCount = 20;
   _scrollView;
   _nativeOffset = {
-    x: new Animated.Value(0),
     y: new Animated.Value(0)
   };
 
