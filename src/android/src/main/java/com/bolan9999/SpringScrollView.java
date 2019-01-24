@@ -128,7 +128,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
     private void onMove(MotionEvent evt) {
         if (!scrollEnabled) return;
-        drag(lastPoint.x - evt.getX(), evt.getY() - lastPoint.y);
+        drag(lastPoint.x - evt.getX(), lastPoint.y - evt.getY());
         lastPoint.x = evt.getX();
         lastPoint.y = evt.getY();
         tracker.addMovement(evt);
@@ -217,9 +217,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         }
         float endValue;
         if (overshootHead()) {
-            endValue = contentInsets.top;
+            endValue = -contentInsets.top;
         } else {
-            endValue = size.height - contentSize.height - contentInsets.bottom;
+            endValue = contentSize.height - size.height + contentInsets.bottom;
         }
         reboundAnimation = new DecelerateAnimation(contentOffset.y, endValue, 500) {
             @Override
@@ -271,7 +271,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         if (!hitEdgeY()) {
             return 1;
         }
-        float overshoot = overshootHead() ? contentOffset.y : size.height - contentSize.height - contentOffset.y;
+        float overshoot = overshootHead() ? -contentOffset.y : contentOffset.y - contentSize.height + size.height;
         float c = 0.8f;
         return c / (size.height * size.height) * (overshoot * overshoot) - 2 * c / size.height * overshoot + c;
     }
@@ -292,11 +292,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private void moveToOffset(float x, float y) {
         if (!scrollEnabled) return;
         if (!bounces) {
-            if (y > contentInsets.top) y = contentInsets.top;
-            if (y < size.height - contentSize.height - contentInsets.bottom)
-                y = size.height - contentSize.height - contentInsets.bottom;
+            if (y < -contentInsets.top) y = -contentInsets.top;
+            if (y > contentSize.height - size.height + contentInsets.bottom)
+                y = contentSize.height - size.height + contentInsets.bottom;
         }
-        if (contentSize.width<= size.width || !bounces) {
+        if (contentSize.width <= size.width || !bounces) {
             if (x < -contentInsets.left) x = -contentInsets.left;
             if (x > contentSize.width - size.width + contentInsets.right)
                 x = contentSize.width - size.width + contentInsets.right;
@@ -329,12 +329,12 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         View child = getChildAt(0);
         if (child != null) {
             child.setTranslationX(-contentOffset.x);
-            child.setTranslationY(contentOffset.y);
+            child.setTranslationY(-contentOffset.y);
         }
         WritableMap event = Arguments.createMap();
         WritableMap contentOffsetMap = Arguments.createMap();
         contentOffsetMap.putDouble("x", PixelUtil.toDIPFromPixel(contentOffset.x));
-        contentOffsetMap.putDouble("y", -PixelUtil.toDIPFromPixel(contentOffset.y));
+        contentOffsetMap.putDouble("y", PixelUtil.toDIPFromPixel(contentOffset.y));
         event.putMap("contentOffset", contentOffsetMap);
         event.putString("refreshStatus", refreshStatus);
         event.putString("loadingStatus", loadingStatus);
@@ -398,7 +398,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     public void endLoading() {
         if (!loadingStatus.equals("loading")) return;
         loadingStatus = "rebound";
-        mLoadingAnimation = new DecelerateAnimation(contentOffset.y, size.height - contentSize.height, 500) {
+        mLoadingAnimation = new DecelerateAnimation(contentOffset.y, contentSize.height - size.height, 500) {
             @Override
             void onEnd() {
                 contentInsets.bottom = 0;
@@ -415,7 +415,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     public void scrollTo(float x, float y, boolean animated) {
-        y = -y;
         cancelAllAnimations();
         if (!animated) {
             moveToOffset(x, y);
@@ -439,19 +438,19 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     private boolean overshootHead() {
-        return contentOffset.y > contentInsets.top;
+        return contentOffset.y < -contentInsets.top;
     }
 
     private boolean overshootRefresh() {
-        return contentOffset.y > contentInsets.top + refreshHeaderHeight;
+        return contentOffset.y < -contentInsets.top - refreshHeaderHeight;
     }
 
     private boolean overshootFooter() {
-        return contentOffset.y < size.height - contentSize.height;
+        return contentOffset.y > contentSize.height - size.height;
     }
 
     private boolean overshootLoading() {
-        return contentOffset.y < size.height - contentSize.height - loadingFooterHeight;
+        return contentOffset.y > -size.height + contentSize.height + loadingFooterHeight;
     }
 
     private boolean overshootLeft() {
@@ -518,7 +517,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         protected ValueAnimator animator;
 
         public DecelerateAnimation(float initialVelocity, float dampingCoefficient) {
-            float v = initialVelocity;
+            float v = -initialVelocity;
             int duration = 0;
             float displacement = 0;
             while (Math.abs(v) > 0.1f) {
