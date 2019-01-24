@@ -14,7 +14,7 @@ import { SpringScrollView } from "../src";
 export class BouncesAndScrollEnabledExample extends React.Component {
   state = {
     contentCount: 20,
-    bounces: true,
+    bounces: false,
     scrollEnabled: true,
     showsVerticalScrollIndicator:true
   };
@@ -26,6 +26,7 @@ export class BouncesAndScrollEnabledExample extends React.Component {
       <SpringScrollView
         style={styles.container}
         {...this.state}
+        contentStyle={{width:"150%"}}
         initialContentOffset={{ x: 0, y: 550 }}
       >
         {arr.map((i, index) =>

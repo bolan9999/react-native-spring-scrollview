@@ -118,9 +118,9 @@ export class SpringScrollView extends React.PureComponent<
             {this._renderRefreshHeader()}
             {this._renderLoadingFooter()}
             {children}
-            {this._renderIndicator()}
           </SpringScrollContentViewNative>
         </SpringScrollViewNative>
+        {this._renderIndicator()}
       </View>
     );
   }
@@ -385,12 +385,9 @@ export class SpringScrollView extends React.PureComponent<
       backgroundColor: "#A8A8A8",
       transform: [
         {
-          translateY: Animated.add(
-            Animated.multiply(
-              this._offsetY,
-              this._height / this._contentHeight
-            ),
-            this._offsetY
+          translateY: Animated.multiply(
+            this._offsetY,
+            this._height / this._contentHeight
           )
         }
       ]
