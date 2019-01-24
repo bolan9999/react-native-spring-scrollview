@@ -1,13 +1,10 @@
 package com.bolan9999;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.view.View;
 
 import com.facebook.react.bridge.Arguments;
@@ -27,7 +24,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private float refreshHeaderHeight, loadingFooterHeight;
     private boolean momentumScrolling, bounces, scrollEnabled;
     private VelocityTracker tracker;
-    private DecelerateAnimation innerAnimation, outerAnimation, reboundAnimation, scrollToAnimation, refreshAnimation, mLoadingAnimation;
+    private DecelerateAnimation verticalAnimation, horizontalAnimation;
     private String refreshStatus, loadingStatus;
     private Offset contentOffset, initContentOffset;
     private Size size, contentSize;
@@ -138,6 +135,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         this.onMove(evt);
         tracker.computeCurrentVelocity(1);
         float vy = tracker.getYVelocity();
+        float vx = tracker.getXVelocity();
         tracker.clear();
         sendEvent("onTouchEnd", null);
         if (!momentumScrolling) {
@@ -153,27 +151,107 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             contentInsets.bottom = loadingFooterHeight;
         }
         if (!scrollEnabled) return;
-        if (hitEdgeY()) {
+        if (overshootVertical()) {
             beginOuterAnimation(vy);
         } else {
             beginInnerAnimation(vy);
         }
+        if (contentSize.width <= size.width) return;
+        if (overshootHorizontal()) {
+            beginOuterHorizontalAnimation(vx);
+        } else {
+            beginInnerHorizontalAnimation(vx);
+        }
     }
 
-    private void beginOuterAnimation(float initialVelocity) {
+    private void beginInnerHorizontalAnimation(final float initialVelocity){
         if (Math.abs(initialVelocity) < 0.1f) {
-            beginReboundAnimation();
+            return;
+        }
+        final long beginTimeInterval = System.currentTimeMillis();
+        horizontalAnimation = new DecelerateAnimation(contentOffset.x, initialVelocity, 0.997f) {
+            @Override
+            protected void onEnd() {
+                if (momentumScrolling) {
+                    momentumScrolling = false;
+                    sendEvent("onMomentumScrollEnd", null);
+                }
+            }
+
+            @Override
+            protected void onUpdate(float value) {
+                setContentOffset(value, contentOffset.y);
+                if (overshootHorizontal()) {
+                    long interval = System.currentTimeMillis() - beginTimeInterval;
+                    float v = initialVelocity;
+                    while (interval-- > 0) {
+                        v *= 0.997f;
+                    }
+                    animator.cancel();
+                    horizontalAnimation = null;
+                    beginOuterHorizontalAnimation(v);
+                }
+            }
+        };
+        horizontalAnimation.start();
+    }
+
+    private void beginOuterHorizontalAnimation(float initialVelocity) {
+        if (Math.abs(initialVelocity) < 0.1f) {
+            beginHorizontalReboundAnimation();
             return;
         }
         if (initialVelocity > 15) initialVelocity = 15;
         if (initialVelocity < -15) initialVelocity = -15;
-        outerAnimation = new DecelerateAnimation(initialVelocity, 0.9f) {
+        horizontalAnimation = new DecelerateAnimation(contentOffset.x, initialVelocity, 0.9f) {
             @Override
-            void onEnd() {
-                beginReboundAnimation();
+            protected void onEnd() {
+                beginHorizontalReboundAnimation();
+            }
+
+            @Override
+            protected void onUpdate(float value) {
+                if (!bounces){
+                    contentOffset.x=value;
+                    if (overshootLeft()){
+                        value = -contentInsets.left;
+                        horizontalAnimation.cancel();
+                    } else if (overshootRight()) {
+                        value = contentSize.width-size.width+contentInsets.right;
+                        horizontalAnimation.cancel();
+                    }
+                }
+                setContentOffset(value, contentOffset.y);
             }
         };
-        outerAnimation.start();
+        horizontalAnimation.start();
+    }
+
+    private void beginHorizontalReboundAnimation(){
+        if (!overshootHorizontal() || !bounces) {
+            return;
+        }
+        float endValue;
+        if (overshootLeft()) {
+            endValue = -contentInsets.left;
+        } else {
+            endValue = contentSize.width - size.width+contentInsets.right;
+        }
+        horizontalAnimation = new DecelerateAnimation(contentOffset.x, endValue, 500) {
+            @Override
+            protected void onEnd() {
+                if (momentumScrolling) {
+                    momentumScrolling = false;
+                    sendEvent("onMomentumScrollEnd", null);
+                }
+            }
+
+            @Override
+            protected void onUpdate(float value) {
+                setContentOffset(value, contentOffset.y);
+            }
+        };
+        horizontalAnimation.start();
     }
 
     private void beginInnerAnimation(final float initialVelocity) {
@@ -185,9 +263,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             return;
         }
         final long beginTimeInterval = System.currentTimeMillis();
-        innerAnimation = new DecelerateAnimation(initialVelocity, 0.997f) {
+        verticalAnimation = new DecelerateAnimation(contentOffset.y, initialVelocity, 0.997f) {
             @Override
-            void onEnd() {
+            protected void onEnd() {
                 if (momentumScrolling) {
                     momentumScrolling = false;
                     sendEvent("onMomentumScrollEnd", null);
@@ -195,8 +273,8 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             }
 
             @Override
-            void onUpdate(float value) {
-                super.onUpdate(value);
+            protected void onUpdate(float value) {
+                setContentOffset(contentOffset.x, value);
                 if (overshootHead() || overshootFooter()) {
                     long interval = System.currentTimeMillis() - beginTimeInterval;
                     float v = initialVelocity;
@@ -208,11 +286,42 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
                 }
             }
         };
-        innerAnimation.start();
+        verticalAnimation.start();
+    }
+
+    private void beginOuterAnimation(float initialVelocity) {
+        if (Math.abs(initialVelocity) < 0.1f) {
+            beginReboundAnimation();
+            return;
+        }
+        if (initialVelocity > 15) initialVelocity = 15;
+        if (initialVelocity < -15) initialVelocity = -15;
+        verticalAnimation = new DecelerateAnimation(contentOffset.y, initialVelocity, 0.9f) {
+            @Override
+            protected void onEnd() {
+                beginReboundAnimation();
+            }
+
+            @Override
+            protected void onUpdate(float value) {
+                if (!bounces){
+                    contentOffset.y=value;
+                    if (overshootHead()){
+                        value = -contentInsets.top;
+                        verticalAnimation.cancel();
+                    } else if (overshootFooter()) {
+                        value = contentSize.height-size.height+contentInsets.bottom;
+                        verticalAnimation.cancel();
+                    }
+                }
+                setContentOffset(contentOffset.x, value);
+            }
+        };
+        verticalAnimation.start();
     }
 
     private void beginReboundAnimation() {
-        if (!hitEdgeY()) {
+        if (!overshootVertical()|| !bounces) {
             return;
         }
         float endValue;
@@ -221,42 +330,31 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         } else {
             endValue = contentSize.height - size.height + contentInsets.bottom;
         }
-        reboundAnimation = new DecelerateAnimation(contentOffset.y, endValue, 500) {
+        verticalAnimation = new DecelerateAnimation(contentOffset.y, endValue, 500) {
             @Override
-            void onEnd() {
+            protected void onEnd() {
                 if (momentumScrolling) {
                     momentumScrolling = false;
                     sendEvent("onMomentumScrollEnd", null);
                 }
             }
+
+            @Override
+            protected void onUpdate(float value) {
+                setContentOffset(contentOffset.x, value);
+            }
         };
-        reboundAnimation.start();
+        verticalAnimation.start();
     }
 
     private void cancelAllAnimations() {
-        if (innerAnimation != null) {
-            innerAnimation.cancel();
-            innerAnimation = null;
+        if (verticalAnimation != null) {
+            verticalAnimation.cancel();
+            verticalAnimation = null;
         }
-        if (outerAnimation != null) {
-            outerAnimation.cancel();
-            outerAnimation = null;
-        }
-        if (reboundAnimation != null) {
-            reboundAnimation.cancel();
-            reboundAnimation = null;
-        }
-        if (scrollToAnimation != null) {
-            scrollToAnimation.cancel();
-            scrollToAnimation = null;
-        }
-        if (refreshAnimation != null) {
-            refreshAnimation.cancel();
-            refreshAnimation = null;
-        }
-        if (mLoadingAnimation != null) {
-            mLoadingAnimation.cancel();
-            mLoadingAnimation = null;
+        if (horizontalAnimation != null) {
+            horizontalAnimation.cancel();
+            horizontalAnimation = null;
         }
     }
 
@@ -268,7 +366,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     private float getYDampingCoefficient() {
-        if (!hitEdgeY()) {
+        if (!overshootVertical()) {
             return 1;
         }
         float overshoot = overshootHead() ? -contentOffset.y : contentOffset.y - contentSize.height + size.height;
@@ -279,14 +377,14 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private float getXDampingCoefficient() {
         float overshoot;
         if (overshootLeft()) {
-            overshoot = contentOffset.x;
+            overshoot = -contentOffset.x;
         } else if (overshootRight()) {
-            overshoot = contentOffset.x - size.width + contentSize.width;
+            overshoot = contentOffset.x - contentSize.width + size.width;
         } else {
             return 1;
         }
         float c = 0.8f;
-        return c / (size.height * size.height) * (overshoot * overshoot) - 2 * c / size.height * overshoot + c;
+        return c / (size.width * size.width) * (overshoot * overshoot) - 2 * c / size.width * overshoot + c;
     }
 
     private void moveToOffset(float x, float y) {
@@ -341,7 +439,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         sendOnScrollEvent(event);
     }
 
-    private boolean hitEdgeY() {
+    private boolean overshootVertical() {
         return overshootHead() || overshootFooter();
     }
 
@@ -386,25 +484,35 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     public void endRefresh() {
         if (!refreshStatus.equals("refreshing")) return;
         refreshStatus = "rebound";
-        refreshAnimation = new DecelerateAnimation(contentOffset.y, 0, 500) {
+        verticalAnimation = new DecelerateAnimation(contentOffset.y, 0, 500) {
             @Override
-            void onEnd() {
+            protected void onEnd() {
                 contentInsets.top = 0;
             }
+
+            @Override
+            protected void onUpdate(float value) {
+                setContentOffset(contentOffset.x, value);
+            }
         };
-        refreshAnimation.start();
+        verticalAnimation.start();
     }
 
     public void endLoading() {
         if (!loadingStatus.equals("loading")) return;
         loadingStatus = "rebound";
-        mLoadingAnimation = new DecelerateAnimation(contentOffset.y, contentSize.height - size.height, 500) {
+        verticalAnimation = new DecelerateAnimation(contentOffset.y, contentSize.height - size.height, 500) {
             @Override
-            void onEnd() {
+            protected void onEnd() {
                 contentInsets.bottom = 0;
             }
+
+            @Override
+            protected void onUpdate(float value) {
+                setContentOffset(contentOffset.x, value);
+            }
         };
-        mLoadingAnimation.start();
+        verticalAnimation.start();
     }
 
     public void setAllLoaded(boolean allLoaded) {
@@ -420,8 +528,16 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             moveToOffset(x, y);
             return;
         }
-        scrollToAnimation = new DecelerateAnimation(contentOffset.y, y, 500);
-        scrollToAnimation.start();
+        verticalAnimation = new DecelerateAnimation(contentOffset.y, y, 500) {
+            @Override
+            protected void onEnd() {}
+
+            @Override
+            protected void onUpdate(float value) {
+                setContentOffset(contentOffset.x, value);
+            }
+        };
+        verticalAnimation.start();
     }
 
     public void setBounces(boolean bounces) {
@@ -454,11 +570,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     private boolean overshootLeft() {
-        return contentOffset.x < contentInsets.left;
+        return contentOffset.x < -contentInsets.left;
     }
 
     private boolean overshootRight() {
-        return contentOffset.x > contentInsets.right + size.width;
+        return contentOffset.x > contentInsets.right + contentSize.width-size.width;
     }
 
     private boolean overshootHorizontal() {
@@ -512,68 +628,4 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
                 (loadingStatus.equals("rebound") || loadingStatus.equals("draggingCancel"));
     }
 
-
-    private class DecelerateAnimation {
-        protected ValueAnimator animator;
-
-        public DecelerateAnimation(float initialVelocity, float dampingCoefficient) {
-            float v = -initialVelocity;
-            int duration = 0;
-            float displacement = 0;
-            while (Math.abs(v) > 0.1f) {
-                displacement += v;
-                v *= dampingCoefficient;
-                duration++;
-            }
-            animator = ValueAnimator.ofFloat(contentOffset.y, contentOffset.y + displacement);
-            animator.setDuration(duration);
-        }
-
-        public DecelerateAnimation(float from, float to, long duration) {
-            animator = ValueAnimator.ofFloat(from, to);
-            animator.setDuration(duration);
-        }
-
-        public void start() {
-            animator.setInterpolator(new DecelerateInterpolator(1.5f));
-            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animator) {
-                    onUpdate((float) animator.getAnimatedValue());
-                }
-            });
-            animator.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    onEnd();
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-                }
-            });
-            animator.start();
-        }
-
-        public void cancel() {
-            animator.cancel();
-        }
-
-        void onEnd() {
-
-        }
-
-        void onUpdate(float value) {
-            //TODO problem
-            moveToOffset(contentOffset.x, value);
-        }
-    }
 }

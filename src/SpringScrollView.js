@@ -31,15 +31,18 @@ export class SpringScrollView extends React.PureComponent<
   SpringScrollViewPropType
 > {
   _offsetY: Animated.Value;
+  _offsetX: Animated.Value;
   _offsetYValue: number = 0;
   _event;
   _keyboardHeight: number;
   _refreshHeader;
   _loadingFooter;
+  _width: number;
   _height: number;
   _scrollView: View;
   _indicatorOpacity: Animated.Value = new Animated.Value(1);
   _contentHeight: number;
+  _contentWidth: number;
   _refreshStatus: HeaderStatus = "waiting";
   _loadingStatus: FooterStatus = "waiting";
   _indicatorAnimation;
@@ -61,13 +64,13 @@ export class SpringScrollView extends React.PureComponent<
 
   obtainScrollEvent(props: SpringScrollViewPropType) {
     if (!props) props = {};
-    this._offsetY = props.onNativeContentOffsetExtract.y;
     this._nativeOffset = {
       x: new Animated.Value(0),
       y: new Animated.Value(0),
       ...props.onNativeContentOffsetExtract
     };
     this._offsetY = this._nativeOffset.y;
+    this._offsetX = this._nativeOffset.x;
     this._event = Animated.event(
       [
         {
@@ -120,7 +123,8 @@ export class SpringScrollView extends React.PureComponent<
             {children}
           </SpringScrollContentViewNative>
         </SpringScrollViewNative>
-        {this._renderIndicator()}
+        {this._renderHorizontalIndicator()}
+        {this._renderVerticalIndicator()}
       </View>
     );
   }
@@ -136,7 +140,7 @@ export class SpringScrollView extends React.PureComponent<
     if (!measured) return null;
     return (
       onRefresh &&
-      <Animated.View style={this._getRefreshHeaderStyle()} key={"refresh"}>
+      <Animated.View style={this._getRefreshHeaderStyle()}>
         <Refresh
           ref={ref => (this._refreshHeader = ref)}
           offset={this._offsetY}
@@ -157,7 +161,7 @@ export class SpringScrollView extends React.PureComponent<
     if (!measured) return null;
     return (
       onLoading &&
-      <Animated.View style={this._getLoadingFooterStyle()} key={"loading"}>
+      <Animated.View style={this._getLoadingFooterStyle()}>
         <Footer
           ref={ref => (this._loadingFooter = ref)}
           offset={this._offsetY}
@@ -168,53 +172,27 @@ export class SpringScrollView extends React.PureComponent<
     );
   }
 
-  _renderIndicator() {
+  _renderVerticalIndicator() {
     const { showsVerticalScrollIndicator } = this.props;
     const measured =
       this._height !== undefined && this._contentHeight !== undefined;
     if (!measured) return null;
     return (
       showsVerticalScrollIndicator &&
-      <Animated.View style={this._getIndicatorStyle()} key={"indicator"} />
+      <Animated.View style={this._getVerticalIndicatorStyle()} />
     );
   }
 
-  renderExternal() {
-    const {
-      refreshHeaderHeight,
-      loadingFooterHeight,
-      onRefresh,
-      onLoading,
-      refreshHeader: Refresh,
-      loadingFooter: Footer,
-      showsVerticalScrollIndicator
-    } = this.props;
+  _renderHorizontalIndicator() {
+    const { showsHorizontalScrollIndicator } = this.props;
     const measured =
       this._height !== undefined && this._contentHeight !== undefined;
     if (!measured) return null;
-    return [
-      onRefresh &&
-        <Animated.View style={this._getRefreshHeaderStyle()} key={"refresh"}>
-          <Refresh
-            ref={ref => (this._refreshHeader = ref)}
-            offset={this._offsetY}
-            maxHeight={refreshHeaderHeight}
-          />
-        </Animated.View>,
-
-      onLoading &&
-        <Animated.View style={this._getLoadingFooterStyle()} key={"loading"}>
-          <Footer
-            ref={ref => (this._loadingFooter = ref)}
-            offset={this._offsetY}
-            maxHeight={loadingFooterHeight}
-            bottomOffset={this._contentHeight - this._height}
-          />
-        </Animated.View>,
-
-      showsVerticalScrollIndicator &&
-        <Animated.View style={this._getIndicatorStyle()} key={"indicator"} />
-    ];
+    return (
+      showsHorizontalScrollIndicator &&
+      this._contentWidth > this._width &&
+      <Animated.View style={this._getHorizontalIndicatorStyle()} />
+    );
   }
 
   componentDidMount() {
@@ -372,7 +350,7 @@ export class SpringScrollView extends React.PureComponent<
     this._loadingFooter.changeToState(status);
   }
 
-  _getIndicatorStyle() {
+  _getVerticalIndicatorStyle() {
     const indicatorHeight = this._height / this._contentHeight * this._height;
     return {
       position: "absolute",
@@ -388,6 +366,28 @@ export class SpringScrollView extends React.PureComponent<
           translateY: Animated.multiply(
             this._offsetY,
             this._height / this._contentHeight
+          )
+        }
+      ]
+    };
+  }
+
+  _getHorizontalIndicatorStyle() {
+    const indicatorWidth = this._width / this._contentWidth * this._width;
+    return {
+      position: "absolute",
+      bottom: 2,
+      left: 0,
+      height: 3,
+      width: indicatorWidth,
+      borderRadius: 3,
+      opacity: this._indicatorOpacity,
+      backgroundColor: "#A8A8A8",
+      transform: [
+        {
+          translateX: Animated.multiply(
+            this._offsetX,
+            this._width / this._contentWidth
           )
         }
       ]
@@ -488,8 +488,9 @@ export class SpringScrollView extends React.PureComponent<
   _onWrapperLayoutChange = ({
     nativeEvent: { layout: { x, y, width, height } }
   }) => {
-    if (this._height !== height) {
+    if (this._height !== height || this._width !== width) {
       this._height = height;
+      this._width = width;
       if (!this._contentHeight) return;
       if (this._offsetYValue > this._contentHeight - this._height)
         this.scrollToEnd();
@@ -500,8 +501,9 @@ export class SpringScrollView extends React.PureComponent<
   _onContentLayoutChange = ({
     nativeEvent: { layout: { x, y, width, height } }
   }) => {
-    if (this._contentHeight !== height) {
+    if (this._contentHeight !== height || this._contentWidth !== width) {
       this._contentHeight = height;
+      this._contentWidth = width;
       if (!this._height) return;
       if (this._offsetYValue > this._contentHeight - this._height)
         this.scrollToEnd();
