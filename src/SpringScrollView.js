@@ -90,10 +90,10 @@ export class SpringScrollView extends React.PureComponent<
     const {
       style,
       children,
-      refreshHeaderHeight,
-      loadingFooterHeight,
       onRefresh,
-      onLoading
+      onLoading,
+      refreshHeader: Refresh,
+      loadingFooter: Loading
     } = this.props;
     return (
       <View {...this.props} style={[{ flex: 1 }, style]}>
@@ -102,8 +102,8 @@ export class SpringScrollView extends React.PureComponent<
           ref={ref => (this._scrollView = ref)}
           style={[{ flex: 1 }, style]}
           onScroll={this._event}
-          refreshHeaderHeight={onRefresh ? refreshHeaderHeight : 0}
-          loadingFooterHeight={onLoading ? loadingFooterHeight : 0}
+          refreshHeaderHeight={onRefresh ? Refresh.height : 0}
+          loadingFooterHeight={onLoading ? Loading.height : 0}
           keyboardShouldPersistTaps={"never"}
           onLayout={this._onWrapperLayoutChange}
           onTouchBegin={this._onTouchBegin}
@@ -130,11 +130,7 @@ export class SpringScrollView extends React.PureComponent<
   }
 
   _renderRefreshHeader() {
-    const {
-      refreshHeaderHeight,
-      onRefresh,
-      refreshHeader: Refresh
-    } = this.props;
+    const { onRefresh, refreshHeader: Refresh } = this.props;
     const measured =
       this._height !== undefined && this._contentHeight !== undefined;
     if (!measured) return null;
@@ -144,18 +140,14 @@ export class SpringScrollView extends React.PureComponent<
         <Refresh
           ref={ref => (this._refreshHeader = ref)}
           offset={this._offsetY}
-          maxHeight={refreshHeaderHeight}
+          maxHeight={Refresh.height}
         />
       </Animated.View>
     );
   }
 
   _renderLoadingFooter() {
-    const {
-      loadingFooterHeight,
-      onLoading,
-      loadingFooter: Footer
-    } = this.props;
+    const { onLoading, loadingFooter: Footer } = this.props;
     const measured =
       this._height !== undefined && this._contentHeight !== undefined;
     if (!measured) return null;
@@ -165,7 +157,7 @@ export class SpringScrollView extends React.PureComponent<
         <Footer
           ref={ref => (this._loadingFooter = ref)}
           offset={this._offsetY}
-          maxHeight={loadingFooterHeight}
+          maxHeight={Footer.height}
           bottomOffset={this._contentHeight - this._height}
         />
       </Animated.View>
@@ -395,10 +387,10 @@ export class SpringScrollView extends React.PureComponent<
   }
 
   _getRefreshHeaderStyle() {
-    const rHeight = this.props.refreshHeaderHeight;
-    const { refreshStyle } = this.props;
+    const rHeight = this.props.refreshHeader.height;
+    const style = this.props.refreshHeader.style;
     let transform;
-    if (refreshStyle === "topping") {
+    if (style === "topping") {
       transform = [
         {
           translateY: this._offsetY.interpolate({
@@ -407,7 +399,7 @@ export class SpringScrollView extends React.PureComponent<
           })
         }
       ];
-    } else if (refreshStyle === "stickyScrollView") {
+    } else if (style === "stickyScrollView") {
       transform = [
         {
           translateY: this._offsetY.interpolate({
@@ -416,11 +408,11 @@ export class SpringScrollView extends React.PureComponent<
           })
         }
       ];
-    } else if (refreshStyle !== "stickyContent") {
+    } else if (style !== "stickyContent") {
       console.warn(
         "unsupported value: '",
-        refreshStyle,
-        "' for refreshStyle in SpringScrollView, " +
+        style,
+        "' in SpringScrollView, " +
           "select one in 'topping','stickyScrollView','stickyContent' please"
       );
     }
@@ -435,11 +427,11 @@ export class SpringScrollView extends React.PureComponent<
   }
 
   _getLoadingFooterStyle() {
-    const fHeight = this.props.loadingFooterHeight;
+    const fHeight = this.props.loadingFooter.height;
     const maxOffset = this._contentHeight - this._height;
-    const { loadingStyle } = this.props;
+    const style = this.props.loadingFooter.style;
     let transform;
-    if (loadingStyle === "bottoming") {
+    if (style === "bottoming") {
       transform = [
         {
           translateY: this._offsetY.interpolate({
@@ -453,7 +445,7 @@ export class SpringScrollView extends React.PureComponent<
           })
         }
       ];
-    } else if (loadingStyle === "stickyScrollView") {
+    } else if (style === "stickyScrollView") {
       transform = [
         {
           translateY: this._offsetY.interpolate({
@@ -467,11 +459,11 @@ export class SpringScrollView extends React.PureComponent<
           })
         }
       ];
-    } else if (loadingStyle !== "stickyContent") {
+    } else if (style !== "stickyContent") {
       console.warn(
         "unsupported value: '",
-        loadingStyle,
-        "' for loadingStyle in SpringScrollView, " +
+        style,
+        "' in SpringScrollView, " +
           "select one in 'bottoming','stickyScrollView','stickyContent' please"
       );
     }
@@ -528,8 +520,6 @@ export class SpringScrollView extends React.PureComponent<
   static defaultProps = {
     bounces: true,
     scrollEnabled: true,
-    refreshHeaderHeight: 100,
-    loadingFooterHeight: 100,
     refreshHeader: NormalHeader,
     loadingFooter: NormalFooter,
     textInputRefs: [],
@@ -542,9 +532,7 @@ export class SpringScrollView extends React.PureComponent<
     onNativeContentOffsetExtract: {
       x: new Animated.Value(0),
       y: new Animated.Value(0)
-    },
-    refreshStyle: "stickyContent",
-    loadingStyle: "stickyContent"
+    }
   };
 }
 

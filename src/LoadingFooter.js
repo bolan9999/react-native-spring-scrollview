@@ -13,6 +13,10 @@ export class LoadingFooter extends React.Component<
   FooterPropType,
   FooterStateType
   > {
+  static height = 100;
+
+  static style = "stickyContent";
+
   constructor(props: FooterPropType) {
     super(props);
     this.state = { status: props.allLoaded ? "allLoaded" : "waiting" };

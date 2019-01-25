@@ -13,6 +13,11 @@ export class RefreshHeader extends React.Component<
   HeaderPropType,
   HeaderStateType
 > {
+
+  static height = 100;
+
+  static style = "stickyContent";
+
   constructor(props: HeaderPropType) {
     super(props);
     this.state = { status: "waiting" };
