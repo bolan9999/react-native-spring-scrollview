@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   content: {
     // alignItems: "stretch"
-    backgroundColor: "#EEE"
+    // backgroundColor: "#EEE"
   },
   btn: {},
   text: {

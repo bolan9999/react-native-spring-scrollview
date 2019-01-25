@@ -17,18 +17,23 @@ import {
 } from "react-native";
 
 export class NormalFooter extends LoadingFooter {
+  static height = 80;
+
+  static style = "stickyContent";
+
   render() {
     if (this.state.status === "allLoaded")
       return (
         <View style={styles.container}>
-          <Text>No more data</Text>
+          <Text style={styles.text}>{this.getTitle()}</Text>
         </View>
       );
     return (
       <View style={styles.container}>
         {this._renderIcon()}
         <View style={styles.rContainer}>
-          <Text style={styles.text}>{this._getTitle()}</Text>
+          <Text style={styles.text}>{this.getTitle()}</Text>
+          {this.renderContent()}
         </View>
       </View>
     );
@@ -42,14 +47,14 @@ export class NormalFooter extends LoadingFooter {
     const { maxHeight, offset, bottomOffset } = this.props;
     return (
       <Animated.Image
-        source={require("./arrow.png")}
+        source={require("./Customize/res/arrow.png")}
         style={{
           transform: [
             {
               rotate: offset.interpolate({
                 inputRange: [
-                  bottomOffset - 1 + 55,
-                  bottomOffset + 55,
+                  bottomOffset - 1 + 45,
+                  bottomOffset + 45,
                   bottomOffset + maxHeight,
                   bottomOffset + maxHeight + 1
                 ],
@@ -62,7 +67,11 @@ export class NormalFooter extends LoadingFooter {
     );
   }
 
-  _getTitle() {
+  renderContent(){
+    return null;
+  }
+
+  getTitle() {
     const s = this.state.status;
     if (s === "dragging" || s === "waiting") {
       return "Drag up to load";
@@ -72,10 +81,10 @@ export class NormalFooter extends LoadingFooter {
       return "Loading ...";
     } else if (s === "draggingCancel") {
       return "Give up loading";
-    } else if (s === "cancelLoading") {
-      return "Canceled";
     } else if (s === "rebound") {
       return "Load completed";
+    } else if (s === "allLoaded") {
+      return "No more data";
     }
   }
 }
@@ -92,8 +101,9 @@ const styles = StyleSheet.create({
   },
   text: {
     marginVertical: 5,
-    fontSize: 18,
+    fontSize: 15,
     color: "#666",
-    width: 160
+    textAlign: "center",
+    width: 140
   }
 });

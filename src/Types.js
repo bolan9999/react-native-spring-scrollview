@@ -38,8 +38,6 @@ export interface SpringScrollViewPropType extends ViewProps {
   initialContentOffset?: Offset,
   showsVerticalScrollIndicator?: boolean,
   showsHorizontalScrollIndicator?: boolean,
-  refreshHeaderHeight?: number,
-  loadingFooterHeight?: number,
   refreshHeader?: RefreshHeader,
   loadingFooter?: LoadingFooter,
   onRefresh?: () => any,
@@ -52,6 +50,4 @@ export interface SpringScrollViewPropType extends ViewProps {
   onMomentumScrollBegin?: () => any,
   onMomentumScrollEnd?: () => any,
   onNativeContentOffsetExtract?: NativeContentOffset,
-  refreshStyle?: RefreshStyle,
-  loadingStyle?: LoadingStyle;
 }

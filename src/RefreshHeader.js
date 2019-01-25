@@ -14,7 +14,7 @@ export class RefreshHeader extends React.Component<
   HeaderStateType
 > {
 
-  static height = 100;
+  static height = 80;
 
   static style = "stickyContent";
 

@@ -13,7 +13,7 @@ export class LoadingFooter extends React.Component<
   FooterPropType,
   FooterStateType
   > {
-  static height = 100;
+  static height = 80;
 
   static style = "stickyContent";
 

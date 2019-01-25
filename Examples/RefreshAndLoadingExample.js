@@ -8,8 +8,16 @@
  */
 
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, Platform, View } from "react-native";
 import { SpringScrollView } from "../src";
+import {
+  ChineseNormalFooter,
+  ChineseNormalHeader,
+  ChineseWithLastDateHeader,
+  WithLastDateHeader,
+  WithLastDateFooter,
+  ChineseWithLastDateFooter
+} from "../src/Customize";
 
 export class RefreshAndLoadingExample extends React.Component {
   _scrollView;
@@ -19,9 +27,7 @@ export class RefreshAndLoadingExample extends React.Component {
     super(props);
     this.state = {
       count: this._step,
-      allLoaded: false,
-      refreshStyle: "stickyContent",
-      loadingStyle: "stickyContent"
+      allLoaded: false
     };
   }
 
@@ -34,9 +40,9 @@ export class RefreshAndLoadingExample extends React.Component {
         style={styles.container}
         onRefresh={this._onRefresh}
         onLoading={this._onLoading}
-        refreshStyle={this.state.refreshStyle}
-        loadingStyle={this.state.loadingStyle}
         allLoaded={this.state.allLoaded}
+        refreshHeader={ChineseWithLastDateHeader}
+        loadingFooter={ChineseWithLastDateFooter}
       >
         {arr.map(item =>
           <Text key={item} style={styles.text}>
@@ -68,12 +74,12 @@ export class RefreshAndLoadingExample extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:"lightgray"
+    marginTop: Platform.OS === "ios" ? 20 : 0
   },
   text: {
     paddingVertical: 20,
     fontSize: 16,
-    textAlign:"center",
-    backgroundColor:"white"
+    textAlign: "center",
+    backgroundColor: "white"
   }
 });

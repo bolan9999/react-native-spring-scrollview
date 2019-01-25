@@ -17,12 +17,19 @@ import {
 } from "react-native";
 
 export class NormalHeader extends RefreshHeader {
+  static height = 80;
+
+  static style = "stickyContent";
+
   render() {
     return (
       <View style={styles.container}>
         {this._renderIcon()}
         <View style={styles.rContainer}>
-          <Text style={styles.text}>{this._getTitle()}</Text>
+          <Text style={styles.text}>
+            {this.getTitle()}
+          </Text>
+          {this.renderContent()}
         </View>
       </View>
     );
@@ -30,18 +37,18 @@ export class NormalHeader extends RefreshHeader {
 
   _renderIcon() {
     const s = this.state.status;
-    if (s === "refreshing" || s === "cancelRefresh" || s === "rebound") {
-      return <ActivityIndicator />;
+    if (s === "refreshing" || s === "rebound") {
+      return <ActivityIndicator color={"gray"}/>;
     }
     const { maxHeight, offset } = this.props;
     return (
       <Animated.Image
-        source={require("./arrow.png")}
+        source={require("./Customize/res/arrow.png")}
         style={{
           transform: [
             {
               rotate: offset.interpolate({
-                inputRange: [-maxHeight -1-20, -maxHeight-20 , -80, -79],
+                inputRange: [-maxHeight - 1 - 10, -maxHeight - 10, -50, -49],
                 outputRange: ["180deg", "180deg", "0deg", "0deg"]
               })
             }
@@ -51,7 +58,11 @@ export class NormalHeader extends RefreshHeader {
     );
   }
 
-  _getTitle() {
+  renderContent(){
+    return null;
+  }
+
+  getTitle() {
     const s = this.state.status;
     if (s === "pulling" || s === "waiting") {
       return "Pull down to refresh";
@@ -61,8 +72,6 @@ export class NormalHeader extends RefreshHeader {
       return "Refreshing ...";
     } else if (s === "pullingCancel") {
       return "Give up refreshing";
-    } else if (s === "cancelRefresh") {
-      return "Refresh canceled";
     } else if (s === "rebound") {
       return "Refresh completed";
     }
@@ -81,8 +90,9 @@ const styles = StyleSheet.create({
   },
   text: {
     marginVertical: 5,
-    fontSize: 18,
+    fontSize: 15,
     color: "#666",
-    width:170
+    textAlign: "center",
+    width: 140
   }
 });

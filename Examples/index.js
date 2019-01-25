@@ -21,7 +21,13 @@ export class Examples extends React.Component {
     this.state = { select: 0 };
   }
 
-  render() {
+  render(){
+    return <View style={styles.container}>
+      {this._renderContent()}
+    </View>
+  }
+
+  _renderContent() {
     switch (this.state.select) {
       case 0:
         return this._renderSelect();
@@ -73,6 +79,7 @@ export class Examples extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: 20
+    // margin: 20,
+    backgroundColor: "white"
   }
 });
