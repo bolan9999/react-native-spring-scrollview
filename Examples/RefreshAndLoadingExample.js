@@ -41,12 +41,12 @@ export class RefreshAndLoadingExample extends React.Component {
         onRefresh={this._onRefresh}
         onLoading={this._onLoading}
         allLoaded={this.state.allLoaded}
-        refreshHeader={ChineseWithLastDateHeader}
-        loadingFooter={ChineseWithLastDateFooter}
+        refreshHeader={WithLastDateHeader}
+        loadingFooter={WithLastDateFooter}
       >
         {arr.map(item =>
           <Text key={item} style={styles.text}>
-            This is a Normal Refresh and Loading Test
+            This is a Refresh and Loading Test
           </Text>
         )}
       </SpringScrollView>
@@ -56,7 +56,7 @@ export class RefreshAndLoadingExample extends React.Component {
   _onRefresh = () => {
     setTimeout(() => {
       this._scrollView.endRefresh();
-      this.setState({ count: this._step });
+      this.setState({ count: this._step, allLoaded: this.state.count > 40 });
     }, 1000);
   };
 
@@ -65,7 +65,7 @@ export class RefreshAndLoadingExample extends React.Component {
       this._scrollView.endLoading();
       this.setState(p => ({
         count: p.count + this._step,
-        allLoaded: !p.allLoaded
+        allLoaded: p.count > 40
       }));
     }, 1000);
   };
