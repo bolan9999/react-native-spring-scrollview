@@ -9,8 +9,10 @@
         * [自定义下拉刷新](zh-cn/V2/CustomRefresh)
         * [上拉加载](zh-cn/V2/Loading)
         * [自定义上拉加载](zh-cn/V2/CustomLoading)
-        * [处理键盘遮挡](zh-cn/V2/TextInput)
         * [滑动 & 监听滑动](zh-cn/V2/Scroll)
+        * [其他事件](zh-cn/V2/Event)
+        * [处理键盘遮挡](zh-cn/V2/TextInput)
+        * [已知问题](zh-cn/V2/KnownIssues)
     * [LargeList](https://bolan9999.github.io/react-native-largelist/#/)
     * 注意事项
 

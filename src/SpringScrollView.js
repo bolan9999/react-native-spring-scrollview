@@ -96,7 +96,7 @@ export class SpringScrollView extends React.PureComponent<
       loadingFooter: Loading
     } = this.props;
     return (
-      <View {...this.props} style={[{ flex: 1 }, style]}>
+      <Animated.View {...this.props} style={[{ flex: 1 }, style]}>
         <SpringScrollViewNative
           {...this.props}
           ref={ref => (this._scrollView = ref)}
@@ -125,7 +125,7 @@ export class SpringScrollView extends React.PureComponent<
         </SpringScrollViewNative>
         {this._renderHorizontalIndicator()}
         {this._renderVerticalIndicator()}
-      </View>
+      </Animated.View>
     );
   }
 
@@ -237,7 +237,7 @@ export class SpringScrollView extends React.PureComponent<
     );
   }
 
-  scrollToTop(animated: boolean) {
+  scrollToBegin(animated: boolean) {
     return this.scrollTo({ x: 0, y: 0 }, animated);
   }
 

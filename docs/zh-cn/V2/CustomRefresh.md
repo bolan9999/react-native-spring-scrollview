@@ -9,10 +9,6 @@
 * "refreshing": 刷新态：已经触发onRefresh，此时正在刷新中
 * "rebound": 回弹态: 已经刷新完成，正在往回弹的状态
 
-### 流程
-
-![RefreshProcess](../../res/)
-
 ### 自定义
 
 #### 导入
@@ -58,7 +54,7 @@ class MyHeader extends RefreshHeader{
 
 #### 选择刷新组件的下拉样式
 
-只需要重写静态变量style就可以改变刷新组件的样式：
+只需要重写静态变量style就可以改变刷新组件的样式,默认值是"stickyContent"：
 ```
 class MyHeader extends RefreshHeader{
     static style:string = "stickyContent";
@@ -67,17 +63,11 @@ class MyHeader extends RefreshHeader{
 
 SpringScrollView目前支持三种样式：
 
-"topping"：
-
-![topping]()
-
-"stickyScrollView":
-
-![stickyScrollView]()
-
-"stickyContent":
-
-![stickyContent]()
+style  |  效果
+---- | ------
+"topping" | ![topping](../../res/RefreshingTopping.gif)
+"stickyScrollView" | ![stickyScrollView](../../res/RefreshingStickyScrollView.gif)
+"stickyContent" | ![stickyContent](../../res/RefreshingStickyContent.gif)
 
 #### 将自定义的刷新组件应用到SpringScrollView
 ```$js

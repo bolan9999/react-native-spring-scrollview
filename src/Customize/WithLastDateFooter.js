@@ -15,6 +15,7 @@ import {NormalFooter} from "../NormalFooter";
 const LoadingKey = "org.bolan9999.spring_scrollview.loading_time";
 
 export class WithLastDateFooter extends NormalFooter {
+  static style="stickyScrollView";
   lastTime: Date;
   constructor(props) {
     super(props);

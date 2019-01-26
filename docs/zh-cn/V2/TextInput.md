@@ -1,6 +1,6 @@
 # 处理键盘遮挡
 
-移动APP经常会遇到一个尴尬的问题，输入框的键盘遮挡问题。不用担心，使用VerticalScrollView能够很轻松的处理键盘遮挡问题。
+移动APP经常会遇到一个尴尬的问题，输入框的键盘遮挡问题。不用担心，使用SpringScrollView能够很轻松的处理键盘遮挡问题。
 
 ### 第一步：创建ReactRef引用
 ```$js
@@ -12,10 +12,16 @@ _ref = React.createRef();
 <TextInput ref={this._ref}
 ```
 
-### 第三步：让VerticalScrollView处理键盘遮挡
+### 第三步：让SpringScrollView处理键盘遮挡
 ```$js
-<VerticalScrollView textInputRefs={[this._ref]}
+<SpringScrollView textInputRefs={[this._ref]}
 ```
+
+属性  |  类型  |  默认值  |  作用  
+---- | ------ | --------- | --------
+textInputRefs | TextInput[] | [] | 将TextInput的引用传入，让SpringScrollView自动管理键盘遮挡问题。
+tapToHideKeyboard | boolean | true | 触摸屏幕时是否隐藏键盘
+inputToolBarHeight | number | 44 | 不同的系统，不同的三方输入法，键盘的工具栏高度是不确定的，并且官方没有给出获取工具栏高度的办法，这个属性用以给用户小幅调整键盘弹起时，组件偏移的位置
 
 ### 示例
 
@@ -26,47 +32,21 @@ export class InputExample extends React.Component {
 
   render() {
    return (
-      <VerticalScrollView
-        style={{flex:1}}
+      <SpringScrollView
         textInputRefs={[this._topInput, this._bottomInput]}
+        tapToHideKeyboard
+        inputToolBarHeight={60}
       >
         <TextInput ref={this._topInput} />
         ...//Other content
         <TextInput ref={this._bottomInput} />
-      </VerticalScrollView>
+      </SpringScrollView>
     );
   }
 }
 ```
 
 具体参见[InputExample](https://github.com/bolan9999/react-native-spring-scrollview/blob/master/Examples/InputExample.js)
-
-
-### 属性
-
-#### textInputRefs
-
-类型：TextInput[]
-
-默认值：[]
-
-描述：将TextInput的引用传入，让VerticalScrollView自动管理键盘遮挡问题。
-
-#### tapToHideKeyboard
-
-类型：boolean
-
-默认值：true
-
-描述：触摸屏幕时是否隐藏键盘
-
-#### inputToolBarHeight
-
-类型：number
-
-默认值：44
-
-描述：不同的系统，不同的三方输入法，键盘的工具栏高度是不确定的，并且官方没有给出获取工具栏高度的办法，这个属性用以给用户小幅调整键盘弹起时，组件偏移的位置
 
 
 

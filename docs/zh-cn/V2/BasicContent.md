@@ -19,7 +19,7 @@ overflow: 'scroll',
 
 属性  |  类型  |  默认值  |  作用  
 ---- | ------ | --------- | --------
-style | [ViewStyle](http://facebook.github.io/react-native/docs/view-style-props) | {flex:1} | 控制外层容器样式
+style | Animated.[ViewStyle](http://facebook.github.io/react-native/docs/view-style-props) | {flex:1} | 控制外层容器样式,直接支持Animated样式
 contentStyle | [ViewStyle](http://facebook.github.io/react-native/docs/view-style-props) | - | 控制内层内容视图的样式
 
 注意：V2版本SpringScrollView已经支持水平垂直方向同时滑动了，contentStyle可以支持{width:"200%"}等宽度超过父元素的样式

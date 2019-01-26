@@ -1,8 +1,7 @@
 # 下拉刷新
 
 ### 预览
-![Preview](../../res/RefreshAndroid.gif)
-![Preview](../../res/RefreshIOS.gif)
+![Preview](../../res/RefreshingStickyContent.gif)
 
 ### 导入
 

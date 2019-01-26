@@ -25,9 +25,5 @@ V2版本弃用了React-Native-Gesture-Handler, 采用原生桥接的方式，
 
 
 ### 预览
-![Preview](../res/demo1.gif)
-![Preview](../res/demo2.gif)
-![Preview](../res/RefreshAndroid.gif)
-![Preview](../res/RefreshIOS.gif)
-![Preview](../res/LoadingAndroid.gif)
-![Preview](../res/LoadingIOS.gif)
+![Preview](../res/RefreshingStickyContent.gif)
+![Preview](../res/LoadingStickyContent.gif)

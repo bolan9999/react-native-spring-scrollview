@@ -1,8 +1,7 @@
 # 上拉加载
 
 ### 预览
-![Preview](../res/LoadingAndroid.gif)
-![Preview](../res/LoadingIOS.gif)
+![Preview](../../res/LoadingStickyContent.gif)
 
 ### 代码
 
@@ -23,7 +22,7 @@ import { ChineseWithLastDateFooter } from "react-native-spring-scrollview/Custom
   onLoading={()=>{
     setTimeOut(()=>{
       this._scrollView.endLoading();
-      setTimeOut(()=>this.setState({prop:"your changed props"}));
+      this.setState({...});
     },2000);
   }>
     <Text key={item} style={styles.text}>

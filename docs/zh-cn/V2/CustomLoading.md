@@ -7,13 +7,8 @@
 * "draggingEnough": 上拉足够态：视图已经达到组件的高度，但是用户还没有松手，松手即可进入加载态
 * "draggingCancel": 上拉取消态: 当用户上拉经历过上拉足够态，但是又往下拉，达不到加载的高度，则进入此状态，如果用户不松手，重新上拉可再次进入上拉足够态
 * "loading": 加载态：onLoading，此时正在加载中
-* "cancelLoading": 取消加载态: 在数据加载过程中，如果用户下拉，则会进入此状态
 * "rebound": 回弹态: 已经加载完成，正在往回弹的状态
 * "allLoaded": 数据加载完成态，此状态下不会触发刷新，该状态由allLoaded属性控制
-
-### 流程
-
-![LoadingProcess](../res/LoadingProcess.png)
 
 ### 自定义
 
@@ -35,6 +30,9 @@ render() {
 ```
 
 LoadingFooter自带有两个Props, 和一个状态status，在子类里面可以直接使用
+* this.props.maxHeight，类型：number 加载组件的高度
+* this.props.offset，类型:Animated.Value 表示当前SpringScrollView原生偏移量contentOffset.y的动画值，可以用作原生插值动画
+* this.state.status, 类型:FooterStatus 表示当前加载组件正处在的状态
 ```$js
 export type FooterStatus =
   | "waiting"
@@ -43,28 +41,38 @@ export type FooterStatus =
   | "draggingCancel"
   | "releaseRebound"
   | "loading"
-  | "cancelLoading"
   | "rebound"
   | "allLoaded";
+```
 
-interface FooterPropType {
-  offset?: Animated.Value,
-  maxHeight?: number
-}
-
-interface FooterStateType {
-  status?: FooterStatus
+#### 自定义加载控件高度
+只需要重写静态变量height就可以改变该加载组件的高度（**请注意这与V1有差别，V2取消了loadingFooterHeight属性，V2更加注重刷新组件的独立性**）:
+```$js
+class MyFooter extends LoadingFooter{
+    static height:number = 50;
 }
 ```
 
-* this.props.maxHeight: 加载组件的高度
-* this.props.offset: 表示当前的Footer偏移量动画值，取值范围是[-this.props.maxHeight, 0]
-* this.state.status: 表示当前加载组件正处在的状态
+#### 选择刷新组件的下拉样式
 
+只需要重写静态变量style就可以改变刷新组件的样式：
+```
+class MyFooter extends LoadingFooter{
+    static style:string = "stickyContent";
+}
+```
 
-#### 将自定义的加载组件应用到VerticalScrollView
+SpringScrollView目前支持三种样式,默认值是"stickyContent"：
+
+style  |  效果
+---- | ------
+"bottoming" | ![bottoming](../../res/LoadingBottoming.gif)
+"stickyScrollView" | ![stickyScrollView](../../res/LoadingStickyScrollView.gif)
+"stickyContent" | ![stickyContent](../../res/LoadingStickyContent.gif)
+
+#### 将自定义的加载组件应用到SpringScrollView
 ```$js
-<VerticalScrollView loadingFooter={MyFooter}/>
+<SpringScrollView loadingFooter={MyFooter}/>
 ```
 
 完整的示例可以查看[NormalFooter](https://github.com/bolan9999/react-native-spring-scrollview/blob/master/src/LoadingFooter.js)
@@ -87,26 +95,26 @@ onStateChange(oldStatus: HeaderStatus, newStatus: HeaderStatus) {
 
 #### 渐变动画
 
-this.props.offset: 表示当前的Header偏移量动画值，取值范围是[ -this.props.maxHeight，0 ]， 你可以使用这个值来自定义你的动画：
+this.props.offset: 表示当前SpringScrollView的contentOffset.y的原生动画值，， 你可以使用这个值来自定义你的原生插值动画：：
 
 举个例子，如果你有个箭头图标，希望在上拉过程中旋转角度，当到达加载状态的时候，完全反转角度，那么你可以这样写
 
 ```$js
-return (
-  <Animated.Image
-    source={require("./arrow.png")}
-    resizeMode="center"
+<Animated.Image
+    source={require("./Customize/res/arrow.png")}
     style={{
-      transform: [
-      {
-        rotate: this.props.offset.interpolate({
-          inputRange: [ -this.props.maxHeight， 0 ],
-          outputRange: ["0deg", "180deg"]
+    transform: [{
+        rotate: offset.interpolate({
+            inputRange: [
+                bottomOffset - 1 + 45,
+                bottomOffset + 45,
+                bottomOffset + maxHeight,
+                bottomOffset + maxHeight + 1
+            ],
+            outputRange: ["180deg", "180deg", "0deg", "0deg"]
         })
-      }]
-    }}
-  />
-);
+    }]
+}}/>
 ```
 
 完整的示例可以查看[NormalFooter](https://github.com/bolan9999/react-native-spring-scrollview/blob/master/src/NormalFooter.js)

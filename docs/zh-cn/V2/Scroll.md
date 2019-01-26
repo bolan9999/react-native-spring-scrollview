@@ -2,83 +2,69 @@
 
 要使用代码滑动到指定位置，非常简单：
 
-### 第一步，获取VerticalScrollView的引用
+### 第一步，获取SpringScrollView的引用
 ```$js
-<VerticalScrollView ref={ref=>(this._scrollView = ref)} />
+<SpringScrollView ref={ref=>(this._scrollView = ref)} />
 ```
 
 ### 第二步，使用scrollTo方法
 ```$js
-this._scrollView && this._scrollView.scrollTo({x:0,y:100});
+this._scrollView && this._scrollView.scrollTo({x:0,y:100}).then().catch();
 ```
+### 可用滑动方法
+scrollTo({x:number, y:number}, animated:boolean=true):Promise&lt;void>
 
-scrollTo({x:number, y:number}, animated=true)
+滑动到指定的偏移
 
-滑动到指定的偏移，注意：
+scroll({x:number, y:number}, animated:boolean=true):Promise&lt;void>
 
-* x坐标目前没有任何效果
+在当前位置上滑动指定的偏移，请注意scroll参数是偏移值，scrollTo是目标值
 
-* 如果超出 VerticalScrollView的内容范围，将自动矫正到极端位置
+scrollToBegin(animated:boolean=true):Promise&lt;void>
+
+滑动到{x:0,y:0}的位置
+
+scrollToEnd(animated: boolean = true):Promise&lt;void>
+
+滑动到最右下角位置
 
 
-# 监听滑动
+# Javascript端监听滑动
 
-### onScroll : ({x:number, y:number})=>any
+### onScroll : ({nativeEvent:{contentOffset:{x:number, y:number}}})=>any
 
 ```$js
-<VerticalScrollView onScroll={({x:x,y:y})=>{
+<SpringScrollView onScroll={({nativeEvent:{contentOffset:{x, y}}})=>{
     console.log("offset : x=", x, "y=", y);
-} />
+}/>
 ```
 
 注意：
 
 * y值是有可能超出内容范围之外的
-* 遮挡键盘的偏移处理当中，该函数不会回调
-* 如果需要提高性能，使用原生动画驱动，则可以考虑使用下面的方法
-
-### onTouchBegin : ()=>any
-手指按下时回调
-```$js
-<VerticalScrollView onTouchBegin={()=>{
-    console.log("onTouchBegin");
-} />
-```
-
-### onTouchEnd : ()=>any
-手指按下时回调
-```$js
-<VerticalScrollView onTouchEnd={()=>{
-    console.log("onTouchEnd");
-} />
-```
-
-### onMomentumScrollStart : ()=>any
-手指按下时回调
-```$js
-<VerticalScrollView onMomentumScrollStart={()=>{
-    console.log("onMomentumScrollStart");
-} />
-```
-
-### onMomentumScrollEnd : ()=>any
-手指按下时回调
-```$js
-<VerticalScrollView onMomentumScrollEnd={()=>{
-    console.log("onMomentumScrollEnd");
-} />
-```
+* 不要使用Animated.createAnimatedComponent，SpringScrollView本身支持所有的Animated.View的属性，如果需要高性能的监听偏移，请使用下面的原生动画驱动
 
 # 监听原生偏移值
 
-### getNativeOffset : (offset: Animated.Value) => any
+### onNativeContentOffsetExtract : {x&#58;Animated.Value, y&#58;Animated.Value}
 
-获得监听滑动偏移并支持原生动画的动画值（该值是合成值，不可监听，不可修改，只能用于原生动画，键盘遮挡的偏移动画不会触发此值更改）
-
+使用原生动画值监听滑动偏移，可以用作插值动画
+下面是一个简单的吸住SpringScrollView的示例
 ```$js
-<VerticalScrollView getNativeOffset={(offset=>{
-    //可以将此offset做任何插值运算并应用到你的组件里面，这样将在原生动画中驱动动画
-} />
+_nativeOffset = {
+    y: new Animated.Value(0)
+};
+
+render(){
+    return <SpringScrollView onNativeContentOffsetExtract={this._nativeOffset}>
+        <Animated.View style={transform: [{ translateY: this._nativeOffset.y }]}/>
+    </SpringScrollView>
+}
+
 ```
+
+
+
+
 
 
