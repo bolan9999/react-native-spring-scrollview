@@ -1,40 +1,24 @@
-# 欢迎
+# **React Native Spring ScrollView**！
 
-欢迎使用**React Native Spring ScrollView**！
+**React Native Spring ScrollView V2** 是原生桥接实现的一组高性能弹性ScrollView，
+使用它可以轻松地实现iOS风格的下拉刷新及上拉加载更多，
+拥有完全一致的视图表现及原生的弹性体验，并且兼容iOS和Android。
+V2版本弃用了React-Native-Gesture-Handler, 采用原生桥接的方式，
+已经彻底解决了V1版本有时候JavaScript线程卡住造成无法弹回初始位置的问题
 
-### **React Native Spring ScrollView**是什么？
+### Features
 
-**React Native Spring ScrollView** 是JavaScript实现的一组高性能弹性ScrollView家族，使用它可以轻松地实现iOS风格的下拉刷新及上拉加载更多，拥有完全一致的视图表现及原生的弹性体验，并且兼容iOS和Android。
-
-### 功能
-
-
-* iOS原生风格的弹性ScrollView
-* iOS和安卓完全一致的视图表现，没有任何平台相关的专有属性
+* 跨平台（iOS & Android）的弹性ScrollView
+* 支持水平和垂直方向同时滑动
 * 媲美原生的滑动体验
-* 高度自定义的下拉刷新和上拉加载更多动画
+* 高度自定义的下拉刷新和上拉加载更多动画，库内集成几种常用的刷新和加载控件
 * 支持输入框防遮挡
-* 比官方ScrollView更完善和稳定的响应系统
 * 支持滑动到指定位置
-* 比官方ScrollView更精密的细节控制，比如：松手后的阻尼系数，超出内容视图的阻尼系数、减速系数，回弹动画、回弹时间均可配置
-* 支持根据滑动偏移自定义原生驱动的动画
+* 支持根据滑动偏移自定义原生驱动动画（水平方向和垂直方向同时）
 * 支持初始化偏移
-* 支持自定义滑块指示器（计划任务）
-* 支持大列表（计划任务）
+* 根本上解决了onRefresh和onLoading在某些时候没有响应的问题
 
 
-### 预览
-![Preview](./docs/demo1.gif)
-![Preview](./docs/demo2.gif)
-![Preview](./docs/RefreshAndroid.gif)
-![Preview](./docs/RefreshIOS.gif)
-![Preview](./docs/LoadingAndroid.gif)
-![Preview](./docs/LoadingIOS.gif)
-
-### 文档
-
-点击[这里](https://bolan9999.github.io/react-native-spring-scrollview/#/)查看开发文档
-
-### 许可证
-
-**React Native Spring ScrollView** 是MIT许可证
+### Preview
+![Refreshing](./docs/res/RefreshingStickyContent.gif)
+![Loading](./docs/res/LoadingStickyContent.gif)
