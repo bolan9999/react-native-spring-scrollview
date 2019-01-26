@@ -3,7 +3,7 @@
 **React Native Spring ScrollView V2** is a high performance cross-platform  native bounces ScrollView for React Native.(iOS & Android) It is easy to support pulling to refresh and dragging to load more data.
 It is bridged from Native in V2，and resolve a big problem in V1 when Javascript thread is stuck.
 
-### 功能
+### Features
 
 * High performance cross-platform  native bounces ScrollView (iOS & Android)
 * Simultaneous gesture on both horizontal and vertical directions.
