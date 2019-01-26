@@ -6,7 +6,7 @@
 V2版本弃用了React-Native-Gesture-Handler, 采用原生桥接的方式，
 已经彻底解决了V1版本有时候JavaScript线程卡住造成无法弹回初始位置的问题
 
-### Features
+### 功能特性
 
 * 跨平台（iOS & Android）的弹性ScrollView
 * 支持水平和垂直方向同时滑动
