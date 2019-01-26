@@ -24,7 +24,6 @@ export class BouncesAndScrollEnabledExample extends React.Component {
     for (let i = 0; i < this.state.contentCount; ++i) arr.push(i);
     return (
       <SpringScrollView
-        style={styles.container}
         {...this.state}
         contentStyle={{width:"300%",backgroundColor:"lightgray"}}
         initialContentOffset={{ x: 0, y: 550 }}
@@ -50,9 +49,6 @@ export class BouncesAndScrollEnabledExample extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
   text: {
     fontSize: 16,
     margin: 20

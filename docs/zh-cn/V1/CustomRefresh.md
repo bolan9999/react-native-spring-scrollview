@@ -12,7 +12,7 @@
 
 ### 流程
 
-![RefreshProcess](./RefreshProcess.png)
+![RefreshProcess](../res/RefreshProcess.png)
 
 ### 自定义
 

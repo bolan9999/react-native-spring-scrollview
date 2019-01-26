@@ -13,7 +13,7 @@
 
 ### 流程
 
-![LoadingProcess](./LoadingProcess.png)
+![LoadingProcess](../res/LoadingProcess.png)
 
 ### 自定义
 

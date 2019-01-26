@@ -24,9 +24,9 @@
 
 
 ### 预览
-![Preview](./demo1.gif)
-![Preview](./demo2.gif)
-![Preview](./RefreshAndroid.gif)
-![Preview](./RefreshIOS.gif)
-![Preview](./LoadingAndroid.gif)
-![Preview](./LoadingIOS.gif)
+![Preview](../res/demo1.gif)
+![Preview](../res/demo2.gif)
+![Preview](../res/RefreshAndroid.gif)
+![Preview](../res/RefreshIOS.gif)
+![Preview](../res/LoadingAndroid.gif)
+![Preview](../res/LoadingIOS.gif)

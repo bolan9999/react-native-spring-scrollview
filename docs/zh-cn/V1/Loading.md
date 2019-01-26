@@ -1,8 +1,8 @@
 # 上拉加载
 
 ### 预览
-![Preview](./LoadingAndroid.gif)
-![Preview](./LoadingIOS.gif)
+![Preview](../res/LoadingAndroid.gif)
+![Preview](../res/LoadingIOS.gif)
 
 ### 代码
 

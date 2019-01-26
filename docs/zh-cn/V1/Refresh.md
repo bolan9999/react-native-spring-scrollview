@@ -1,8 +1,8 @@
 # 下拉刷新
 
 ### 预览
-![Preview](./RefreshAndroid.gif)
-![Preview](./RefreshIOS.gif)
+![Preview](../res/RefreshAndroid.gif)
+![Preview](../res/RefreshIOS.gif)
 
 ### 代码
 

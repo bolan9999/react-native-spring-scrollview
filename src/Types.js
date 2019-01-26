@@ -30,6 +30,15 @@ export type RefreshStyle = "topping" | "stickyScrollView" | "stickyContent";
 
 export type LoadingStyle = "bottoming" | "stickyScrollView" | "stickyContent";
 
+export interface ScrollEvent{
+  nativeEvent:{
+    contentOffset:{
+      x:number,
+      y:number
+    }
+  }
+}
+
 export interface SpringScrollViewPropType extends ViewProps {
   style?: ViewStyle,
   contentStyle?: ViewStyle,
@@ -49,5 +58,6 @@ export interface SpringScrollViewPropType extends ViewProps {
   onTouchEnd?: () => any,
   onMomentumScrollBegin?: () => any,
   onMomentumScrollEnd?: () => any,
+  onScroll?: (evt:ScrollEvent)=>any;
   onNativeContentOffsetExtract?: NativeContentOffset,
 }
