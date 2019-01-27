@@ -1,6 +1,6 @@
 ### 概述
 
-SpringScrollView是一个支持水平竖直方向同时滑动的弹性ScrollView，和官方的ScrollView一样，简单粗暴地将所有内容一次性渲染出来，特别适合少量可滑动内容界面。
+SpringScrollView是一个支持水平竖直方向同时滑动的弹性ScrollView，和官方的ScrollView一样，简单粗暴地将所有内容一次性渲染出来，特别适合少量可滑动内容界面。如果您想要一个支持重用的大列表组件，也许[LargeList](https://bolan9999.github.io/react-native-largelist/#/)是个不错的选择。
 
 与官方的ScrollView一样，SpringScrollView必须有一个确定的高度才能正常工作，因为它实际上所做的就是将一系列不确定高度的子组件装进一个确定高度的容器（通过滚动操作）。SpringScrollView默认具有{flex:1}的样式，因此要使SpringScrollView正常工作，它的父容器必须是确定高度的，你也可以通过手动指定样式，使之正常工作。
 

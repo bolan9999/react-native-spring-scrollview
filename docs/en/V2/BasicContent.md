@@ -1,6 +1,6 @@
 ### Overview
 
-SpringScrollView is a high performance cross-platform  native bounces ScrollView for React Native.(iOS & Android). It is same as the ScrollView from React-Native, SpringScrollView simply renders all its react child components at once. That makes it very easy to understand and use.
+SpringScrollView is a high performance cross-platform  native bounces ScrollView for React Native.(iOS & Android). It is same as the ScrollView from React-Native, SpringScrollView simply renders all its react child components at once. That makes it very easy to understand and use. If you need a high-performance reused large list component , maybe [LargeList](https://bolan9999.github.io/react-native-largelist/#/) is a good choice.
 
 Keep in mind that SpringScrollViews must have a bounded height in order to work, since they contain unbounded-height children into a bounded container (via a scroll interaction). In order to bound the height of a ScrollView, either set the height of the view directly (discouraged) or make sure all parent views have bounded height. SpringScrollViews default have a `{flex:1}` style, please be sure its parent has abounded height.
 
