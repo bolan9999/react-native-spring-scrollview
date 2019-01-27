@@ -42,7 +42,7 @@ export class NormalFooter extends LoadingFooter {
   _renderIcon() {
     const s = this.state.status;
     if (s === "loading" || s === "cancelLoading" || s === "rebound") {
-      return <ActivityIndicator />;
+      return <ActivityIndicator color={"gray"}/>;
     }
     const { maxHeight, offset, bottomOffset } = this.props;
     return (
