@@ -39,3 +39,14 @@ import { ChineseWithLastDateFooter } from "react-native-spring-scrollview/Custom
 onLoading | ()=>any | undefined | 上拉加载的回调函数
 allLoaded | boolean | false | 数据是否加载完成。
 loadingFooter | LoadingFooter | NormalFooter | 上拉加载组件，用户如果不希望自定义，则可以使用NormalFooter,如果需要高度自定义，请参看[自定义上拉加载](CustomLoading)
+
+### 本库提供的额外加载控件
+本库提供了一些加载控件, 用户可以试试
+```
+import {NormalFooter} from "react-native-spring-scrollview/NormalFooter";
+import {
+    WithLastDateFooter,
+    ChineseNormalFooter,
+    ChineseWithLastDateFooter,
+} from "react-native-spring-scrollview/Customize";
+```

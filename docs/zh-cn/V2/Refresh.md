@@ -45,3 +45,14 @@ refreshHeader | [RefreshHeader](https://github.com/bolan9999/react-native-spring
 
 结束刷新，关闭刷新组件。 在onRefresh完成数据请求以后，我们建议您先使用此方法开启结束动画，再更新内容，这样在下拉过程中，动画更流畅（ **注意：V2版本已经取消了beginRefresh过程，组件会自动开始刷新** ）
 
+### 本库提供的额外刷新控件
+
+本库提供了一些刷新控件, 用户可以试试
+```
+import {NormalRefresh} from "react-native-spring-scrollview/NormalRefresh";
+import {
+    WithLastDateHeader,
+    ChineseNormalHeader,
+    ChineseWithLastDateHeader,
+} from "react-native-spring-scrollview/Customize";
+```

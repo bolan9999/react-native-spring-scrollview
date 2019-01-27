@@ -39,3 +39,16 @@ Props  |  Type  |  Default  |  description  
 onLoading | ()=>any | undefined | The callback of loading. If set this prop, a loading footer will add to the botom of the SpringScrollView
 allLoaded | boolean | false | Whether the data is all loaded.
 loadingFooter | LoadingFooter | NormalFooter | The footer component of loading. If you want to customize loading footer , this will be helpful [Custom Loading](/en/V2/CustomLoading)
+
+
+
+### All loading footers in this library
+
+```
+import {NormalFooter} from "react-native-spring-scrollview/NormalFooter";
+import {
+    WithLastDateFooter,
+    ChineseNormalFooter,
+    ChineseWithLastDateFooter,
+} from "react-native-spring-scrollview/Customize";
+```

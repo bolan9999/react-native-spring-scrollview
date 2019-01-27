@@ -7,7 +7,6 @@
  *
  */
 
-import {RefreshHeader} from "../RefreshHeader";
 import {NormalHeader} from "../NormalHeader";
 
 export class ChineseNormalHeader extends NormalHeader{
