@@ -1,6 +1,7 @@
 package com.bolan9999;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -41,6 +42,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         contentSize = new Size();
         lastPoint = new Point();
         setClipChildren(false);
+        setClipChildren(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setClipToOutline(true);
+        }
     }
 
     @Override
