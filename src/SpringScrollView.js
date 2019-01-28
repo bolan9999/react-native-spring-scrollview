@@ -96,11 +96,10 @@ export class SpringScrollView extends React.PureComponent<
       loadingFooter: Loading
     } = this.props;
     return (
-      <Animated.View {...this.props} style={[{ flex: 1 }, style]}>
         <SpringScrollViewNative
           {...this.props}
           ref={ref => (this._scrollView = ref)}
-          style={{ flex: 1 }}
+          style={[{ flex: 1,},style]}
           onScroll={this._event}
           refreshHeaderHeight={onRefresh ? Refresh.height : 0}
           loadingFooterHeight={onLoading ? Loading.height : 0}
@@ -109,7 +108,6 @@ export class SpringScrollView extends React.PureComponent<
           onTouchBegin={this._onTouchBegin}
           onTouchStart={this._onTouchBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
-          showsVerticalScrollIndicator={false}
           scrollEventThrottle={1}
           onNativeContentOffsetExtract={this._nativeOffset}
         >
@@ -122,10 +120,9 @@ export class SpringScrollView extends React.PureComponent<
             {this._renderLoadingFooter()}
             {children}
           </SpringScrollContentViewNative>
+          {this._renderHorizontalIndicator()}
+          {this._renderVerticalIndicator()}
         </SpringScrollViewNative>
-        {this._renderHorizontalIndicator()}
-        {this._renderVerticalIndicator()}
-      </Animated.View>
     );
   }
 
@@ -165,17 +162,20 @@ export class SpringScrollView extends React.PureComponent<
   }
 
   _renderVerticalIndicator() {
+    if (Platform.OS === "ios") return null;
     const { showsVerticalScrollIndicator } = this.props;
     const measured =
       this._height !== undefined && this._contentHeight !== undefined;
     if (!measured) return null;
     return (
       showsVerticalScrollIndicator &&
+      this._contentHeight > this._height &&
       <Animated.View style={this._getVerticalIndicatorStyle()} />
     );
   }
 
   _renderHorizontalIndicator() {
+    if (Platform.OS === "ios") return null;
     const { showsHorizontalScrollIndicator } = this.props;
     const measured =
       this._height !== undefined && this._contentHeight !== undefined;
@@ -529,10 +529,6 @@ export class SpringScrollView extends React.PureComponent<
     showsVerticalScrollIndicator: true,
     showsHorizontalScrollIndicator: true,
     initialContentOffset: { x: 0, y: 0 },
-    onNativeContentOffsetExtract: {
-      x: new Animated.Value(0),
-      y: new Animated.Value(0)
-    }
   };
 }
 
