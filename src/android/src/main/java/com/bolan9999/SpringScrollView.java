@@ -23,13 +23,13 @@ import com.facebook.react.views.view.ReactViewGroup;
 public class SpringScrollView extends ReactViewGroup implements View.OnTouchListener,
         View.OnLayoutChangeListener, OnInterceptTouchEventListener {
     private float refreshHeaderHeight, loadingFooterHeight;
-    private boolean momentumScrolling, bounces, scrollEnabled;
+    private boolean momentumScrolling, bounces, scrollEnabled, dragging;
     private VelocityTracker tracker;
     private DecelerateAnimation verticalAnimation, horizontalAnimation;
     private String refreshStatus, loadingStatus;
     private Offset contentOffset, initContentOffset;
     private Size size, contentSize;
-    private Point lastPoint;
+    private Point lastPoint, beginPoint;
     private EdgeInsets contentInsets;
 
     public SpringScrollView(@NonNull Context context) {
@@ -41,7 +41,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         size = new Size();
         contentSize = new Size();
         lastPoint = new Point();
-        setClipChildren(false);
+        beginPoint = new Point();
         setClipChildren(false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setClipToOutline(true);
@@ -94,12 +94,20 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
                 onDown(ev);
                 return false;
             case MotionEvent.ACTION_MOVE:
-                if (ev.getX() == lastPoint.x && ev.getY() == lastPoint.y) return false;
-                NativeGestureUtil.notifyNativeGestureStarted(this, ev);
-                ReactScrollViewHelper.emitScrollBeginDragEvent(this);
-                return true;
+                if (shouldDrag(ev)) {
+                    dragging = true;
+                    NativeGestureUtil.notifyNativeGestureStarted(this, ev);
+                    ReactScrollViewHelper.emitScrollBeginDragEvent(this);
+                    return true;
+                }
         }
         return false;
+    }
+
+    private boolean shouldDrag(MotionEvent ev) {
+        return dragging ||
+                (canHorizontalScroll() && Math.abs(ev.getX() - beginPoint.x) > PixelUtil.toPixelFromDIP(10)) ||
+                (scrollEnabled && Math.abs(ev.getY() - beginPoint.y) > PixelUtil.toPixelFromDIP(10));
     }
 
     @Override
@@ -117,8 +125,8 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     private void onDown(MotionEvent evt) {
-        lastPoint.x = evt.getX();
-        lastPoint.y = evt.getY();
+        beginPoint.x = lastPoint.x = evt.getX();
+        beginPoint.y = lastPoint.y = evt.getY();
         cancelAllAnimations();
         if (momentumScrolling) {
             momentumScrolling = false;
@@ -138,6 +146,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
     private void onUp(MotionEvent evt) {
         this.onMove(evt);
+        dragging = false;
         tracker.computeCurrentVelocity(1);
         float vy = tracker.getYVelocity();
         float vx = tracker.getXVelocity();
@@ -645,6 +654,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private boolean shouldFooterWaiting() {
         return loadingFooterHeight > 0 && !overshootFooter() &&
                 (loadingStatus.equals("rebound") || loadingStatus.equals("draggingCancel"));
+    }
+
+    private boolean canHorizontalScroll() {
+        return scrollEnabled && contentSize.width > size.width;
     }
 
 }

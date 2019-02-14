@@ -16,6 +16,7 @@ import {
   Keyboard,
   Platform,
   NativeModules,
+  StyleSheet,
   ViewProps,
   ViewStyle
 } from "react-native";
@@ -26,6 +27,7 @@ import { NormalFooter } from "./NormalFooter";
 import type { HeaderStatus } from "./RefreshHeader";
 import { idx } from "./idx";
 import type { Offset, SpringScrollViewPropType } from "./Types";
+import { styles } from "./styles";
 
 export class SpringScrollView extends React.PureComponent<
   SpringScrollViewPropType
@@ -95,34 +97,35 @@ export class SpringScrollView extends React.PureComponent<
       refreshHeader: Refresh,
       loadingFooter: Loading
     } = this.props;
+    const wStyle = StyleSheet.flatten([styles.wrapperStyle, style]);
     return (
-        <SpringScrollViewNative
-          {...this.props}
-          ref={ref => (this._scrollView = ref)}
-          style={[{ flex: 1,},style]}
-          onScroll={this._event}
-          refreshHeaderHeight={onRefresh ? Refresh.height : 0}
-          loadingFooterHeight={onLoading ? Loading.height : 0}
-          keyboardShouldPersistTaps={"never"}
-          onLayout={this._onWrapperLayoutChange}
-          onTouchBegin={this._onTouchBegin}
-          onTouchStart={this._onTouchBegin}
-          onMomentumScrollEnd={this._onMomentumScrollEnd}
-          scrollEventThrottle={1}
-          onNativeContentOffsetExtract={this._nativeOffset}
+      <SpringScrollViewNative
+        {...this.props}
+        ref={ref => (this._scrollView = ref)}
+        style={wStyle}
+        onScroll={this._event}
+        refreshHeaderHeight={onRefresh ? Refresh.height : 0}
+        loadingFooterHeight={onLoading ? Loading.height : 0}
+        keyboardShouldPersistTaps={"never"}
+        onLayout={this._onWrapperLayoutChange}
+        onTouchBegin={this._onTouchBegin}
+        onTouchStart={this._onTouchBegin}
+        onMomentumScrollEnd={this._onMomentumScrollEnd}
+        scrollEventThrottle={1}
+        onNativeContentOffsetExtract={this._nativeOffset}
+      >
+        <SpringScrollContentViewNative
+          style={this.props.contentStyle}
+          collapsable={false}
+          onLayout={this._onContentLayoutChange}
         >
-          <SpringScrollContentViewNative
-            style={this.props.contentStyle}
-            collapsable={false}
-            onLayout={this._onContentLayoutChange}
-          >
-            {this._renderRefreshHeader()}
-            {this._renderLoadingFooter()}
-            {children}
-          </SpringScrollContentViewNative>
-          {this._renderHorizontalIndicator()}
-          {this._renderVerticalIndicator()}
-        </SpringScrollViewNative>
+          {this._renderRefreshHeader()}
+          {this._renderLoadingFooter()}
+          {children}
+        </SpringScrollContentViewNative>
+        {this._renderHorizontalIndicator()}
+        {this._renderVerticalIndicator()}
+      </SpringScrollViewNative>
     );
   }
 
@@ -209,7 +212,6 @@ export class SpringScrollView extends React.PureComponent<
   }
 
   scrollTo(offset: Offset, animated: boolean = true) {
-    console.log("scrollTo=====>", JSON.stringify(offset));
     if (Platform.OS === "ios") {
       NativeModules.SpringScrollView.scrollTo(
         findNodeHandle(this._scrollView),
@@ -528,7 +530,7 @@ export class SpringScrollView extends React.PureComponent<
     initOffset: { x: 0, y: 0 },
     showsVerticalScrollIndicator: true,
     showsHorizontalScrollIndicator: true,
-    initialContentOffset: { x: 0, y: 0 },
+    initialContentOffset: { x: 0, y: 0 }
   };
 }
 
