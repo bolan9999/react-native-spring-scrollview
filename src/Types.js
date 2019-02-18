@@ -7,9 +7,9 @@
  *
  */
 
-import {Animated, ViewProps, ViewStyle} from "react-native";
-import {RefreshHeader} from "./RefreshHeader";
-import {LoadingFooter} from "./LoadingFooter";
+import { Animated, ViewProps, ViewStyle } from "react-native";
+import { RefreshHeader } from "./RefreshHeader";
+import { LoadingFooter } from "./LoadingFooter";
 
 export interface IndexPath {
   section: number,
@@ -30,11 +30,11 @@ export type RefreshStyle = "topping" | "stickyScrollView" | "stickyContent";
 
 export type LoadingStyle = "bottoming" | "stickyScrollView" | "stickyContent";
 
-export interface ScrollEvent{
-  nativeEvent:{
-    contentOffset:{
-      x:number,
-      y:number
+export interface ScrollEvent {
+  nativeEvent: {
+    contentOffset: {
+      x: number,
+      y: number
     }
   }
 }
@@ -58,6 +58,8 @@ export interface SpringScrollViewPropType extends ViewProps {
   onTouchEnd?: () => any,
   onMomentumScrollBegin?: () => any,
   onMomentumScrollEnd?: () => any,
-  onScroll?: (evt:ScrollEvent)=>any;
+  onScroll?: (evt: ScrollEvent) => any,
   onNativeContentOffsetExtract?: NativeContentOffset,
+  onSizeChange?: ({ width: number, height: number }) => any,
+  onContentSizeChange?: ({ width: number, height: number }) => any
 }

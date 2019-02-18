@@ -417,6 +417,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
 
   _onWrapperLayoutChange = ({ nativeEvent: { layout: { x, y, width, height } } }) => {
     if (this._height !== height || this._width !== width) {
+      this.props.onSizeChange && this.props.onSizeChange({width, height});
       this._height = height;
       this._width = width;
       if (!this._contentHeight) return;
@@ -427,6 +428,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
 
   _onContentLayoutChange = ({ nativeEvent: { layout: { x, y, width, height } } }) => {
     if (this._contentHeight !== height || this._contentWidth !== width) {
+      this.props.onContentSizeChange && this.props.onContentSizeChange({width, height});
       this._contentHeight = height;
       this._contentWidth = width;
       if (!this._height) return;
