@@ -9,11 +9,17 @@
 
 import React from "react";
 import { RefreshHeader } from "../RefreshHeader";
-import LottieView from "lottie-react-native";
 import { View } from "react-native";
+
+let LottieView;
 
 export class CommonLottieFooter extends RefreshHeader {
   static height: number = 100;
+
+  constructor(props){
+    super(props);
+    if (!LottieView) LottieView = require("lottie-react-native");
+  }
 
   render() {
     if (this.state.status === "allLoaded") return null;

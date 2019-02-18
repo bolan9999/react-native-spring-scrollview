@@ -1,6 +1,6 @@
 {
   "name": "react-native-spring-scrollview",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "An cross-platform (iOS & Android) spring ScrollView",
   "main": "index.js",
   "scripts": {
