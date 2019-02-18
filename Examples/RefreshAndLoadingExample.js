@@ -16,12 +16,14 @@ import {
   ChineseWithLastDateHeader,
   WithLastDateHeader,
   WithLastDateFooter,
-  ChineseWithLastDateFooter
+  ChineseWithLastDateFooter,
+  CommonLottieHeader,
+  CommonLottieFooter
 } from "../src/Customize";
 
 export class RefreshAndLoadingExample extends React.Component {
   _scrollView;
-  _step = 6;
+  _step = 12;
 
   constructor(props) {
     super(props);
@@ -41,8 +43,8 @@ export class RefreshAndLoadingExample extends React.Component {
         onRefresh={this._onRefresh}
         onLoading={this._onLoading}
         allLoaded={this.state.allLoaded}
-        refreshHeader={WithLastDateHeader}
-        loadingFooter={WithLastDateFooter}
+        refreshHeader={CommonLottieHeader}
+        loadingFooter={CommonLottieFooter}
       >
         {arr.map(item =>
           <Text key={item} style={styles.text}>
@@ -57,7 +59,7 @@ export class RefreshAndLoadingExample extends React.Component {
     setTimeout(() => {
       this._scrollView.endRefresh();
       this.setState({ count: this._step, allLoaded: false });
-    }, 1000);
+    }, 3000);
   };
 
   _onLoading = () => {
@@ -65,9 +67,9 @@ export class RefreshAndLoadingExample extends React.Component {
       this._scrollView.endLoading();
       this.setState(p => ({
         count: p.count + this._step,
-        allLoaded: true
+        allLoaded: false
       }));
-    }, 1000);
+    }, 3000);
   };
 }
 

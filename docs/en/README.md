@@ -8,7 +8,7 @@ It is bridged from Native in V2，and resolve a big problem in V1 when Javascrip
 * High performance cross-platform  native bounces ScrollView (iOS & Android)
 * Simultaneous gesture on both horizontal and vertical directions.
 * Smoothly scroll
-* Highly customizing refreshing and loading animation
+* Highly customizing refreshing and loading animation.Fully support `react-native-lottie`. More smoothly animation.
 * Scroll to any position
 * Native onScroll contentOffset on both horizontal and vertical directions
 * Support initialing content offset.
@@ -16,6 +16,6 @@ It is bridged from Native in V2，and resolve a big problem in V1 when Javascrip
 
 
 ### Preview
-![Refreshing](../res/RefreshingStickyContent.gif)
-![Loading](../res/LoadingStickyContent.gif)
+![Refreshing](../res/LottieRefreshing.gif)
+![Loading](../res/LottieLoading.gif)
 

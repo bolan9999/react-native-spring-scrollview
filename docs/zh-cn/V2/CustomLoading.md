@@ -119,6 +119,41 @@ this.props.offset: 表示当前SpringScrollView的contentOffset.y的原生动画
 
 完整的示例可以查看[NormalFooter](https://github.com/bolan9999/react-native-spring-scrollview/blob/master/src/NormalFooter.js)
 
+#### lottie动画支持
+```
+export class CommonLottieFooter extends RefreshHeader {
+  static height: number = 100;
+
+  render() {
+    if (this.state.status === "allLoaded") return null;
+    const { offset, bottomOffset } = this.props;
+    let progress = offset.interpolate({
+      inputRange: [
+        bottomOffset + 50,
+        bottomOffset + 500
+      ],
+      outputRange: [0, 1]
+    });
+    if (this.state.status === "loading") {
+      progress = undefined;
+    }
+    return (
+      <View style={{ flex: 1, marginBottom: 20 }}>
+        <LottieView
+          key={this.state.status === "loading"}
+          source={require("./res/loading.json")}
+          progress={progress}
+          autoPlay={this.state.status === "loading"}
+          loop={this.state.status === "loading"}
+          speed={2}
+        />
+      </View>
+    );
+  }
+}
+```
+完整示例可查看这里[CommonLottieFooter](https://github.com/bolan9999/react-native-spring-scrollview/blob/master/src/Customize/CommonLottieFooter.js)
+
 ### 贡献您的自定义上拉加载组件
 
 欢迎Fork react-native-spring-scrollview ，添加您精心制作的LoadingFooter， 提交Pull Request 合并到master，给其他人使用。

@@ -113,6 +113,39 @@ this.props.offset: 表示当前SpringScrollView的contentOffset.y的原生动画
 
 完整的示例可以查看[NormalHeader](https://github.com/bolan9999/react-native-spring-scrollview/blob/master/src/NormalHeader.js)
 
+#### lottie动画支持
+
+示例：
+```
+export class CommonLottieHeader extends RefreshHeader {
+  static height: number = 100;
+
+  render() {
+    let progress = this.props.offset.interpolate({
+      inputRange: [-200, -150, -150, -100, -100, -50],
+      outputRange: [1, 0, 1, 0, 1, 0]
+    });
+    if (this.state.status === "refreshing") {
+      progress = undefined;
+    }
+    return (
+      <View style={{ flex: 1, marginTop: 20 }}>
+        <LottieView
+          source={
+            this.state.status === "refreshing" ? require("./res/refreshing2.json") : require("./res/refreshing.json")
+          }
+          progress={progress}
+          autoPlay={this.state.status === "refreshing"}
+          loop={this.state.status === "refreshing"}
+        />
+      </View>
+    );
+  }
+}
+```
+
+完整示例可查看这里[CommonLottieHeader](https://github.com/bolan9999/react-native-spring-scrollview/blob/master/src/Customize/CommonLottieHeader.js)
+
 ### 贡献您的自定义下拉刷新组件
 
 欢迎Fork react-native-spring-scrollview ，添加您精心制作的RefreshHeader， 提交Pull Request 合并到master，给其他人使用。
