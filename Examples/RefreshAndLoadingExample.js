@@ -21,7 +21,7 @@ import {
 
 export class RefreshAndLoadingExample extends React.Component {
   _scrollView;
-  _step = 15;
+  _step = 6;
 
   constructor(props) {
     super(props);
@@ -56,7 +56,7 @@ export class RefreshAndLoadingExample extends React.Component {
   _onRefresh = () => {
     setTimeout(() => {
       this._scrollView.endRefresh();
-      this.setState({ count: this._step, allLoaded: this.state.count > 40 });
+      this.setState({ count: this._step, allLoaded: false });
     }, 1000);
   };
 
@@ -65,7 +65,7 @@ export class RefreshAndLoadingExample extends React.Component {
       this._scrollView.endLoading();
       this.setState(p => ({
         count: p.count + this._step,
-        allLoaded: p.count > 40
+        allLoaded: true
       }));
     }, 1000);
   };

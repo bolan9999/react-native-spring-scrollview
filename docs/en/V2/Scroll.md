@@ -20,7 +20,7 @@ scrollToBegin(animated:boolean=true):Promise&lt;void>
 
 scrollToEnd(animated: boolean = true):Promise&lt;void>
 
-# onScroll listener in Javascript
+# onScroll listener on Javascript
 
 ### onScroll : ({nativeEvent:{contentOffset:{x:number, y:number}}})=>any
 
@@ -37,7 +37,7 @@ scrollToEnd(animated: boolean = true):Promise&lt;void>
 
 # Native onScroll listener
 
-### onNativeContentOffsetExtract : {x&#58;Animated.Value, y&#58;Animated.Value}
+### onNativeContentOffsetExtract : {x?&#58;Animated.Value, y?&#58;Animated.Value}
 
 This is a sticky view example:
 ```$js

@@ -196,6 +196,7 @@
     if (allLoaded && !UIEdgeInsetsEqualToEdgeInsets(self.orgInsets, self.scrollView.contentInset)) {
         [self.scrollView setContentInset:self.orgInsets];
     }
+    [self sendScrollEventWithName:@"onScroll" scrollView:self.scrollView userData:@{}];
 }
 
 @end

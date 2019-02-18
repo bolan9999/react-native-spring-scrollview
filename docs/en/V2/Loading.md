@@ -34,7 +34,7 @@ It is easy to support loading more data with SpringScrollView. This library offe
 
 ### Props
 
-Props  |  Type  |  Default  |  description  
+Props  |  Type  |  Default  |  Description  
 ---- | ------ | --------- | --------
 onLoading | ()=>any | undefined | The callback of loading. If set this prop, a loading footer will add to the botom of the SpringScrollView
 allLoaded | boolean | false | Whether the data is all loaded.

@@ -46,7 +46,7 @@ scrollToEnd(animated: boolean = true):Promise&lt;void>
 
 # 监听原生偏移值
 
-### onNativeContentOffsetExtract : {x&#58;Animated.Value, y&#58;Animated.Value}
+### onNativeContentOffsetExtract : {x?&#58;Animated.Value, y?&#58;Animated.Value}
 
 使用原生动画值监听滑动偏移，可以用作插值动画
 下面是一个简单的吸住SpringScrollView的示例

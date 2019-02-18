@@ -53,7 +53,7 @@ class MyFooter extends LoadingFooter{
 }
 ```
 
-#### Slect the loading style
+#### Select the loading style
 
 Overwrite the static var `style` to change the style of the loading footer.
 ```
