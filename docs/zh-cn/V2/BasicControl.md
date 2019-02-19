@@ -11,4 +11,7 @@ initialContentOffset | {x:number, y:number} | undefined | 初始化偏移，仅�
 showsVerticalScrollIndicator | boolean | true | 显示垂直滚动指示器
 showsHorizontalScrollIndicator | boolean | true | 显示水平滚动指示器（内容视图超出SpringScrollview视口才有用）
 tapToHideKeyboard | boolean | true | 点击SpringScrollView是否收起键盘
+onSizeChange | ({width:number,height:number})=>any | undefined | 外部Wrapper视图宽高变化时回调
+onContentSizeChange | ({width:number,height:number})=>any | undefined | 内部ContentView视图宽高变化时回调
+inverted | boolean | false | 将SpringScrollView上下翻转，此属性单独意义不大，主要是为了LargeList提供功能
 

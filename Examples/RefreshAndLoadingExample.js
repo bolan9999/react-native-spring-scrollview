@@ -40,6 +40,7 @@ export class RefreshAndLoadingExample extends React.Component {
       <SpringScrollView
         ref={ref => (this._scrollView = ref)}
         style={styles.container}
+        inverted
         onRefresh={this._onRefresh}
         onLoading={this._onLoading}
         allLoaded={this.state.allLoaded}
@@ -82,6 +83,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     fontSize: 16,
     textAlign: "center",
-    backgroundColor: "white"
+    backgroundColor: "white",
+    transform:[{scaleY: -1}]
   }
 });

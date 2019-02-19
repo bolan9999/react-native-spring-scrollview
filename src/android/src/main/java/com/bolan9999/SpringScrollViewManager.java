@@ -58,6 +58,10 @@ class SpringScrollViewManager extends ViewGroupManager {
     public void setAllLoaded(SpringScrollView view, boolean allLoaded) {
         view.setAllLoaded(allLoaded);
     }
+    @ReactProp(name = "inverted")
+    public void setInverted(SpringScrollView view, boolean inverted) {
+        view.setInverted(inverted);
+    }
 
     @Nullable
     @Override

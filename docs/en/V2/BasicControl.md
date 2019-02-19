@@ -11,4 +11,7 @@ initialContentOffset | {x:number, y:number} | undefined | initial content offset
 showsVerticalScrollIndicator | boolean | true | showsVerticalScrollIndicator
 showsHorizontalScrollIndicator | boolean | true | showsHorizontalScrollIndicator
 tapToHideKeyboard | boolean | true | tapToHideKeyboard
+onSizeChange | ({width:number,height:number})=>any | undefined | The callback when the wrapper view size changed.
+onContentSizeChange | ({width:number,height:number})=>any | undefined | The callback when the content view size changed.
+inverted | boolean | false | inverted. It is a service for LargeList.
 

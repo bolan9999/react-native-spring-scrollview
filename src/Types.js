@@ -56,6 +56,7 @@ export interface SpringScrollViewPropType extends ViewProps {
   tapToHideKeyboard?: boolean,
   onTouchBegin?: () => any,
   onTouchEnd?: () => any,
+  inverted?: boolean;
   onMomentumScrollBegin?: () => any,
   onMomentumScrollEnd?: () => any,
   onScroll?: (evt: ScrollEvent) => any,

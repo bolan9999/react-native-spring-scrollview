@@ -86,6 +86,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   render() {
     const {
       style,
+      inverted,
       contentStyle,
       children,
       onRefresh,
@@ -93,7 +94,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       refreshHeader: Refresh,
       loadingFooter: Loading
     } = this.props;
-    const wStyle = StyleSheet.flatten([styles.wrapperStyle, style]);
+    const wStyle = StyleSheet.flatten([styles.wrapperStyle, style, { transform: inverted ? [{ scaleY: -1 }] : [] }]);
     return (
       <SpringScrollViewNative
         {...this.props}
@@ -339,7 +340,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   _getRefreshHeaderStyle() {
     const rHeight = this.props.refreshHeader.height;
     const style = this.props.refreshHeader.style;
-    let transform;
+    let transform = [];
     if (style === "topping") {
       transform = [
         {
@@ -365,6 +366,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         "' in SpringScrollView, " + "select one in 'topping','stickyScrollView','stickyContent' please"
       );
     }
+    if (this.props.inverted) transform.push({ scaleY: -1 });
     return {
       position: "absolute",
       top: -rHeight,
@@ -379,7 +381,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     const fHeight = this.props.loadingFooter.height;
     const maxOffset = this._contentHeight - this._height;
     const style = this.props.loadingFooter.style;
-    let transform;
+    let transform = [];
     if (style === "bottoming") {
       transform = [
         {
@@ -405,6 +407,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         "' in SpringScrollView, " + "select one in 'bottoming','stickyScrollView','stickyContent' please"
       );
     }
+    if (this.props.inverted) transform.push({ scaleY: -1 });
     return {
       position: "absolute",
       right: 0,
@@ -417,7 +420,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
 
   _onWrapperLayoutChange = ({ nativeEvent: { layout: { x, y, width, height } } }) => {
     if (this._height !== height || this._width !== width) {
-      this.props.onSizeChange && this.props.onSizeChange({width, height});
+      this.props.onSizeChange && this.props.onSizeChange({ width, height });
       this._height = height;
       this._width = width;
       if (!this._contentHeight) return;
@@ -428,7 +431,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
 
   _onContentLayoutChange = ({ nativeEvent: { layout: { x, y, width, height } } }) => {
     if (this._contentHeight !== height || this._contentWidth !== width) {
-      this.props.onContentSizeChange && this.props.onContentSizeChange({width, height});
+      this.props.onContentSizeChange && this.props.onContentSizeChange({ width, height });
       this._contentHeight = height;
       this._contentWidth = width;
       if (!this._height) return;
