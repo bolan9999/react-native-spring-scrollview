@@ -3,6 +3,7 @@ package com.bolan9999;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.telephony.TelephonyManager;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewGroup;
@@ -150,7 +151,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         tracker.computeCurrentVelocity(1);
         float vy = tracker.getYVelocity();
         float vx = tracker.getXVelocity();
-        if (inverted) {
+        if (inverted && isEmulator()) {
             vx = -vx;
             vy = -vy;
         }
@@ -666,6 +667,15 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
     private boolean canHorizontalScroll() {
         return scrollEnabled && contentSize.width > size.width;
+    }
+
+    private boolean isEmulator() {
+        try {
+            return ((TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE))
+                    .getNetworkOperatorName().toLowerCase().equals("android");
+        } catch (Exception e) {
+            return true;
+        }
     }
 
 }
