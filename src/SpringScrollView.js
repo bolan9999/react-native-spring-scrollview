@@ -18,7 +18,8 @@ import {
   NativeModules,
   StyleSheet,
   ViewProps,
-  ViewStyle
+  ViewStyle,
+  ScrollView
 } from "react-native";
 import * as TextInputState from "react-native/lib/TextInputState";
 import { FooterStatus } from "./LoadingFooter";
@@ -95,11 +96,11 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       loadingFooter: Loading
     } = this.props;
     const wStyle = StyleSheet.flatten([styles.wrapperStyle, style, { transform: inverted ? [{ scaleY: -1 }] : [] }]);
-    return (
+    const elements = (
       <SpringScrollViewNative
         {...this.props}
         ref={ref => (this._scrollView = ref)}
-        style={wStyle}
+        style={Platform.OS === "android" ? wStyle : styles.container}
         onScroll={this._event}
         refreshHeaderHeight={onRefresh ? Refresh.height : 0}
         loadingFooterHeight={onLoading ? Loading.height : 0}
@@ -123,6 +124,12 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         {this._renderHorizontalIndicator()}
         {this._renderVerticalIndicator()}
       </SpringScrollViewNative>
+    );
+    if (Platform.OS === "android") return elements;
+    return (
+      <ScrollView style={wStyle} contentContainerStyle={styles.container} scrollEnabled={false}>
+        {elements}
+      </ScrollView>
     );
   }
 
