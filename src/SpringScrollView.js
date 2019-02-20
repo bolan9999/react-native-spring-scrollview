@@ -100,7 +100,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       <SpringScrollViewNative
         {...this.props}
         ref={ref => (this._scrollView = ref)}
-        style={Platform.OS === "android" ? wStyle : styles.container}
+        style={Platform.OS === "android" ? wStyle : { flex: 1 }}
         onScroll={this._event}
         refreshHeaderHeight={onRefresh ? Refresh.height : 0}
         loadingFooterHeight={onLoading ? Loading.height : 0}
@@ -127,7 +127,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     );
     if (Platform.OS === "android") return elements;
     return (
-      <ScrollView style={wStyle} contentContainerStyle={styles.container} scrollEnabled={false}>
+      <ScrollView style={wStyle} contentContainerStyle={{ flex: 1 }} scrollEnabled={false}>
         {elements}
       </ScrollView>
     );
