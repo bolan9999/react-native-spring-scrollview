@@ -63,6 +63,11 @@ class SpringScrollViewManager extends ViewGroupManager {
         view.setInverted(inverted);
     }
 
+    @ReactProp(name = "directionalLockEnabled")
+    public void setDirectionalLockEnabled(SpringScrollView view, boolean directionalLockEnabled) {
+        view.setDirectionalLockEnabled(directionalLockEnabled);
+    }
+
     @Nullable
     @Override
     public Map getExportedCustomBubblingEventTypeConstants() {

@@ -24,10 +24,11 @@ import com.facebook.react.views.view.ReactViewGroup;
 public class SpringScrollView extends ReactViewGroup implements View.OnTouchListener,
         View.OnLayoutChangeListener, OnInterceptTouchEventListener {
     private float refreshHeaderHeight, loadingFooterHeight;
-    private boolean momentumScrolling, bounces, scrollEnabled, dragging, inverted;
+    private boolean momentumScrolling, bounces, scrollEnabled, dragging, inverted,
+            directionalLockEnabled;
     private VelocityTracker tracker;
     private DecelerateAnimation verticalAnimation, horizontalAnimation;
-    private String refreshStatus, loadingStatus;
+    private String refreshStatus, loadingStatus, draggingDirection;
     private Offset contentOffset, initContentOffset;
     private Size size, contentSize;
     private Point lastPoint, beginPoint;
@@ -155,6 +156,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             vx = -vx;
             vy = -vy;
         }
+        if (draggingDirection != null && draggingDirection.equals("h")) vy = 0;
+        else if (draggingDirection != null && draggingDirection.equals("v")) vx = 0;
+        draggingDirection = null;
         tracker.clear();
         sendEvent("onTouchEnd", null);
         if (!momentumScrolling) {
@@ -381,6 +385,17 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private void drag(float x, float y) {
         y *= getYDampingCoefficient();
         x *= getXDampingCoefficient();
+        if (directionalLockEnabled) {
+            if (draggingDirection == null) {
+                if (Math.abs(x) > Math.abs(y)) {
+                    draggingDirection = "h";
+                } else {
+                    draggingDirection = "v";
+                }
+            }
+            if (draggingDirection.equals("h")) y = 0;
+            if (draggingDirection.equals("v")) x = 0;
+        }
         moveToOffset(contentOffset.x + x, contentOffset.y + y);
     }
 
@@ -588,6 +603,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
     public void setInverted(boolean inverted) {
         this.inverted = inverted;
+    }
+
+    public void setDirectionalLockEnabled(boolean directionalLockEnabled) {
+        this.directionalLockEnabled = directionalLockEnabled;
     }
 
     private boolean overshootHead() {

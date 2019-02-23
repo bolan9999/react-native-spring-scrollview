@@ -7,6 +7,7 @@ Props  |  Type  |  Default  |  description  
 bounces | boolean | true | Bounces if the content offset is out of the content view. It won't be bounces on the horizontal direction if the content view is not wider than the wrapper view although bounces is true. But it will on the vertical direction.
 contentStyle | ViewStyle | undefined | The style of the content view.
 scrollEnabled | boolean | true | scrollEnabled
+directionalLockEnabled | boolean | false | When true, the SpringScrollView will try to lock to only vertical or horizontal scrolling while dragging.
 initialContentOffset | {x:number, y:number} | undefined | initial content offset. Only works when initiation.
 showsVerticalScrollIndicator | boolean | true | showsVerticalScrollIndicator
 showsHorizontalScrollIndicator | boolean | true | showsHorizontalScrollIndicator

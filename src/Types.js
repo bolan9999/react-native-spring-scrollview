@@ -44,6 +44,7 @@ export interface SpringScrollViewPropType extends ViewProps {
   contentStyle?: ViewStyle,
   bounces?: boolean,
   scrollEnabled?: boolean,
+  directionalLockEnabled?: boolean,
   initialContentOffset?: Offset,
   showsVerticalScrollIndicator?: boolean,
   showsHorizontalScrollIndicator?: boolean,

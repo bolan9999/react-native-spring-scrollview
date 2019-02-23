@@ -25,6 +25,7 @@ export class BouncesAndScrollEnabledExample extends React.Component {
     return (
       <SpringScrollView
         {...this.state}
+        directionalLockEnabled
         contentStyle={{width:"300%",backgroundColor:"lightgray"}}
         initialContentOffset={{ x: 0, y: 550 }}
       >
