@@ -8,3 +8,4 @@
  */
 
 export * from "./SpringScrollView";
+export * from "./Types";

@@ -471,7 +471,8 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     initOffset: { x: 0, y: 0 },
     showsVerticalScrollIndicator: true,
     showsHorizontalScrollIndicator: true,
-    initialContentOffset: { x: 0, y: 0 }
+    initialContentOffset: { x: 0, y: 0 },
+    alwaysBounceVertical: true
   };
 }
 
