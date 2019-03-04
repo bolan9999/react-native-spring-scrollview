@@ -12,7 +12,6 @@ import android.view.View;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.touch.OnInterceptTouchEventListener;
 import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.EventDispatcher;
@@ -22,7 +21,7 @@ import com.facebook.react.views.scroll.ReactScrollViewHelper;
 import com.facebook.react.views.view.ReactViewGroup;
 
 public class SpringScrollView extends ReactViewGroup implements View.OnTouchListener,
-        View.OnLayoutChangeListener, OnInterceptTouchEventListener {
+        View.OnLayoutChangeListener {
     private float refreshHeaderHeight, loadingFooterHeight;
     private boolean momentumScrolling, bounces, scrollEnabled, dragging, inverted,
             directionalLockEnabled;
@@ -54,7 +53,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     protected void onAttachedToWindow() {
         setOnTouchListener(this);
         addOnLayoutChangeListener(this);
-        setOnInterceptTouchEventListener(this);
         ViewGroup child = (ViewGroup) getChildAt(0);
         if (child != null) {
             if (initContentOffset.y != 0) {
@@ -70,7 +68,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     protected void onDetachedFromWindow() {
         setOnTouchListener(null);
         removeOnLayoutChangeListener(this);
-        setOnInterceptTouchEventListener(null);
         View child = getChildAt(0);
         if (child != null) {
             child.removeOnLayoutChangeListener(this);
@@ -89,7 +86,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     @Override
-    public boolean onInterceptTouchEvent(ViewGroup v, MotionEvent ev) {
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
         int action = ev.getAction() & MotionEvent.ACTION_MASK;
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -98,12 +95,13 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             case MotionEvent.ACTION_MOVE:
                 if (shouldDrag(ev)) {
                     dragging = true;
+                    requestDisallowInterceptTouchEvent(true);
                     NativeGestureUtil.notifyNativeGestureStarted(this, ev);
                     ReactScrollViewHelper.emitScrollBeginDragEvent(this);
                     return true;
                 }
         }
-        return false;
+        return dragging;
     }
 
     private boolean shouldDrag(MotionEvent ev) {
@@ -147,7 +145,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     }
 
     private void onUp(MotionEvent evt) {
-        this.onMove(evt);
+        onMove(evt);
         dragging = false;
         tracker.computeCurrentVelocity(1);
         float vy = tracker.getYVelocity();
@@ -160,7 +158,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         else if (draggingDirection != null && draggingDirection.equals("v")) vx = 0;
         draggingDirection = null;
         tracker.clear();
-        sendEvent("onTouchEnd", null);
+        WritableMap param = Arguments.createMap();
+        param.putArray("touches", Arguments.createArray());
+        sendEvent("onTouchEnd", param);
         if (!momentumScrolling) {
             momentumScrolling = true;
             sendEvent("onMomentumScrollBegin", null);
@@ -173,6 +173,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             loadingStatus = "loading";
             contentInsets.bottom = loadingFooterHeight;
         }
+        requestDisallowInterceptTouchEvent(false);
         if (!scrollEnabled) return;
         if (overshootVertical()) {
             beginOuterAnimation(vy);
@@ -696,5 +697,4 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
             return true;
         }
     }
-
 }
