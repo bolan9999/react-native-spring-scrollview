@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <React/RCTViewManager.h>
+#import "RCTViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
