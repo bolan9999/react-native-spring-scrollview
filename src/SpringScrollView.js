@@ -52,6 +52,8 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   constructor(props: SpringScrollViewPropType) {
     super(props);
     this.obtainScrollEvent(props);
+    this._offsetX.setValue(props.initialContentOffset.x);
+    this._offsetY.setValue(props.initialContentOffset.y);
   }
 
   componentWillReceiveProps(nextProps: SpringScrollViewPropType) {
@@ -82,6 +84,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         listener: this._onScroll
       }
     );
+
   }
 
   render() {
@@ -106,8 +109,8 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         loadingFooterHeight={onLoading ? Loading.height : 0}
         keyboardShouldPersistTaps={"never"}
         onLayout={this._onWrapperLayoutChange}
-        onTouchBegin={this._onTouchBegin}
-        onTouchStart={this._onTouchBegin}
+        onTouchBegin={Platform.OS === "android" && this._onTouchBegin}
+        onTouchStart={Platform.OS === "ios" && this._onTouchBegin}
         onMomentumScrollEnd={this._onMomentumScrollEnd}
         scrollEventThrottle={1}
         onNativeContentOffsetExtract={this._nativeOffset}
@@ -442,7 +445,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       this._contentHeight = height;
       this._contentWidth = width;
       if (!this._height) return;
-      if (this._offsetYValue > this._contentHeight - this._height) this.scrollToEnd();
+      if (this._offsetYValue > this._contentHeight - this._height) this.scrollToEnd(false);
       this.forceUpdate();
     }
   };
