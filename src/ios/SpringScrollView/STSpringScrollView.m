@@ -17,6 +17,7 @@
 @property(nonatomic, assign) BOOL orgScrollEnabled;
 @property(nonatomic, copy) NSDictionary *initialContentOffset;
 @property(nonatomic, assign) BOOL allLoaded;
+@property(nonatomic, assign) BOOL initialed;
 @end
 
 @implementation STSpringScrollView
@@ -29,9 +30,22 @@
 }
 
 - (void)setInitialContentOffset:(NSDictionary *)initialContentOffset{
-    if (!_initialContentOffset && initialContentOffset) {
-        _initialContentOffset = initialContentOffset;
-        [self.scrollView setContentOffset:CGPointMake([[initialContentOffset objectForKey:@"x"] floatValue], [[initialContentOffset objectForKey:@"y"] floatValue])];
+    _initialContentOffset = initialContentOffset;
+    if (!self.initialed) {
+        self.initialed = YES;
+        [self.scrollView addObserver:self forKeyPath:@"contentSize" options:NSKeyValueObservingOptionNew context:nil];
+    }
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
+    CGSize size = [change[NSKeyValueChangeNewKey] CGSizeValue];
+    float x = [[self.initialContentOffset objectForKey:@"x"] floatValue];
+    float y = [[self.initialContentOffset objectForKey:@"y"] floatValue];
+    if ([keyPath isEqualToString:@"contentSize"] && size.width > x && size.height>y ) {
+        [self.scrollView removeObserver:self forKeyPath:@"contentSize"];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.scrollView setContentOffset:CGPointMake(x, y)];
+        });
     }
 }
 
@@ -73,7 +87,7 @@
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
     if (!UIEdgeInsetsEqualToEdgeInsets(scrollView.contentInset, self.orgInsets) && ([self hitRefreshStatus:@[@"waiting"]] || [self hitLoadingStatus:@[@"waiting"]])) {
         scrollView.contentInset = self.orgInsets;
-//        scrollView.scrollEnabled = self.orgScrollEnabled;
+        //        scrollView.scrollEnabled = self.orgScrollEnabled;
     }
 }
 
@@ -82,7 +96,7 @@
         self.refreshStatus = @"rebound";
         [self.scrollView setContentOffset:CGPointMake(0, 0) animated:YES];
         self.orgScrollEnabled = self.scrollView.scrollEnabled;
-//        self.scrollView.scrollEnabled = NO;
+        //        self.scrollView.scrollEnabled = NO;
     }
 }
 
@@ -90,8 +104,8 @@
     if ([self hitLoadingStatus:@[@"loading"]]) {
         self.loadingStatus = @"rebound";
         [self.scrollView setContentOffset:CGPointMake(0, self.scrollView.contentSize.height-self.bounds.size.height) animated:YES];
-//        self.orgScrollEnabled = self.scrollView.scrollEnabled;
-//        self.scrollView.scrollEnabled = NO;
+        //        self.orgScrollEnabled = self.scrollView.scrollEnabled;
+        //        self.scrollView.scrollEnabled = NO;
     }
 }
 
