@@ -107,7 +107,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private boolean shouldDrag(MotionEvent ev) {
         return dragging ||
                 (canHorizontalScroll() && Math.abs(ev.getX() - beginPoint.x) > PixelUtil.toPixelFromDIP(10)) ||
-                (scrollEnabled && Math.abs(ev.getY() - beginPoint.y) > PixelUtil.toPixelFromDIP(10));
+                (scrollEnabled && Math.abs(ev.getY() - beginPoint.y) > PixelUtil.toPixelFromDIP(5));
     }
 
     @Override

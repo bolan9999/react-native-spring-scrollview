@@ -32,6 +32,7 @@ render() {
 LoadingFooter has these props and states extended from its parent. You can use it directly.
 * this.props.maxHeight: The type is `number`， it is the height for the loading footer.
 * this.props.offset: The type is `Animated.Value`, Animated value for contentOffset.y of the SpringScrollView
+* this.props.bottomOffset, The type is `number`，The max contentOffset of  the SpringScrollView, You can use it to make interpolate animation.
 * this.state.status: The type is `FooterStatus`, it is the status of the loading footer.
 ```$js
 export type FooterStatus =

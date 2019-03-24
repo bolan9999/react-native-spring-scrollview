@@ -29,10 +29,12 @@ render() {
 }
 ```
 
-LoadingFooter自带有两个Props, 和一个状态status，在子类里面可以直接使用
+LoadingFooter自带有三个Props, 和一个状态status，在子类里面可以直接使用
 * this.props.maxHeight，类型：number 加载组件的高度
 * this.props.offset，类型:Animated.Value 表示当前SpringScrollView原生偏移量contentOffset.y的动画值，可以用作原生插值动画
+* this.props.bottomOffset, 类型number，表示最底部，可以用作插值演算
 * this.state.status, 类型:FooterStatus 表示当前加载组件正处在的状态
+
 ```$js
 export type FooterStatus =
   | "waiting"

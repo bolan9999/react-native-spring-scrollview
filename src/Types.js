@@ -61,6 +61,7 @@ export interface SpringScrollViewPropType extends ViewProps {
   onMomentumScrollBegin?: () => any,
   onMomentumScrollEnd?: () => any,
   onScroll?: (evt: ScrollEvent) => any,
+  keyboardShouldPersistTaps?: "always"|"never"|"handled",
   onNativeContentOffsetExtract?: NativeContentOffset,
   onSizeChange?: ({ width: number, height: number }) => any,
   onContentSizeChange?: ({ width: number, height: number }) => any

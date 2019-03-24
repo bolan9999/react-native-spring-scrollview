@@ -29,7 +29,7 @@ export class ComplexExample extends React.Component {
       scrollEnabled: true,
       refreshing: false,
       loading: false,
-      number: 15
+      number: 8
     };
     this._refs = [];
     for (let i = 0; i < this.state.number; ++i) {

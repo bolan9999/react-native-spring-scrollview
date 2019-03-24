@@ -19,7 +19,6 @@ export class InputExample extends React.Component {
     return (
       <SpringScrollView
         style={styles.container}
-        contentStyle={styles.content}
         tapToHideKeyboard={true}
         textInputRefs={[this._topInput, this._bottomInput]}
       >
@@ -45,13 +44,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1
   },
-  content: {
-    // flex: 1,
-    // justifyContent: "space-between"
-  },
   input: {
     marginHorizontal: 20,
-    marginVertical: 100
+    marginVertical: 20
   },
   text: {
     marginHorizontal: 20,
