@@ -150,7 +150,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         tracker.computeCurrentVelocity(1);
         float vy = tracker.getYVelocity();
         float vx = tracker.getXVelocity();
-        if (inverted && isEmulator()) {
+        if (inverted && Build.VERSION.SDK_INT>=28) {
             vx = -vx;
             vy = -vy;
         }
@@ -687,14 +687,5 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
 
     private boolean canHorizontalScroll() {
         return scrollEnabled && contentSize.width > size.width;
-    }
-
-    private boolean isEmulator() {
-        try {
-            return ((TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE))
-                    .getNetworkOperatorName().toLowerCase().equals("android");
-        } catch (Exception e) {
-            return true;
-        }
     }
 }
