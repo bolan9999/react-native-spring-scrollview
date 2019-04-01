@@ -108,8 +108,8 @@ declare module "react-native-spring-scrollview" {
     onContentSizeChange?: ({ width: number, height: number }) => any;
   }
   export class SpringScrollView extends React.PureComponent<SpringScrollViewPropType> {
-    scrollTo(offset: Offset, animated: boolean = true): Promise<void>;
-    scroll(offset: Offset, animated: boolean = true): Promise<void>;
+    scrollTo(offset: Offset, animated: boolean): Promise<void>;
+    scroll(offset: Offset, animated: boolean): Promise<void>;
     scrollToBegin(animated: boolean): Promise<void>;
     scrollToEnd(animated: boolean = true): Promise<void>;
     endRefresh(): void;
