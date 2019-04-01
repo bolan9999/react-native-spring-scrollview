@@ -116,7 +116,7 @@ declare module "react-native-spring-scrollview" {
     scrollTo(offset: Offset, animated: boolean): Promise<void>;
     scroll(offset: Offset, animated: boolean): Promise<void>;
     scrollToBegin(animated: boolean): Promise<void>;
-    scrollToEnd(animated: boolean = true): Promise<void>;
+    scrollToEnd(animated: boolean): Promise<void>;
     endRefresh(): void;
     endLoading(): void;
   }
