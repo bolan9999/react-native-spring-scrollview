@@ -16,10 +16,10 @@ import {
   ChineseWithLastDateHeader,
   WithLastDateHeader,
   WithLastDateFooter,
-  ChineseWithLastDateFooter,
-  CommonLottieHeader,
-  CommonLottieFooter
+  ChineseWithLastDateFooter
 } from "../src/Customize";
+import { CommonLottieHeader } from "../src/Customize/CommonLottieHeader";
+import { CommonLottieFooter } from "../src/Customize/CommonLottieFooter";
 
 export class RefreshAndLoadingExample extends React.Component {
   _scrollView;
@@ -47,11 +47,11 @@ export class RefreshAndLoadingExample extends React.Component {
         refreshHeader={CommonLottieHeader}
         loadingFooter={CommonLottieFooter}
       >
-        {arr.map(item =>
+        {arr.map(item => (
           <Text key={item} style={styles.text}>
             This is a Refresh and Loading Test
           </Text>
-        )}
+        ))}
       </SpringScrollView>
     );
   }
@@ -84,6 +84,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     backgroundColor: "white",
-    transform:[{scaleY: -1}]
+    transform: [{ scaleY: -1 }]
   }
 });

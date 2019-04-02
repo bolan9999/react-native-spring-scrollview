@@ -15,6 +15,6 @@ declare module "react-native-spring-scrollview/Customize" {
     export class ChineseWithLastDateHeader extends NormalHeader {}
     export class WithLastDateFooter extends NormalFooter {}
     export class ChineseWithLastDateFooter extends NormalFooter {}
-    export class CommonLottieHeader extends RefreshHeader {}
-    export class CommonLottieFooter extends LoadingFooter {}
+    // export class CommonLottieHeader extends RefreshHeader {}
+    // export class CommonLottieFooter extends LoadingFooter {}
 }
