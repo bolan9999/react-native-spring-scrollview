@@ -15,6 +15,11 @@ declare module "react-native-spring-scrollview" {
     y: number;
   }
 
+  export interface Size {
+    width:number;
+    height:number;
+  }
+
   export interface NativeContentOffset {
     x?: Animated.Value;
     y?: Animated.Value;
@@ -104,14 +109,14 @@ declare module "react-native-spring-scrollview" {
     onMomentumScrollEnd?: () => any;
     onScroll?: (evt: ScrollEvent) => any;
     onNativeContentOffsetExtract?: NativeContentOffset;
-    onSizeChange?: ({ width: number, height: number }) => any;
-    onContentSizeChange?: ({ width: number, height: number }) => any;
+    onSizeChange?: (size:Size) => any;
+    onContentSizeChange?: (size: Size) => any;
   }
   export class SpringScrollView extends React.PureComponent<SpringScrollViewPropType> {
-    scrollTo(offset: Offset, animated: boolean = true): Promise<void>;
-    scroll(offset: Offset, animated: boolean = true): Promise<void>;
-    scrollToBegin(animated: boolean): Promise<void>;
-    scrollToEnd(animated: boolean = true): Promise<void>;
+    scrollTo(offset: Offset, animated?: boolean): Promise<void>;
+    scroll(offset: Offset, animated?: boolean): Promise<void>;
+    scrollToBegin(animated?: boolean): Promise<void>;
+    scrollToEnd(animated?: boolean): Promise<void>;
     endRefresh(): void;
     endLoading(): void;
   }
