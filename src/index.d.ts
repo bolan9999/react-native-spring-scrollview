@@ -99,6 +99,7 @@ declare module "react-native-spring-scrollview" {
     loadingFooter?: React.ComponentClass<LoadingFooterPropType, LoadingFooterStateType>;
     onRefresh?: () => any;
     onLoading?: () => any;
+    allLoaded?: boolean;
     textInputRefs?: any[];
     inputToolBarHeight?: number;
     tapToHideKeyboard?: boolean;
