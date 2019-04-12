@@ -27,7 +27,7 @@ export class InputExample extends React.Component {
           style={styles.input}
           placeholder="Keyboard Test Top"
         />
-        <Text style={[styles.text, styles.input]}>
+        <Text style={styles.text}>
           Keyboard will never cover the focused TextInput
         </Text>
         <TextInput
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   },
   text: {
     marginHorizontal: 20,
-    marginVertical: 100,
+    marginVertical: 300,
     fontSize: 30
   }
 });

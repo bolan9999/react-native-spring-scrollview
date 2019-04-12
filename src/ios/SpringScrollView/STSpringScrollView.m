@@ -58,7 +58,11 @@
     } else if ([self shouldLoad]) {
         self.loadingStatus = @"loading";
         self.orgInsets = self.scrollView.contentInset;
-        [self.scrollView setContentInset:UIEdgeInsetsMake(self.orgInsets.top, self.orgInsets.left, self.orgInsets.bottom+self.loadingFooterHeight, self.orgInsets.right)];
+        CGFloat fill = .0f;
+        if(self.scrollView.frame.size.height>self.scrollView.contentSize.height){
+            fill=self.scrollView.frame.size.height-self.scrollView.contentSize.height;
+        }
+        [self.scrollView setContentInset:UIEdgeInsetsMake(self.orgInsets.top, self.orgInsets.left, self.orgInsets.bottom+self.loadingFooterHeight+fill, self.orgInsets.right)];
     }
 }
 
@@ -87,7 +91,6 @@
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
     if (!UIEdgeInsetsEqualToEdgeInsets(scrollView.contentInset, self.orgInsets) && ([self hitRefreshStatus:@[@"waiting"]] || [self hitLoadingStatus:@[@"waiting"]])) {
         scrollView.contentInset = self.orgInsets;
-        //        scrollView.scrollEnabled = self.orgScrollEnabled;
     }
 }
 
@@ -96,7 +99,6 @@
         self.refreshStatus = @"rebound";
         [self.scrollView setContentOffset:CGPointMake(0, 0) animated:YES];
         self.orgScrollEnabled = self.scrollView.scrollEnabled;
-        //        self.scrollView.scrollEnabled = NO;
     }
 }
 
@@ -104,8 +106,6 @@
     if ([self hitLoadingStatus:@[@"loading"]]) {
         self.loadingStatus = @"rebound";
         [self.scrollView setContentOffset:CGPointMake(0, self.scrollView.contentSize.height-self.bounds.size.height) animated:YES];
-        //        self.orgScrollEnabled = self.scrollView.scrollEnabled;
-        //        self.scrollView.scrollEnabled = NO;
     }
 }
 

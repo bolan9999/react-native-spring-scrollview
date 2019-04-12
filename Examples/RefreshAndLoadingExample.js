@@ -23,7 +23,7 @@ import { CommonLottieFooter } from "../src/Customize/CommonLottieFooter";
 
 export class RefreshAndLoadingExample extends React.Component {
   _scrollView;
-  _step = 12;
+  _step = 13;
 
   constructor(props) {
     super(props);
@@ -43,7 +43,7 @@ export class RefreshAndLoadingExample extends React.Component {
         inverted
         onRefresh={this._onRefresh}
         onLoading={this._onLoading}
-        allLoaded={this.state.allLoaded}
+        // allLoaded={this.state.allLoaded}
         refreshHeader={CommonLottieHeader}
         loadingFooter={CommonLottieFooter}
       >
