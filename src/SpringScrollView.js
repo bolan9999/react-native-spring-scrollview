@@ -277,8 +277,8 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     this._indicatorAnimation && this._indicatorAnimation.stop();
     this._indicatorAnimation = Animated.timing(this._indicatorOpacity, {
       toValue: 0,
-      delay: 1000,
-      duration: 1000,
+      delay: 500,
+      duration: 500,
       useNativeDriver: true
     });
     this._indicatorAnimation.start(({ finished }) => {

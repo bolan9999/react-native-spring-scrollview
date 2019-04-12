@@ -3,7 +3,6 @@ package com.bolan9999;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.telephony.TelephonyManager;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewGroup;
@@ -127,7 +126,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private void onDown(MotionEvent evt) {
         beginPoint.x = lastPoint.x = evt.getX();
         beginPoint.y = lastPoint.y = evt.getY();
-        cancelAllAnimations();
+        if (cancelAllAnimations()) {
+            this.dragging = true;
+        }
         if (momentumScrolling) {
             momentumScrolling = false;
             sendEvent("onMomentumScrollEnd", null);
@@ -150,7 +151,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         tracker.computeCurrentVelocity(1);
         float vy = tracker.getYVelocity();
         float vx = tracker.getXVelocity();
-        if (inverted && Build.VERSION.SDK_INT>=28) {
+        if (inverted && Build.VERSION.SDK_INT >= 28) {
             vx = -vx;
             vy = -vy;
         }
@@ -371,15 +372,17 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         verticalAnimation.start();
     }
 
-    private void cancelAllAnimations() {
+    private boolean cancelAllAnimations() {
+        boolean cancel = false;
         if (verticalAnimation != null) {
-            verticalAnimation.cancel();
+            cancel = verticalAnimation.cancel();
             verticalAnimation = null;
         }
         if (horizontalAnimation != null) {
-            horizontalAnimation.cancel();
+            cancel = horizontalAnimation.cancel();
             horizontalAnimation = null;
         }
+        return cancel;
     }
 
 

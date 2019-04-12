@@ -7,6 +7,7 @@ import android.view.animation.DecelerateInterpolator;
 
 abstract class DecelerateAnimation {
     protected ValueAnimator animator;
+    public boolean animating;
 
     public DecelerateAnimation(float base, float v, float dampingCoefficient) {
         int duration = 0;
@@ -33,6 +34,7 @@ abstract class DecelerateAnimation {
                 onUpdate((float) animator.getAnimatedValue());
             }
         });
+        this.animating = true;
         animator.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -40,6 +42,7 @@ abstract class DecelerateAnimation {
 
             @Override
             public void onAnimationEnd(Animator animation) {
+                DecelerateAnimation.this.animating = false;
                 onEnd();
             }
 
@@ -54,8 +57,10 @@ abstract class DecelerateAnimation {
         animator.start();
     }
 
-    public void cancel() {
+    public boolean cancel() {
+        boolean cancel=this.animating;
         animator.cancel();
+        return cancel;
     }
 
     protected abstract void onEnd();
