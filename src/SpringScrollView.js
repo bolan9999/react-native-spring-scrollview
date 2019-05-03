@@ -290,7 +290,10 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   };
 
   _onKeyboardWillHide = () => {
-    this._keyboardHeight > 0 && this.scroll({ x: 0, y: -this._keyboardHeight });
+    if (this._keyboardHeight > 0) {
+      this.scroll({ x: 0, y: -this._keyboardHeight });
+      this._keyboardHeight = 0;
+    }
   };
 
   _beginIndicatorDismissAnimation() {
@@ -306,6 +309,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       if (!finished) {
         this._indicatorOpacity.setValue(1);
       }
+      this._indicatorAnimation = null;
     });
   }
 
@@ -325,6 +329,9 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       this.props.onLoading && loadingStatus === "loading" && this.props.onLoading();
     }
     this.props.onScroll && this.props.onScroll(e);
+    if (!this._indicatorAnimation) {
+      this._indicatorOpacity.setValue(1);
+    }
   };
 
   _toRefreshStatus(status: HeaderStatus) {
@@ -493,8 +500,6 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   _onTouchBegin = () => {
     if (TextInputState.currentlyFocusedField())
       TextInputState.blurTextInput(TextInputState.currentlyFocusedField());
-    this._indicatorAnimation && this._indicatorAnimation.stop();
-    this._indicatorOpacity.setValue(1);
     this.props.tapToHideKeyboard && Keyboard.dismiss();
     this.props.onTouchBegin && this.props.onTouchBegin();
   };

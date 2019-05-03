@@ -58,12 +58,13 @@ abstract class DecelerateAnimation {
     }
 
     public boolean cancel() {
-        boolean cancel=this.animating;
+        boolean cancel = this.animating;
         animator.cancel();
         return cancel;
     }
 
-    protected abstract void onEnd();
+    protected void onEnd() {
+    }
 
     protected abstract void onUpdate(float value);
 }

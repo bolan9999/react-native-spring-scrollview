@@ -11,10 +11,9 @@
 @interface STSpringScrollView ()
 @property(nonatomic, assign) float refreshHeaderHeight;
 @property(nonatomic, assign) float loadingFooterHeight;
-@property(nonatomic, assign) UIEdgeInsets orgInsets;
+//@property(nonatomic, assign) UIEdgeInsets orgInsets;
 @property(nonatomic, copy) NSString *refreshStatus;
 @property(nonatomic, copy) NSString *loadingStatus;
-@property(nonatomic, assign) BOOL orgScrollEnabled;
 @property(nonatomic, copy) NSDictionary *initialContentOffset;
 @property(nonatomic, assign) BOOL allLoaded;
 @property(nonatomic, assign) BOOL initialed;
@@ -53,16 +52,17 @@
     [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
     if ([self shouldRefresh]) {
         self.refreshStatus = @"refreshing";
-        self.orgInsets = self.scrollView.contentInset;
-        [self.scrollView setContentInset:UIEdgeInsetsMake(self.orgInsets.top+self.refreshHeaderHeight, self.orgInsets.left, self.orgInsets.bottom, self.orgInsets.right)];
+        [self.scrollView setContentInset:UIEdgeInsetsMake(self.refreshHeaderHeight, 0, 0, 0)];
     } else if ([self shouldLoad]) {
         self.loadingStatus = @"loading";
-        self.orgInsets = self.scrollView.contentInset;
         CGFloat fill = .0f;
         if(self.scrollView.frame.size.height>self.scrollView.contentSize.height){
             fill=self.scrollView.frame.size.height-self.scrollView.contentSize.height;
         }
-        [self.scrollView setContentInset:UIEdgeInsetsMake(self.orgInsets.top, self.orgInsets.left, self.orgInsets.bottom+self.loadingFooterHeight+fill, self.orgInsets.right)];
+        [self.scrollView setContentInset:UIEdgeInsetsMake(0, 0, self.loadingFooterHeight+fill, 0)];
+    }
+    else if ([self hitRefreshStatus:@[@"rebound"]] && !UIEdgeInsetsEqualToEdgeInsets(UIEdgeInsetsZero, scrollView.contentInset)){
+        [self.scrollView setContentOffset:CGPointMake(0, 0) animated:YES];
     }
 }
 
@@ -75,6 +75,7 @@
         self.refreshStatus = @"pullingCancel";
     } else if ([self shouldWaiting]){
         self.refreshStatus = @"waiting";
+        scrollView.contentInset = UIEdgeInsetsZero;
     }
     if ([self shouldDragging]) {
         self.loadingStatus = @"dragging";
@@ -84,21 +85,15 @@
         self.loadingStatus = @"draggingCancel";
     } else if ([self shouldFooterWaiting]) {
         self.loadingStatus = @"waiting";
+        scrollView.contentInset = UIEdgeInsetsZero;
     }
     [super scrollViewDidScroll:scrollView];
-}
-
-- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
-    if (!UIEdgeInsetsEqualToEdgeInsets(scrollView.contentInset, self.orgInsets) && ([self hitRefreshStatus:@[@"waiting"]] || [self hitLoadingStatus:@[@"waiting"]])) {
-        scrollView.contentInset = self.orgInsets;
-    }
 }
 
 - (void)endRefresh {
     if ([self hitRefreshStatus:@[@"refreshing"]]) {
         self.refreshStatus = @"rebound";
-        [self.scrollView setContentOffset:CGPointMake(0, 0) animated:YES];
-        self.orgScrollEnabled = self.scrollView.scrollEnabled;
+        [self.scrollView setContentOffset:CGPointMake(self.scrollView.contentOffset.x, 0) animated:YES];
     }
 }
 
@@ -126,7 +121,7 @@
 }
 
 - (BOOL) shouldWaiting{
-    return self.refreshHeaderHeight>0 && ([self hitRefreshStatus:@[@"rebound",@"pullingCancel"]]) && self.scrollView.contentOffset.y >=0;
+    return self.refreshHeaderHeight>0 && ([self hitRefreshStatus:@[@"rebound",@"pullingCancel"]]) && !UIEdgeInsetsEqualToEdgeInsets(UIEdgeInsetsZero, self.scrollView.contentInset) && self.scrollView.contentOffset.y >=0;
 }
 
 - (BOOL) shouldDragging{
@@ -207,8 +202,8 @@
 
 - (void)setAllLoaded:(BOOL)allLoaded{
     self.loadingStatus = allLoaded?@"allLoaded":@"waiting";
-    if (allLoaded && !UIEdgeInsetsEqualToEdgeInsets(self.orgInsets, self.scrollView.contentInset)) {
-        [self.scrollView setContentInset:self.orgInsets];
+    if (allLoaded && !UIEdgeInsetsEqualToEdgeInsets(UIEdgeInsetsZero, self.scrollView.contentInset)) {
+        [self.scrollView setContentInset:UIEdgeInsetsZero];
     }
     [self sendScrollEventWithName:@"onScroll" scrollView:self.scrollView userData:@{}];
 }

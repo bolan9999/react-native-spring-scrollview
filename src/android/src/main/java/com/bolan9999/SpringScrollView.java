@@ -522,12 +522,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     public void endRefresh() {
         if (!refreshStatus.equals("refreshing")) return;
         refreshStatus = "rebound";
+        if (verticalAnimation != null) verticalAnimation.cancel();
+        contentInsets.top = 0;
         verticalAnimation = new DecelerateAnimation(contentOffset.y, 0, 500) {
-            @Override
-            protected void onEnd() {
-                contentInsets.top = 0;
-            }
-
             @Override
             protected void onUpdate(float value) {
                 setContentOffset(contentOffset.x, value);
@@ -539,12 +536,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     public void endLoading() {
         if (!loadingStatus.equals("loading")) return;
         loadingStatus = "rebound";
+        if (verticalAnimation != null) verticalAnimation.cancel();
+        contentInsets.bottom = 0;
         verticalAnimation = new DecelerateAnimation(contentOffset.y, contentSize.height - size.height, 500) {
-            @Override
-            protected void onEnd() {
-                contentInsets.bottom = 0;
-            }
-
             @Override
             protected void onUpdate(float value) {
                 setContentOffset(contentOffset.x, value);
