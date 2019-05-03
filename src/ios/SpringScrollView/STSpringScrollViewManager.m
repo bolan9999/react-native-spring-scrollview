@@ -48,7 +48,7 @@ RCT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)reactTag offsetX:(CGFloat)offsetX
     [self.bridge.uiManager addUIBlock:
      ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry){
          STSpringScrollView *view = viewRegistry[reactTag];
-         [view scrollToOffset:CGPointMake(offsetX, offsetY) animated:animated];
+         [view.scrollView setContentOffset:CGPointMake(offsetX, offsetY) animated:animated];
      }];
 }
 
