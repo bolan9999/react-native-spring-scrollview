@@ -94,12 +94,12 @@ def enableSeparateBuildPerCPUArchitecture = false
 def enableProguardInReleaseBuilds = false
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
 
     defaultConfig {
         applicationId "com.springscrollviewexample"
-        minSdkVersion 16
-        targetSdkVersion 26
+        minSdkVersion 19
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         ndk {
@@ -143,7 +143,7 @@ dependencies {
     api project(':lottie-react-native')
     api project(':react-native-spring-scroll-view')
     api fileTree(dir: "libs", include: ["*.jar"])
-    api "com.android.support:appcompat-v7:26.0.0"
+    api "com.android.support:appcompat-v7:28.0.0"
     api "com.facebook.react:react-native:+"  // From node_modules
 }
 
