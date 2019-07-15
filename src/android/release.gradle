@@ -79,7 +79,7 @@ afterEvaluate { project ->
             }
 
             repository(url: 'http://nexus.skillz.com/content/repositories/thirdparty/') {
-                authentication(userName: "deployment", password: "sDDsDJALyx6m4LYFbftK")
+                authentication(userName: "garbage", password: "garbage")
             }
 
             configureReactNativePom pom
