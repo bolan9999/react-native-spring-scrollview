@@ -21,7 +21,7 @@ import {
   ViewStyle,
   ScrollView
 } from "react-native";
-import * as TextInputState from "react-native/lib/TextInputState";
+import * as TextInputState from "react-native/Libraries/Components/TextInput/TextInputState";
 import { FooterStatus } from "./LoadingFooter";
 import { NormalHeader } from "./NormalHeader";
 import { NormalFooter } from "./NormalFooter";
