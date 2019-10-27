@@ -1,16 +1,29 @@
 # 快速接入
 
-在安装React-Native-Spring-ScrollView之前，最好确认一下您的React Native版本大于0.50
+React Native版本推荐：
 
-使用下面的命令行安装：
+react-native@0.50以下：不确定是否支持，请自行解决原生端问题。
+
+react-native@0.50-0.59：推荐使用react-native-spring-scrollview@2.0.* (最后一位版本号可自行去npm官方查询最新发布的版本)
+
+react-native@0.60+：推荐使用react-native-spring-scrollview@2.1.*
+
+### 安装
+
+RN 0.60+：
 ```
-yarn add react-native-spring-scrollview
+yarn add react-native-spring-scrollview@2.1.0
+cd YourProject/ios && pod install && cd ..
+```
+RN 0.50-0.59:
+```
+yarn add react-native-spring-scrollview@2.0.23
 react-native link react-native-spring-scrollview
 ```
 
 如果没有异常情况，原生端应该已经安装完成，为了稳妥起见，您还是应该手动检查原生端的链接是否正确
 
-### 检查原生端是否链接正确
+### 检查原生端是否链接正确(仅供2.0.*版本参考)
 
 ##### iOS
 * 检查 `您的项目 ==> Libraries ==> RNSpringScrollView.xcodeproj` 是否已添加到您的项目中

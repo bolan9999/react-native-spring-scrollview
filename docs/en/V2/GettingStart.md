@@ -1,16 +1,24 @@
 # Getting Started
 
-Please make sure the React-Native version is higher than 0.50.0
+### Install
 
-Install command：
+0.60+
+```
+yarn add react-native-spring-scrollview@2.1.0
+cd YourProject/ios && pod install && cd ..
+```
+
+0.50-0.59
 ```
 yarn add react-native-spring-scrollview
 react-native link react-native-spring-scrollview
 ```
 
+0.49 or lower: Not sure whether it works well.
+
 It is completed if you do not get an error. But for some reason, you should check your native installation
 
-### Check native installation
+### Check native installation (version 2.0.*)
 
 ##### iOS
 * Make sure `ProjectPath ==> Libraries ==> RNSpringScrollView.xcodeproj` is in your project.
