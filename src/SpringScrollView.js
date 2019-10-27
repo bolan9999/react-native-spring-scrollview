@@ -21,7 +21,7 @@ import {
   ViewStyle,
   ScrollView
 } from "react-native";
-import * as TextInputState from "react-native/lib/TextInputState";
+import * as TextInputState from "react-native/Libraries/Components/TextInput/TextInputState";
 import { FooterStatus } from "./LoadingFooter";
 import { NormalHeader } from "./NormalHeader";
 import { NormalFooter } from "./NormalFooter";
@@ -56,11 +56,11 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     this._offsetY.setValue(props.initialContentOffset.y);
   }
 
-  componentWillReceiveProps(nextProps: SpringScrollViewPropType) {
-    if (nextProps.onNativeContentOffsetExtract !== this.props.onNativeContentOffsetExtract) {
-      this.obtainScrollEvent(nextProps);
-    }
-  }
+  // UNSAFE_componentWillReceiveProps(nextProps: SpringScrollViewPropType) {
+  //   if (nextProps.onNativeContentOffsetExtract !== this.props.onNativeContentOffsetExtract) {
+  //     this.obtainScrollEvent(nextProps);
+  //   }
+  // }
 
   obtainScrollEvent(props: SpringScrollViewPropType) {
     if (!props) props = {};

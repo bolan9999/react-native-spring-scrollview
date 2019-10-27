@@ -6,35 +6,32 @@
  * Description:
  */
 
-import React from "react";
-import { Animated, Text } from "react-native";
+import React from 'react';
+import {Animated, Text} from 'react-native';
 
-export class LoadingFooter extends React.Component<
-  FooterPropType,
-  FooterStateType
-  > {
+export class LoadingFooter extends React.Component<FooterPropType, FooterStateType> {
   static height = 80;
 
-  static style = "stickyContent";
+  static style = 'stickyContent';
 
   constructor(props: FooterPropType) {
     super(props);
-    this.state = { status: props.allLoaded ? "allLoaded" : "waiting" };
+    this.state = {status: props.allLoaded ? 'allLoaded' : 'waiting'};
   }
 
-  componentWillReceiveProps(nextProps: FooterPropType) {
-    if (nextProps.allLoaded) this.setState({ status: "allLoaded" });
+  static getDerivedStateFromProps(nextProps: FooterPropType) {
+    if (nextProps.allLoaded) return {status: 'allLoaded'};
+    return {};
   }
 
   changeToState(newStatus: FooterStatus) {
     !this.props.allLoaded &&
-    this.state.status !== newStatus &&
-    this.onStateChange(this.state.status, newStatus);
+      this.state.status !== newStatus &&
+      this.onStateChange(this.state.status, newStatus);
   }
 
   onStateChange(oldStatus: FooterStatus, newStatus: FooterStatus) {
-    // console.log("newStatus", newStatus);
-    this.setState({ status: newStatus });
+    this.setState({status: newStatus});
   }
 
   render() {
@@ -42,11 +39,10 @@ export class LoadingFooter extends React.Component<
       <Text
         style={{
           flex: 1,
-          alignSelf: "center",
+          alignSelf: 'center',
           lineHeight: this.props.maxHeight,
-          textAlign: "center"
-        }}
-      >
+          textAlign: 'center',
+        }}>
         {this.state.status}
       </Text>
     );
@@ -54,21 +50,21 @@ export class LoadingFooter extends React.Component<
 }
 
 export type FooterStatus =
-  | "waiting"
-  | "dragging"
-  | "draggingEnough"
-  | "draggingCancel"
-  | "loading"
-  | "rebound"
-  | "allLoaded";
+  | 'waiting'
+  | 'dragging'
+  | 'draggingEnough'
+  | 'draggingCancel'
+  | 'loading'
+  | 'rebound'
+  | 'allLoaded';
 
 interface FooterPropType {
-  offset?: Animated.Value,
-  maxHeight?: number,
-  allLoaded?: boolean,
+  offset?: Animated.Value;
+  maxHeight?: number;
+  allLoaded?: boolean;
   bottomOffset?: number;
 }
 
 interface FooterStateType {
-  status?: FooterStatus
+  status?: FooterStatus;
 }
