@@ -5,10 +5,11 @@ def safeExtGet(prop, fallback) {
 buildscript {
     repositories {
         jcenter()
+        google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.5.1'
     }
 }
 
@@ -19,7 +20,7 @@ android {
     publishNonDefault true
 
     defaultConfig {
-        minSdkVersion safeExtGet('minSdkVersion', 16)
+        minSdkVersion safeExtGet('minSdkVersion', 20)
         targetSdkVersion safeExtGet('targetSdkVersion', 26)
     }
     lintOptions {

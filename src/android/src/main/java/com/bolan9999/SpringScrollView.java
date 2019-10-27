@@ -2,7 +2,7 @@ package com.bolan9999;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.NonNull;
+//import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewGroup;
@@ -32,7 +32,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
     private Point lastPoint, beginPoint;
     private EdgeInsets contentInsets;
 
-    public SpringScrollView(@NonNull Context context) {
+    public SpringScrollView(Context context) {
         super(context);
         refreshStatus = loadingStatus = "waiting";
         initContentOffset = new Offset();

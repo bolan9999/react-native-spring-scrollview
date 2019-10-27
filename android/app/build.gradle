@@ -181,6 +181,9 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    api project(':lottie-react-native')
+    api project(':react-native-spring-scroll-view')
+
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
