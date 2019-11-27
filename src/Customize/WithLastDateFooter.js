@@ -8,7 +8,8 @@
  */
 
 import React from "react";
-import { Text, StyleSheet, AsyncStorage } from "react-native";
+import { Text, StyleSheet } from "react-native";
+import AsyncStorage from "@react-native-community/async-storage";
 import { HeaderStatus } from "../RefreshHeader";
 import {NormalFooter} from "../NormalFooter";
 
