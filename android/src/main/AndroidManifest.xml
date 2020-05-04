@@ -1,9 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.springscrollviewexample"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <application android:usesCleartextTraffic="true"
-                 tools:ignore="GoogleAppIndexingWarning"
-                 tools:targetApi="28"/>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.bolan9999">
+
 </manifest>
+  

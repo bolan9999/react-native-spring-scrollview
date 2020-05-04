@@ -1,7 +1,0 @@
-rootProject.name = 'SpringScrollViewExample'
-include ':lottie-react-native'
-project(':lottie-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/lottie-react-native/src/android')
-include ':react-native-spring-scroll-view'
-project(':react-native-spring-scroll-view').projectDir = new File(rootProject.projectDir, '../src/android')
-
-include ':app'
