@@ -471,7 +471,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnTouchList
         WritableMap contentOffsetMap = Arguments.createMap();
         contentOffsetMap.putDouble("x", PixelUtil.toDIPFromPixel(contentOffset.x));
         contentOffsetMap.putDouble("y", PixelUtil.toDIPFromPixel(contentOffset.y));
-        event.putMap("contentOffset", contentOffsetMap);
+        event.putMap("contentOffset", (ReadableMap)contentOffsetMap);
         event.putString("refreshStatus", refreshStatus);
         event.putString("loadingStatus", loadingStatus);
         sendOnScrollEvent(event);
