@@ -498,8 +498,13 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   };
 
   _onTouchBegin = () => {
-    if (TextInputState.currentlyFocusedField())
-      TextInputState.blurTextInput(TextInputState.currentlyFocusedField());
+    const currentField = TextInputState.currentlyFocusedInput
+          ? TextInputState.currentlyFocusedInput()
+          : TextInputState.currentlyFocusedField();
+
+    if (currentField)
+          TextInputState.blurTextInput(currentField);
+
     this.props.tapToHideKeyboard && Keyboard.dismiss();
     this.props.onTouchBegin && this.props.onTouchBegin();
   };
