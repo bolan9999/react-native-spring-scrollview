@@ -7,6 +7,7 @@
 //
 
 #import "STSpringScrollView.h"
+#import <React/RCTEventDispatcher.h>
 
 @interface STSpringScrollView ()
 @property(nonatomic, assign) float refreshHeaderHeight;
