@@ -187,6 +187,8 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    api project(':lottie-react-native')
+    api project(':react-native-spring-scroll-view')
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
