@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { Button, StyleSheet, View } from "react-native";
+import { Button, StyleSheet, View, SafeAreaView } from "react-native";
 import { InputExample } from "./InputExample";
 import { ComplexExample } from "./ComplexExample";
 import { BouncesAndScrollEnabledExample } from "./BouncesAndScrollEnabledExample";
@@ -22,9 +22,9 @@ export class Examples extends React.Component {
   }
 
   render(){
-    return <View style={styles.container}>
+    return <SafeAreaView style={styles.container}>
       {this._renderContent()}
-    </View>
+    </SafeAreaView>
   }
 
   _renderContent() {
