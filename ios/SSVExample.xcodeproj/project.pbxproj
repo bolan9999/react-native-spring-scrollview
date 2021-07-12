@@ -9,6 +9,14 @@
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* SSVExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* SSVExampleTests.m */; };
 		0493A1C6A60597ECB24333D4 /* libPods-SSVExample-SSVExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A5AD0A30C1A7F1638BD063E /* libPods-SSVExample-SSVExampleTests.a */; };
+		04F9EC3526985A2C00CCBE59 /* Empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F9EC3426985A2C00CCBE59 /* Empty.swift */; };
+		04F9EC3626985A2C00CCBE59 /* Empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F9EC3426985A2C00CCBE59 /* Empty.swift */; };
+		04F9EC4026985A9A00CCBE59 /* STSpringScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F9EC3A26985A9A00CCBE59 /* STSpringScrollView.m */; };
+		04F9EC4126985A9A00CCBE59 /* STSpringScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F9EC3A26985A9A00CCBE59 /* STSpringScrollView.m */; };
+		04F9EC4226985A9A00CCBE59 /* STSpringScrollContentViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F9EC3B26985A9A00CCBE59 /* STSpringScrollContentViewManager.m */; };
+		04F9EC4326985A9A00CCBE59 /* STSpringScrollContentViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F9EC3B26985A9A00CCBE59 /* STSpringScrollContentViewManager.m */; };
+		04F9EC4426985A9A00CCBE59 /* STSpringScrollViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F9EC3E26985A9A00CCBE59 /* STSpringScrollViewManager.m */; };
+		04F9EC4526985A9A00CCBE59 /* STSpringScrollViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F9EC3E26985A9A00CCBE59 /* STSpringScrollViewManager.m */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -30,6 +38,15 @@
 		00E356EE1AD99517003FC87E /* SSVExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SSVExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* SSVExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SSVExampleTests.m; sourceTree = "<group>"; };
+		04F9EC3226985A2C00CCBE59 /* SSVExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SSVExample-Bridging-Header.h"; sourceTree = "<group>"; };
+		04F9EC3326985A2C00CCBE59 /* SSVExampleTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SSVExampleTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		04F9EC3426985A2C00CCBE59 /* Empty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Empty.swift; path = SSVExample/Empty.swift; sourceTree = "<group>"; };
+		04F9EC3A26985A9A00CCBE59 /* STSpringScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STSpringScrollView.m; path = ../../src/ios/SpringScrollView/STSpringScrollView.m; sourceTree = "<group>"; };
+		04F9EC3B26985A9A00CCBE59 /* STSpringScrollContentViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STSpringScrollContentViewManager.m; path = ../../src/ios/SpringScrollView/STSpringScrollContentViewManager.m; sourceTree = "<group>"; };
+		04F9EC3C26985A9A00CCBE59 /* STSpringScrollViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STSpringScrollViewManager.h; path = ../../src/ios/SpringScrollView/STSpringScrollViewManager.h; sourceTree = "<group>"; };
+		04F9EC3D26985A9A00CCBE59 /* STSpringScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STSpringScrollView.h; path = ../../src/ios/SpringScrollView/STSpringScrollView.h; sourceTree = "<group>"; };
+		04F9EC3E26985A9A00CCBE59 /* STSpringScrollViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STSpringScrollViewManager.m; path = ../../src/ios/SpringScrollView/STSpringScrollViewManager.m; sourceTree = "<group>"; };
+		04F9EC3F26985A9A00CCBE59 /* STSpringScrollContentViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STSpringScrollContentViewManager.h; path = ../../src/ios/SpringScrollView/STSpringScrollContentViewManager.h; sourceTree = "<group>"; };
 		0A5AD0A30C1A7F1638BD063E /* libPods-SSVExample-SSVExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SSVExample-SSVExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		11052F35675FC879C01D4E07 /* Pods-SSVExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SSVExample.debug.xcconfig"; path = "Target Support Files/Pods-SSVExample/Pods-SSVExample.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* SSVExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SSVExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -83,6 +100,19 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		04F9EC3926985A8100CCBE59 /* RNSpringScrollView */ = {
+			isa = PBXGroup;
+			children = (
+				04F9EC3F26985A9A00CCBE59 /* STSpringScrollContentViewManager.h */,
+				04F9EC3B26985A9A00CCBE59 /* STSpringScrollContentViewManager.m */,
+				04F9EC3D26985A9A00CCBE59 /* STSpringScrollView.h */,
+				04F9EC3A26985A9A00CCBE59 /* STSpringScrollView.m */,
+				04F9EC3C26985A9A00CCBE59 /* STSpringScrollViewManager.h */,
+				04F9EC3E26985A9A00CCBE59 /* STSpringScrollViewManager.m */,
+			);
+			path = RNSpringScrollView;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* SSVExample */ = {
 			isa = PBXGroup;
 			children = (
@@ -92,6 +122,9 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				04F9EC3426985A2C00CCBE59 /* Empty.swift */,
+				04F9EC3226985A2C00CCBE59 /* SSVExample-Bridging-Header.h */,
+				04F9EC3326985A2C00CCBE59 /* SSVExampleTests-Bridging-Header.h */,
 			);
 			name = SSVExample;
 			sourceTree = "<group>";
@@ -104,7 +137,6 @@
 				73ADBB3F2EC323DC5123CCAF /* Pods-SSVExample-SSVExampleTests.debug.xcconfig */,
 				4806925B989F3A1571FD28BE /* Pods-SSVExample-SSVExampleTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -128,6 +160,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				04F9EC3926985A8100CCBE59 /* RNSpringScrollView */,
 				13B07FAE1A68108700A75B9A /* SSVExample */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* SSVExampleTests */,
@@ -205,10 +238,11 @@
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
+						LastSwiftMigration = 1240;
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 1120;
+						LastSwiftMigration = 1240;
 					};
 				};
 			};
@@ -403,7 +437,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04F9EC4526985A9A00CCBE59 /* STSpringScrollViewManager.m in Sources */,
+				04F9EC4126985A9A00CCBE59 /* STSpringScrollView.m in Sources */,
 				00E356F31AD99517003FC87E /* SSVExampleTests.m in Sources */,
+				04F9EC3626985A2C00CCBE59 /* Empty.swift in Sources */,
+				04F9EC4326985A9A00CCBE59 /* STSpringScrollContentViewManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -413,6 +451,10 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				04F9EC3526985A2C00CCBE59 /* Empty.swift in Sources */,
+				04F9EC4426985A9A00CCBE59 /* STSpringScrollViewManager.m in Sources */,
+				04F9EC4226985A9A00CCBE59 /* STSpringScrollContentViewManager.m in Sources */,
+				04F9EC4026985A9A00CCBE59 /* STSpringScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,7 +473,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 73ADBB3F2EC323DC5123CCAF /* Pods-SSVExample-SSVExampleTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -450,6 +494,9 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SSVExampleTests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SSVExample.app/SSVExample";
 			};
 			name = Debug;
@@ -458,7 +505,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4806925B989F3A1571FD28BE /* Pods-SSVExample-SSVExampleTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = SSVExampleTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -474,6 +523,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SSVExampleTests-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SSVExample.app/SSVExample";
 			};
 			name = Release;
@@ -498,6 +549,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = SSVExample;
+				SWIFT_OBJC_BRIDGING_HEADER = "SSVExample-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -523,6 +575,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = SSVExample;
+				SWIFT_OBJC_BRIDGING_HEADER = "SSVExample-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

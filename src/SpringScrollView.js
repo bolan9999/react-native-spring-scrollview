@@ -451,7 +451,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         "unsupported value: '",
         style,
         "' in SpringScrollView, " +
-          "select one in 'bottoming','stickyScrollView','stickyContent' please"
+          "select one in 'bottoming','stickyScrollView' and 'stickyContent' please!"
       );
     }
     if (this.props.inverted) transform.push({ scaleY: -1 });
@@ -498,8 +498,8 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   };
 
   _onTouchBegin = () => {
-    if (TextInputState.currentlyFocusedField())
-      TextInputState.blurTextInput(TextInputState.currentlyFocusedField());
+    if (TextInputState.currentlyFocusedInput())
+      TextInputState.blurTextInput(TextInputState.currentlyFocusedInput());
     this.props.tapToHideKeyboard && Keyboard.dismiss();
     this.props.onTouchBegin && this.props.onTouchBegin();
   };

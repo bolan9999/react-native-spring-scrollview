@@ -9,11 +9,11 @@
 
 import React from "react";
 import { Button, StyleSheet, View } from "react-native";
-// import { InputExample } from "./InputExample";
-// import { ComplexExample } from "./ComplexExample";
-// import { BouncesAndScrollEnabledExample } from "./BouncesAndScrollEnabledExample";
-// import { RefreshAndLoadingExample } from "./RefreshAndLoadingExample";
-// import { ScrollToAndOnScrollExample } from "./ScrollToAndOnScrollExample";
+import { InputExample } from "./InputExample";
+import { ComplexExample } from "./ComplexExample";
+import { BouncesAndScrollEnabledExample } from "./BouncesAndScrollEnabledExample";
+import { RefreshAndLoadingExample } from "./RefreshAndLoadingExample";
+import { ScrollToAndOnScrollExample } from "./ScrollToAndOnScrollExample";
 
 export class Examples extends React.Component {
   constructor(props) {
@@ -23,28 +23,27 @@ export class Examples extends React.Component {
 
   render(){
     return <View style={styles.container}>
-      <Text>123123</Text>
-      {/* {this._renderContent()} */}
+      {this._renderContent()}
     </View>
   }
 
-  // _renderContent() {
-  //   switch (this.state.select) {
-  //     case 0:
-  //       return this._renderSelect();
-  //     case 1:
-  //       return <InputExample />;
-  //     case 2:
-  //       return <BouncesAndScrollEnabledExample />;
+  _renderContent() {
+    switch (this.state.select) {
+      case 0:
+        return this._renderSelect();
+      case 1:
+        return <InputExample />;
+      case 2:
+        return <BouncesAndScrollEnabledExample />;
 
-  //     case 3:
-  //       return <RefreshAndLoadingExample />;
-  //     case 4:
-  //       return <ComplexExample />;
-  //     case 5:
-  //       return <ScrollToAndOnScrollExample />;
-  //   }
-  // }
+      case 3:
+        return <RefreshAndLoadingExample />;
+      case 4:
+        return <ComplexExample />;
+      case 5:
+        return <ScrollToAndOnScrollExample />;
+    }
+  }
 
   _renderSelect() {
     return (
