@@ -23,7 +23,7 @@ import { CommonLottieFooter } from "../src/Customize/CommonLottieFooter";
 
 export class RefreshAndLoadingExample extends React.Component {
   _scrollView;
-  _step = 13;
+  _step = 33;
 
   constructor(props) {
     super(props);
@@ -80,10 +80,11 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === "ios" ? 20 : 0
   },
   text: {
+    marginHorizontal: 50, 
     paddingVertical: 20,
     fontSize: 16,
     textAlign: "center",
-    backgroundColor: "white",
+    backgroundColor: "red",
     transform: [{ scaleY: -1 }]
   }
 });

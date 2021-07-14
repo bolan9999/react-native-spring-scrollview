@@ -34,10 +34,11 @@ abstract class DecelerateAnimation {
                 onUpdate((float) animator.getAnimatedValue());
             }
         });
-        this.animating = true;
+
         animator.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
+                DecelerateAnimation.this.animating = true;
             }
 
             @Override
@@ -48,6 +49,7 @@ abstract class DecelerateAnimation {
 
             @Override
             public void onAnimationCancel(Animator animation) {
+                DecelerateAnimation.this.animating = false;
             }
 
             @Override

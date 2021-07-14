@@ -500,7 +500,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   _onTouchBegin = () => {
     // if (TextInputState.currentlyFocusedInput())
       // TextInputState.blurTextInput(TextInputState.currentlyFocusedInput());
-    this.props.tapToHideKeyboard && Keyboard.dismiss();
+    // this.props.tapToHideKeyboard && Keyboard.dismiss();
     this.props.onTouchBegin && this.props.onTouchBegin();
   };
 
@@ -516,7 +516,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     loadingFooter: NormalFooter,
     textInputRefs: [],
     inputToolBarHeight: 44,
-    tapToHideKeyboard: true,
+    tapToHideKeyboard: false,
     initOffset: { x: 0, y: 0 },
     keyboardShouldPersistTaps: "always",
     showsVerticalScrollIndicator: true,
