@@ -2,6 +2,8 @@ package com.bolan9999;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
@@ -74,25 +76,27 @@ class SpringScrollViewManager extends ViewGroupManager {
     public Map getExportedCustomDirectEventTypeConstants() {
         return MapBuilder.of(
                 "onScroll", MapBuilder.of("registrationName", "onScroll"),
-                "onTouchBegin", MapBuilder.of("registrationName", "onTouchBegin"),
-                "onTouchEnd", MapBuilder.of("registrationName", "onTouchEnd"),
-                "onMomentumScrollBegin", MapBuilder.of("registrationName", "onMomentumScrollBegin"),
-                "onMomentumScrollEnd", MapBuilder.of("registrationName", "onMomentumScrollEnd")
+                "onCustomTouchBegin", MapBuilder.of("registrationName", "onCustomTouchBegin"),
+                "onCustomTouchEnd", MapBuilder.of("registrationName", "onCustomTouchEnd"),
+                "onCustomMomentumScrollBegin", MapBuilder.of("registrationName", "onCustomMomentumScrollBegin"),
+                "onCustomMomentumScrollEnd", MapBuilder.of("registrationName", "onCustomMomentumScrollEnd"),
+                "onCustomScrollBeginDrag", MapBuilder.of("registrationName", "onCustomScrollBeginDrag"),
+                "onCustomScrollEndDrag", MapBuilder.of("registrationName", "onCustomScrollEndDrag")
         );
 
     }
 
     @Override
-    public void receiveCommand(View root, int commandId, @Nullable ReadableArray args) {
+    public void receiveCommand(@NonNull View root, String commandId, @Nullable ReadableArray args) {
         SpringScrollView scrollView = (SpringScrollView) root;
         switch (commandId) {
-            case 10000:
+            case "10000":
                 scrollView.endRefresh();
                 break;
-            case 10001:
+            case "10001":
                 scrollView.endLoading();
                 break;
-            case 10002:
+            case "10002":
                 scrollView.scrollTo(
                         PixelUtil.toPixelFromDIP(args.getDouble(0)),
                         PixelUtil.toPixelFromDIP(args.getDouble(1)),

@@ -80,7 +80,7 @@ export class ScrollToAndOnScrollExample extends React.Component {
   };
 
   _onScroll = (offset) => {
-    console.log('onScroll', offset.nativeEvent);
+    // console.log('onScroll', offset.nativeEvent);
   };
 
   _onTouchBegin = () => {
@@ -88,7 +88,7 @@ export class ScrollToAndOnScrollExample extends React.Component {
   };
 
   _onTouchEnd = () => {
-    console.log('onTouchEnd2');
+    console.log('onTouchEnd');
   };
 
   onMomentumScrollBegin = () => {
@@ -99,11 +99,11 @@ export class ScrollToAndOnScrollExample extends React.Component {
   };
 
   _onScrollBeginDrag = () => {
-    console.log('_onScrollBeginDrag');
+    console.log('onScrollBeginDrag');
   };
 
   _onScrollEndDrag = () => {
-    console.log('_onScrollEndDrag');
+    console.log('onScrollEndDrag');
   };
 }
 

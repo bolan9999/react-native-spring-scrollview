@@ -33,6 +33,7 @@ export class InputExample extends React.Component {
         <TextInput
           ref={this._topInput}
           style={styles.input}
+          returnKeyType="next"
           placeholder="Keyboard Test Top"
         />
         <Text style={styles.text}>
