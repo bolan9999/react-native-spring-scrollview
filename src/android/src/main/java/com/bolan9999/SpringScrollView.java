@@ -173,10 +173,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         else if (draggingDirection != null && draggingDirection.equals("v")) vx = 0;
         draggingDirection = null;
         tracker.clear();
-        if (shouldRefresh()) {
-            refreshStatus = "refreshing";
-            contentInsets.top = refreshHeaderHeight;
-        }
         if (shouldLoad()) {
             loadingStatus = "loading";
             contentInsets.bottom = loadingFooterHeight;
@@ -460,6 +456,9 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             refreshStatus = "pulling";
         } else if (shouldPullingEnough()) {
             refreshStatus = "pullingEnough";
+        } else if (shouldRefresh()) {
+            refreshStatus = "refreshing";
+            contentInsets.top = refreshHeaderHeight;
         } else if (shouldPullingCancel()) {
             refreshStatus = "pullingCancel";
         } else if (shouldWaiting()) {
@@ -599,7 +598,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
 
             @Override
             protected void onUpdate(float value) {
-                setContentOffset(contentOffset.x, value);
+                moveToOffset(contentOffset.x, value);
             }
         };
         verticalAnimation.start();

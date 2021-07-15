@@ -51,10 +51,11 @@
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
   [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
-  if ([self shouldRefresh]) {
-    self.refreshStatus = @"refreshing";
-    [self.scrollView setContentInset:UIEdgeInsetsMake(self.refreshHeaderHeight, 0, 0, 0)];
-  } else if ([self shouldLoad]) {
+  //  if ([self shouldRefresh]) {
+  //    self.refreshStatus = @"refreshing";
+  //    [self.scrollView setContentInset:UIEdgeInsetsMake(self.refreshHeaderHeight, 0, 0, 0)];
+  //  } else
+  if ([self shouldLoad]) {
     self.loadingStatus = @"loading";
     CGFloat fill = .0f;
     if(self.scrollView.frame.size.height>self.scrollView.contentSize.height){
@@ -70,6 +71,9 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
   if ([self shouldPulling]) {
     self.refreshStatus = @"pulling";
+  } else if ([self shouldRefresh]) {
+    self.refreshStatus = @"refreshing";
+    [self.scrollView setContentInset:UIEdgeInsetsMake(self.refreshHeaderHeight, 0, 0, 0)];
   } else if ([self shouldPullingEnough]) {
     self.refreshStatus = @"pullingEnough";
   } else if ([self shouldPullingCancel]){

@@ -36,7 +36,7 @@ import {styles} from './styles';
 export class SpringScrollView extends React.PureComponent<SpringScrollViewPropType> {
   _offsetY: Animated.Value;
   _offsetX: Animated.Value;
-  _offsetYValue: number = 0;
+  _contentOffset: Offset = {x: 0, y: 0};
   _event;
   _keyboardHeight: number;
   _refreshHeader;
@@ -247,7 +247,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
 
   scroll(offset: Offset, animated: boolean = true) {
     return this.scrollTo(
-      {x: offset.x, y: offset.y + this._offsetYValue},
+      {x: offset.x, y: offset.y + this._contentOffset.y},
       animated,
     );
   }
@@ -260,6 +260,14 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     let toOffsetY = this._contentHeight - this._height;
     if (toOffsetY < 0) toOffsetY = 0;
     return this.scrollTo({x: 0, y: toOffsetY}, animated);
+  }
+
+  beginRefresh() {
+    if (!this.props.loadingFooter || this.props.loadingFooter.height <= 0)
+      return Promise.reject(
+        'SpringScrollView: call beginRefresh without loadingFooter or loadingFooter height',
+      );
+    return this.scrollTo({x: 0, y: -this.props.loadingFooter.height - 1});
   }
 
   endRefresh() {
@@ -279,7 +287,8 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   endLoading(rebound: boolean = false) {
     if (Platform.OS === 'ios') {
       NativeModules.SpringScrollView.endLoading(
-        findNodeHandle(this._scrollView),rebound
+        findNodeHandle(this._scrollView),
+        rebound,
       );
     } else if (Platform.OS === 'android') {
       UIManager.dispatchViewManagerCommand(
@@ -335,7 +344,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       refreshStatus,
       loadingStatus,
     } = e.nativeEvent;
-    this._offsetYValue = y;
+    this._contentOffset = {x, y};
     if (this._refreshStatus !== refreshStatus) {
       this._toRefreshStatus(refreshStatus);
       this.props.onRefresh &&
@@ -513,7 +522,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       this._width = width;
       if (!this._contentHeight) return;
       if (this._contentHeight < this._height) this._contentHeight = height;
-      if (this._offsetYValue > this._contentHeight - this._height)
+      if (this._contentOffset.y > this._contentHeight - this._height)
         this.scrollToEnd();
       this.forceUpdate();
     }
@@ -532,7 +541,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       if (!this._height) return;
       if (this._contentHeight < this._height)
         this._contentHeight = this._height;
-      if (this._offsetYValue > this._contentHeight - this._height)
+      if (this._contentOffset.y > this._contentHeight - this._height)
         this.scrollToEnd(false);
       this.forceUpdate();
     }
