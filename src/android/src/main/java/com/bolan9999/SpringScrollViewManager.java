@@ -94,7 +94,7 @@ class SpringScrollViewManager extends ViewGroupManager {
                 scrollView.endRefresh();
                 break;
             case "10001":
-                scrollView.endLoading();
+                scrollView.endLoading(args.getBoolean(0));
                 break;
             case "10002":
                 scrollView.scrollTo(

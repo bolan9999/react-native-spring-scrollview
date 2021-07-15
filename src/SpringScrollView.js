@@ -59,12 +59,6 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     this._offsetY.setValue(props.initialContentOffset.y);
   }
 
-  // UNSAFE_componentWillReceiveProps(nextProps: SpringScrollViewPropType) {
-  //   if (nextProps.onNativeContentOffsetExtract !== this.props.onNativeContentOffsetExtract) {
-  //     this.obtainScrollEvent(nextProps);
-  //   }
-  // }
-
   obtainScrollEvent(props: SpringScrollViewPropType) {
     if (!props) props = {};
     this._nativeOffset = {
@@ -108,7 +102,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       <SpringScrollViewNativeAdapter
         {...this.props}
         ref={(ref) => (this._scrollView = ref)}
-        style={Platform.OS === 'android' ? wStyle : {flex: 1}}
+        style={wStyle}
         onScroll={this._event}
         refreshHeaderHeight={onRefresh ? Refresh.height : 0}
         loadingFooterHeight={onLoading ? Loading.height : 0}
@@ -130,17 +124,18 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         {this._renderVerticalIndicator()}
       </SpringScrollViewNativeAdapter>
     );
-    if (Platform.OS === 'android') return elements;
-    return (
-      <ScrollView
-        style={wStyle}
-        contentContainerStyle={{flex: 1}}
-        keyboardShouldPersistTaps={this.props.keyboardShouldPersistTaps}
-        keyboardDismissMode={this.props.keyboardDismissMode}
-        scrollEnabled={false}>
-        {elements}
-      </ScrollView>
-    );
+    return elements;
+    // if (Platform.OS === 'android') return elements;
+    // return (
+    //   <ScrollView
+    //     style={wStyle}
+    //     contentContainerStyle={{flex: 1}}
+    //     keyboardShouldPersistTaps={this.props.keyboardShouldPersistTaps}
+    //     keyboardDismissMode={this.props.keyboardDismissMode}
+    //     scrollEnabled={false}>
+    //     {elements}
+    //   </ScrollView>
+    // );
   }
 
   _renderRefreshHeader() {
@@ -281,16 +276,16 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     }
   }
 
-  endLoading() {
+  endLoading(rebound: boolean = false) {
     if (Platform.OS === 'ios') {
       NativeModules.SpringScrollView.endLoading(
-        findNodeHandle(this._scrollView),
+        findNodeHandle(this._scrollView),rebound
       );
     } else if (Platform.OS === 'android') {
       UIManager.dispatchViewManagerCommand(
         findNodeHandle(this._scrollView),
         '10001',
-        [],
+        [rebound],
       );
     }
   }

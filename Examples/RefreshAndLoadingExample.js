@@ -49,7 +49,7 @@ export class RefreshAndLoadingExample extends React.Component {
       >
         {arr.map(item => (
           <Text key={item} style={styles.text}>
-            This is a Refresh and Loading Test
+            This is a Refresh and Loading Test{item}
           </Text>
         ))}
       </SpringScrollView>

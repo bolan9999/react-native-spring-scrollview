@@ -92,7 +92,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (dragging || (!this.shouldChildrenInterceptTouchEvent(this, ev) && shouldDrag(ev))) {
-                    if(!dragging) {
+                    if (!dragging) {
                         sendEvent("onCustomScrollBeginDrag", null);
                     }
                     dragging = true;
@@ -545,6 +545,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         contentInsets.top = 0;
         verticalAnimation = new DecelerateAnimation(contentOffset.y, 0, 500) {
             @Override
+            protected void onEnd() {
+                verticalAnimation = null;
+            }
+
+            @Override
             protected void onUpdate(float value) {
                 setContentOffset(contentOffset.x, value);
             }
@@ -552,17 +557,24 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         verticalAnimation.start();
     }
 
-    public void endLoading() {
+    public void endLoading(boolean rebound) {
         if (!loadingStatus.equals("loading")) return;
-        loadingStatus = "rebound";
+        loadingStatus = rebound ? "rebound" : "waiting";
         if (verticalAnimation != null) verticalAnimation.cancel();
-        contentInsets.bottom = 0;
-        verticalAnimation = new DecelerateAnimation(contentOffset.y, contentSize.height - size.height, 500) {
+        verticalAnimation = new DecelerateAnimation(contentOffset.y,
+                contentSize.height - size.height + (rebound ? 0 : contentInsets.bottom), 500) {
+            @Override
+            protected void onEnd() {
+                verticalAnimation = null;
+                if (loadingStatus.equals("rebound")) loadingStatus = "waiting";
+            }
+
             @Override
             protected void onUpdate(float value) {
                 setContentOffset(contentOffset.x, value);
             }
         };
+        contentInsets.bottom = 0;
         verticalAnimation.start();
     }
 
