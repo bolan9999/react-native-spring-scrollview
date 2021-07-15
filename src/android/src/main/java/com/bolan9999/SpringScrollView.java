@@ -151,7 +151,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
 
     private void onMove(MotionEvent evt) {
         if (!scrollEnabled) return;
-        getParent().requestDisallowInterceptTouchEvent(true);
         drag(lastPoint.x - evt.getX(), lastPoint.y - evt.getY());
         lastPoint.x = evt.getX();
         lastPoint.y = evt.getY();
@@ -169,12 +168,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         else if (draggingDirection != null && draggingDirection.equals("v")) vx = 0;
         draggingDirection = null;
         tracker.clear();
-        WritableMap param = Arguments.createMap();
-        param.putArray("touches", Arguments.createArray());
-        if (!momentumScrolling) {
-            momentumScrolling = true;
-            sendEvent("onMomentumScrollBegin", null);
-        }
         if (shouldRefresh()) {
             refreshStatus = "refreshing";
             contentInsets.top = refreshHeaderHeight;
@@ -183,7 +176,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             loadingStatus = "loading";
             contentInsets.bottom = loadingFooterHeight;
         }
-        requestDisallowInterceptTouchEvent(false);
+        getParent().requestDisallowInterceptTouchEvent(false);
         if (!scrollEnabled) return;
         if (overshootVertical()) {
             beginOuterAnimation(vy);
@@ -202,15 +195,15 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         if (Math.abs(initialVelocity) < 0.1f) {
             return;
         }
+        if (!momentumScrolling) {
+            momentumScrolling = true;
+            sendEvent("onMomentumScrollBegin", null);
+        }
         final long beginTimeInterval = System.currentTimeMillis();
         horizontalAnimation = new DecelerateAnimation(contentOffset.x, initialVelocity, 0.997f) {
             @Override
             protected void onEnd() {
-                if (momentumScrolling) {
-                    momentumScrolling = false;
-                    horizontalAnimation = null;
-                    sendEvent("onMomentumScrollEnd", null);
-                }
+                onHorizontalAnimationEnd();
             }
 
             @Override
@@ -276,11 +269,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         horizontalAnimation = new DecelerateAnimation(contentOffset.x, endValue, 500) {
             @Override
             protected void onEnd() {
-                if (momentumScrolling) {
-                    momentumScrolling = false;
-                    horizontalAnimation = null;
-                    sendEvent("onMomentumScrollEnd", null);
-                }
+                onHorizontalAnimationEnd();
             }
 
             @Override
@@ -293,21 +282,18 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
 
     private void beginInnerAnimation(final float initialVelocity) {
         if (Math.abs(initialVelocity) < 0.1f) {
-            if (momentumScrolling) {
-                momentumScrolling = false;
-                sendEvent("onMomentumScrollEnd", null);
-            }
+            onVerticalAnimationEnd();
             return;
+        }
+        if (!momentumScrolling) {
+            momentumScrolling = true;
+            sendEvent("onMomentumScrollBegin", null);
         }
         final long beginTimeInterval = System.currentTimeMillis();
         verticalAnimation = new DecelerateAnimation(contentOffset.y, initialVelocity, 0.997f) {
             @Override
             protected void onEnd() {
-                if (momentumScrolling) {
-                    momentumScrolling = false;
-                    verticalAnimation = null;
-                    sendEvent("onMomentumScrollEnd", null);
-                }
+                onVerticalAnimationEnd();
             }
 
             @Override
@@ -372,11 +358,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         verticalAnimation = new DecelerateAnimation(contentOffset.y, endValue, 500) {
             @Override
             protected void onEnd() {
-                if (momentumScrolling) {
-                    verticalAnimation = null;
-                    momentumScrolling = false;
-                    sendEvent("onMomentumScrollEnd", null);
-                }
+                onVerticalAnimationEnd();
             }
 
             @Override
@@ -385,6 +367,22 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             }
         };
         verticalAnimation.start();
+    }
+
+    private void onVerticalAnimationEnd() {
+        verticalAnimation = null;
+        if (horizontalAnimation == null && momentumScrolling) {
+            momentumScrolling = false;
+            sendEvent("onMomentumScrollEnd", null);
+        }
+    }
+
+    private void onHorizontalAnimationEnd() {
+        horizontalAnimation = null;
+        if (verticalAnimation == null && momentumScrolling) {
+            momentumScrolling = false;
+            sendEvent("onMomentumScrollEnd", null);
+        }
     }
 
     private boolean cancelAllAnimations() {
@@ -475,6 +473,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
     }
 
     public void setContentOffset(float x, float y) {
+        if (contentOffset.x == x && contentOffset.y == y) return;
         contentOffset.x = x;
         contentOffset.y = y;
         View child = getChildAt(0);
@@ -521,12 +520,12 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         loadingFooterHeight = height;
     }
 
-    private void sendOnScrollEvent(WritableMap event) {
-        if (event == null) event = Arguments.createMap();
+    private void sendOnScrollEvent(WritableMap param) {
+        if (param == null) param = Arguments.createMap();
         EventDispatcher eventDispatcher = ((ReactContext) getContext())
                 .getNativeModule(UIManagerModule.class)
                 .getEventDispatcher();
-        eventDispatcher.dispatchEvent(ScrollEvent.obtain(getId(), "onScroll", event));
+        eventDispatcher.dispatchEvent(ScrollEvent.obtain(getId(), param));
     }
 
     private void sendEvent(String evtName, WritableMap event) {
@@ -578,9 +577,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         verticalAnimation = new DecelerateAnimation(contentOffset.y, y, 500) {
             @Override
             protected void onEnd() {
-                verticalAnimation = null;
-                momentumScrolling = false;
-                sendEvent("onMomentumScrollEnd", null);
+                onVerticalAnimationEnd();
             }
 
             @Override
@@ -593,8 +590,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             horizontalAnimation = new DecelerateAnimation(contentOffset.x, x, 500) {
                 @Override
                 protected void onEnd() {
-                    horizontalAnimation = null;
-                    momentumScrolling = false;
+                    onHorizontalAnimationEnd();
                 }
 
                 @Override

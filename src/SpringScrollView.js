@@ -505,6 +505,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   };
 
   _onMomentumScrollEnd = () => {
+    console.log("_onMomentumScrollEnd ", this.props.bounces);
     this._beginIndicatorDismissAnimation();
     this.props.onMomentumScrollEnd && this.props.onMomentumScrollEnd();
   };

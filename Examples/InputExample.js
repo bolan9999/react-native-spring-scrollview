@@ -17,6 +17,7 @@ export class InputExample extends React.Component {
 
   render() {
     return (
+      <View style={styles.container}>
       <SpringScrollView
         style={styles.container}
         tapToHideKeyboard={true}
@@ -25,7 +26,7 @@ export class InputExample extends React.Component {
           style={{height: 500, margin: 50, backgroundColor: 'red'}}
           bounces={false}
           contentContainerStyle={{width: 10000}}
-          contentStyle={{height: 10000}}
+          contentStyle={{height: 1000}}
         >
           <Text>123123</Text>
           </SpringScrollView>
@@ -43,6 +44,8 @@ export class InputExample extends React.Component {
           placeholder="Keyboard Test Bottom"
         />
       </SpringScrollView>
+      
+      </View>
     );
   }
 }

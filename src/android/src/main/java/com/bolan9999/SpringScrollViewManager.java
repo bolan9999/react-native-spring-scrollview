@@ -58,6 +58,7 @@ class SpringScrollViewManager extends ViewGroupManager {
     public void setAllLoaded(SpringScrollView view, boolean allLoaded) {
         view.setAllLoaded(allLoaded);
     }
+
     @ReactProp(name = "inverted")
     public void setInverted(SpringScrollView view, boolean inverted) {
         view.setInverted(inverted);
@@ -70,24 +71,15 @@ class SpringScrollViewManager extends ViewGroupManager {
 
     @Nullable
     @Override
-    public Map getExportedCustomBubblingEventTypeConstants() {
-        return MapBuilder.builder()
-                .put("onScroll", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onScroll")))
-                .put("onTouchBegin", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onTouchBegin")))
-                .put("onTouchEnd", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onTouchEnd")))
-                .put("onMomentumScrollBegin", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onMomentumScrollBegin")))
-                .put("onMomentumScrollEnd", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onMomentumScrollEnd")))
-                .build();
+    public Map getExportedCustomDirectEventTypeConstants() {
+        return MapBuilder.of(
+                "onScroll", MapBuilder.of("registrationName", "onScroll"),
+                "onTouchBegin", MapBuilder.of("registrationName", "onTouchBegin"),
+                "onTouchEnd", MapBuilder.of("registrationName", "onTouchEnd"),
+                "onMomentumScrollBegin", MapBuilder.of("registrationName", "onMomentumScrollBegin"),
+                "onMomentumScrollEnd", MapBuilder.of("registrationName", "onMomentumScrollEnd")
+        );
+
     }
 
     @Override
