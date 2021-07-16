@@ -108,7 +108,7 @@ declare module 'react-native-spring-scrollview' {
     allLoaded?: boolean;
     textInputRefs?: any[];
     inputToolBarHeight?: number;
-    tapToHideKeyboard?: boolean;
+    dragToHideKeyboard?: boolean;
     onTouchBegin?: () => any;
     onTouchEnd?: () => any;
     inverted?: boolean;

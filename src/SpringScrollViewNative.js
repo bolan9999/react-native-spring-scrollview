@@ -7,17 +7,22 @@
  */
 
 import React from 'react';
-import {Animated, requireNativeComponent, View} from 'react-native';
+import {Animated, Platform, requireNativeComponent, View} from 'react-native';
 
 const SpringScrollViewNative = Animated.createAnimatedComponent(
   requireNativeComponent('SpringScrollView'),
 );
 
-class SpringScrollViewNativeAndroid extends React.Component {
+export class SpringScrollViewNativeAdapter extends React.Component {
   render() {
     return (
       <SpringScrollViewNative
         {...this.props}
+        onTouchStart={(e) =>
+          Platform.OS === 'ios' &&
+          this.props.onTouchBegin &&
+          this.props.onTouchBegin(e)
+        }
         onCustomTouchBegin={(e) =>
           this.props.onTouchBegin && this.props.onTouchBegin(e)
         }
@@ -42,10 +47,6 @@ class SpringScrollViewNativeAndroid extends React.Component {
   }
 }
 
-export const SpringScrollViewNativeAdapter =
-  Platform.OS === 'ios'
-    ? SpringScrollViewNative
-    : SpringScrollViewNativeAndroid;
 export const SpringScrollContentViewNative =
   Platform.OS === 'ios'
     ? requireNativeComponent('SpringScrollContentView')

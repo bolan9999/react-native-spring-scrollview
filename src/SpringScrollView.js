@@ -98,7 +98,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       style,
       {transform: inverted ? [{scaleY: -1}] : []},
     ]);
-    const elements = (
+    return (
       <SpringScrollViewNativeAdapter
         {...this.props}
         ref={(ref) => (this._scrollView = ref)}
@@ -107,8 +107,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         refreshHeaderHeight={onRefresh ? Refresh.height : 0}
         loadingFooterHeight={onLoading ? Loading.height : 0}
         onLayout={this._onWrapperLayoutChange}
-        onTouchBegin={Platform.OS === 'android' && this._onTouchBegin}
-        onTouchStart={Platform.OS === 'ios' && this._onTouchBegin}
+        onScrollBeginDrag={this._onScrollBeginDrag}
         onMomentumScrollEnd={this._onMomentumScrollEnd}
         scrollEventThrottle={1}
         onNativeContentOffsetExtract={this._nativeOffset}>
@@ -124,18 +123,6 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         {this._renderVerticalIndicator()}
       </SpringScrollViewNativeAdapter>
     );
-    return elements;
-    // if (Platform.OS === 'android') return elements;
-    // return (
-    //   <ScrollView
-    //     style={wStyle}
-    //     contentContainerStyle={{flex: 1}}
-    //     keyboardShouldPersistTaps={this.props.keyboardShouldPersistTaps}
-    //     keyboardDismissMode={this.props.keyboardDismissMode}
-    //     scrollEnabled={false}>
-    //     {elements}
-    //   </ScrollView>
-    // );
   }
 
   _renderRefreshHeader() {
@@ -547,14 +534,15 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     }
   };
 
-  _onTouchBegin = () => {
-    this.props.onTouchBegin && this.props.onTouchBegin();
-  };
-
   _onMomentumScrollEnd = () => {
     this._beginIndicatorDismissAnimation();
     this.props.onMomentumScrollEnd && this.props.onMomentumScrollEnd();
   };
+
+  _onScrollBeginDrag = () =>{
+    if(this.props.dragToHideKeyboard) Keyboard.dismiss();
+    this.props.onScrollBeginDrag && this.props.onScrollBeginDrag();
+  }
 
   static defaultProps = {
     bounces: true,
@@ -563,7 +551,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     loadingFooter: NormalFooter,
     textInputRefs: [],
     inputToolBarHeight: 44,
-    tapToHideKeyboard: false,
+    dragToHideKeyboard: true,
     initOffset: {x: 0, y: 0},
     keyboardShouldPersistTaps: 'always',
     showsVerticalScrollIndicator: true,

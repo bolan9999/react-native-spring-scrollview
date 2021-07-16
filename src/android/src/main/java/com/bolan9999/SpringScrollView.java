@@ -418,25 +418,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
     }
 
     private float getYDampingCoefficient() {
-        if (!overshootVertical()) {
-            return 1;
-        }
-        float overshoot = overshootHead() ? -contentOffset.y : contentOffset.y - contentSize.height + size.height;
-        float c = 0.8f;
-        return c / (size.height * size.height) * (overshoot * overshoot) - 2 * c / size.height * overshoot + c;
+        return overshootVertical() ? 0.5f : 1f;
     }
 
     private float getXDampingCoefficient() {
-        float overshoot;
-        if (overshootLeft()) {
-            overshoot = -contentOffset.x;
-        } else if (overshootRight()) {
-            overshoot = contentOffset.x - contentSize.width + size.width;
-        } else {
-            return 1;
-        }
-        float c = 0.8f;
-        return c / (size.width * size.width) * (overshoot * overshoot) - 2 * c / size.width * overshoot + c;
+        return overshootLeft() || overshootRight() ? 0.5f : 1;
     }
 
     private void moveToOffset(float x, float y) {
