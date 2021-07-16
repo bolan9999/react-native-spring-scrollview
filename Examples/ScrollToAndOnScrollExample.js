@@ -15,9 +15,11 @@ import {
   View,
   Platform,
   Animated,
+  ScrollView,
 } from 'react-native';
 import {SpringScrollView} from '../src';
 
+const AnimatedSpringScrollView = Animated.createAnimatedComponent(SpringScrollView);
 export class ScrollToAndOnScrollExample extends React.Component {
   _contentCount = 20;
   _scrollView;
@@ -36,14 +38,29 @@ export class ScrollToAndOnScrollExample extends React.Component {
         <SpringScrollView
           style={styles.container}
           ref={(ref) => (this._scrollView = ref)}
-          onScroll={this._onScroll}
+          // onScroll={Animated.event(
+          //   [
+          //     {
+          //       nativeEvent: {
+          //         contentOffset: this._nativeOffset,
+          //       },
+          //     },
+          //   ],
+          //   {
+          //     useNativeDriver: true,
+          //     listener: (offset) => {
+          //       console.log('onScroll', offset.nativeEvent);
+          //     },
+          //   },
+          // )}
           onTouchBegin={this._onTouchBegin}
           onTouchEnd={this._onTouchEnd}
           onMomentumScrollBegin={this.onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
           onScrollBeginDrag={this._onScrollBeginDrag}
           onScrollEndDrag={this._onScrollEndDrag}
-          onNativeContentOffsetExtract={this._nativeOffset}>
+          onNativeContentOffsetExtract={this._nativeOffset}
+          >
           {arr.map((i, index) => (
             <Text key={index} style={styles.text}>
               Scroll and Look up the console log to check if
@@ -77,10 +94,6 @@ export class ScrollToAndOnScrollExample extends React.Component {
         .scrollTo({x: 0, y: 200})
         .then(() => console.log('ScrollTo has finished'));
     }
-  };
-
-  _onScroll = (offset) => {
-    console.log('onScroll', offset.nativeEvent.contentOffset);
   };
 
   _onTouchBegin = () => {

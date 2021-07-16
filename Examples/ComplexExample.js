@@ -57,7 +57,7 @@ export class ComplexExample extends React.Component {
         loadingFooterHeight={80}
         onLoading={() => {
           console.log("onLoading");
-          setTimeout(() => this._scrollView.endLoading(), 1000);
+          setTimeout(() => this._scrollView.endLoading(true), 1000);
         }}
       >
         {this._renderContent()}

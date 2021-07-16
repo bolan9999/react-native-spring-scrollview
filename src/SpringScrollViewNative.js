@@ -14,10 +14,12 @@ const SpringScrollViewNative = Animated.createAnimatedComponent(
 );
 
 export class SpringScrollViewNativeAdapter extends React.Component {
+  _scrollViewRef;
   render() {
     return (
       <SpringScrollViewNative
         {...this.props}
+        ref={(ref) => (this._scrollViewRef = ref)}
         onTouchStart={(e) =>
           Platform.OS === 'ios' &&
           this.props.onTouchBegin &&
@@ -43,6 +45,20 @@ export class SpringScrollViewNativeAdapter extends React.Component {
           this.props.onScrollEndDrag && this.props.onScrollEndDrag(e)
         }
       />
+    );
+  }
+
+  attachScrollNativeEvent(offset) {
+    return Animated.attachNativeEvent(
+      this._scrollViewRef,
+      'onScroll',
+      [
+        {
+          nativeEvent: {
+            contentOffset: offset,
+          },
+        },
+      ],
     );
   }
 }
