@@ -553,7 +553,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     inputToolBarHeight: 44,
     dragToHideKeyboard: true,
     initOffset: {x: 0, y: 0},
-    keyboardShouldPersistTaps: 'always',
+    keyboardShouldPersistTaps: 'handled',
     showsVerticalScrollIndicator: true,
     showsHorizontalScrollIndicator: true,
     initialContentOffset: {x: 0, y: 0},
