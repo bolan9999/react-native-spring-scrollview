@@ -20,10 +20,10 @@ import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.facebook.react.views.scroll.ReactScrollViewHelper;
 import com.facebook.react.views.view.ReactViewGroup;
 
-public class SpringScrollView extends ReactViewGroup implements View.OnLayoutChangeListener {
+public class SpringScrollView extends ReactViewGroup implements View.OnLayoutChangeListener, DecelerateListener {
     private float refreshHeaderHeight, loadingFooterHeight;
     private boolean momentumScrolling, bounces, scrollEnabled, dragging, inverted,
-            directionalLockEnabled;
+            directionalLockEnabled, pagingEnabled;
     private VelocityTracker tracker;
     private DecelerateAnimation verticalAnimation, horizontalAnimation;
     private String refreshStatus, loadingStatus, draggingDirection;
@@ -43,8 +43,29 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         lastPoint = new Point();
         beginPoint = new Point();
         setClipChildren(false);
+        verticalAnimation = new DecelerateAnimation(this);
+        horizontalAnimation = new DecelerateAnimation(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setClipToOutline(true);
+        }
+    }
+
+    @Override
+    public void onDecelerateUpdate(DecelerateAnimation animation, float value) {
+        if (animation == verticalAnimation) {
+            moveToOffset(contentOffset.x, value);
+        } else {
+            moveToOffset(value, contentOffset.y);
+        }
+    }
+
+    @Override
+    public void onDecelerateEnd(DecelerateAnimation animation) {
+        animation.setExtraListener(null);
+        if (animation == verticalAnimation) {
+            onVerticalAnimationEnd();
+        } else {
+            onHorizontalAnimationEnd();
         }
     }
 
@@ -201,27 +222,25 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             sendEvent("onCustomMomentumScrollBegin", null);
         }
         final long beginTimeInterval = System.currentTimeMillis();
-        horizontalAnimation = new DecelerateAnimation(contentOffset.x, initialVelocity, 0.997f) {
+        horizontalAnimation.configFromSpeed(contentOffset.x, initialVelocity, 0.997f, true);
+        horizontalAnimation.setExtraListener(new DecelerateListener() {
             @Override
-            protected void onEnd() {
-                onHorizontalAnimationEnd();
-            }
-
-            @Override
-            protected void onUpdate(float value) {
-                setContentOffset(value, contentOffset.y);
+            public void onDecelerateUpdate(DecelerateAnimation animation, float value) {
                 if (overshootHorizontal()) {
                     long interval = System.currentTimeMillis() - beginTimeInterval;
                     float v = initialVelocity;
                     while (interval-- > 0) {
                         v *= 0.997f;
                     }
-                    animator.cancel();
-                    horizontalAnimation = null;
+                    animation.cancel();
                     beginOuterHorizontalAnimation(v);
                 }
             }
-        };
+
+            @Override
+            public void onDecelerateEnd(DecelerateAnimation animation) {
+            }
+        });
         horizontalAnimation.start();
     }
 
@@ -232,28 +251,17 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         }
         if (initialVelocity > 15) initialVelocity = 15;
         if (initialVelocity < -15) initialVelocity = -15;
-        horizontalAnimation = new DecelerateAnimation(contentOffset.x, initialVelocity, 0.9f) {
+        horizontalAnimation.configFromSpeed(contentOffset.x, initialVelocity, 0.9f, false);
+        horizontalAnimation.setExtraListener(new DecelerateListener() {
             @Override
-            protected void onEnd() {
-                horizontalAnimation = null;
-                beginHorizontalReboundAnimation();
+            public void onDecelerateUpdate(DecelerateAnimation animation, float value) {
             }
 
             @Override
-            protected void onUpdate(float value) {
-                if (!bounces) {
-                    contentOffset.x = value;
-                    if (overshootLeft()) {
-                        value = -contentInsets.left;
-                        horizontalAnimation.cancel();
-                    } else if (overshootRight()) {
-                        value = contentSize.width - size.width + contentInsets.right;
-                        horizontalAnimation.cancel();
-                    }
-                }
-                setContentOffset(value, contentOffset.y);
+            public void onDecelerateEnd(DecelerateAnimation animation) {
+                beginHorizontalReboundAnimation();
             }
-        };
+        });
         horizontalAnimation.start();
     }
 
@@ -261,23 +269,8 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         if (!overshootHorizontal() || !bounces) {
             return;
         }
-        float endValue;
-        if (overshootLeft()) {
-            endValue = -contentInsets.left;
-        } else {
-            endValue = contentSize.width - size.width + contentInsets.right;
-        }
-        horizontalAnimation = new DecelerateAnimation(contentOffset.x, endValue, 500) {
-            @Override
-            protected void onEnd() {
-                onHorizontalAnimationEnd();
-            }
-
-            @Override
-            protected void onUpdate(float value) {
-                setContentOffset(value, contentOffset.y);
-            }
-        };
+        float endValue = overshootLeft() ? -contentInsets.left : contentSize.width - size.width + contentInsets.right;
+        horizontalAnimation.config(contentOffset.x, endValue, 500);
         horizontalAnimation.start();
     }
 
@@ -291,26 +284,25 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             sendEvent("onCustomMomentumScrollBegin", null);
         }
         final long beginTimeInterval = System.currentTimeMillis();
-        verticalAnimation = new DecelerateAnimation(contentOffset.y, initialVelocity, 0.997f) {
+        verticalAnimation.configFromSpeed(contentOffset.y, initialVelocity, 0.997f, true);
+        verticalAnimation.setExtraListener(new DecelerateListener() {
             @Override
-            protected void onEnd() {
-                onVerticalAnimationEnd();
-            }
-
-            @Override
-            protected void onUpdate(float value) {
-                setContentOffset(contentOffset.x, value);
+            public void onDecelerateUpdate(DecelerateAnimation animation, float value) {
                 if (overshootHead() || overshootFooter()) {
                     long interval = System.currentTimeMillis() - beginTimeInterval;
                     float v = initialVelocity;
                     while (interval-- > 0) {
                         v *= 0.997f;
                     }
-                    animator.cancel();
+                    animation.cancel();
                     beginOuterAnimation(v);
                 }
             }
-        };
+
+            @Override
+            public void onDecelerateEnd(DecelerateAnimation animation) {
+            }
+        });
         verticalAnimation.start();
     }
 
@@ -321,28 +313,17 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         }
         if (initialVelocity > 15) initialVelocity = 15;
         if (initialVelocity < -15) initialVelocity = -15;
-        verticalAnimation = new DecelerateAnimation(contentOffset.y, initialVelocity, 0.9f) {
+        verticalAnimation.configFromSpeed(contentOffset.y, initialVelocity, 0.9f, false);
+        verticalAnimation.setExtraListener(new DecelerateListener() {
             @Override
-            protected void onEnd() {
-                verticalAnimation = null;
-                beginReboundAnimation();
+            public void onDecelerateUpdate(DecelerateAnimation animation, float value) {
             }
 
             @Override
-            protected void onUpdate(float value) {
-                if (!bounces) {
-                    contentOffset.y = value;
-                    if (overshootHead()) {
-                        value = -contentInsets.top;
-                        verticalAnimation.cancel();
-                    } else if (overshootFooter()) {
-                        value = contentSize.height - size.height + contentInsets.bottom;
-                        verticalAnimation.cancel();
-                    }
-                }
-                setContentOffset(contentOffset.x, value);
+            public void onDecelerateEnd(DecelerateAnimation animation) {
+                beginReboundAnimation();
             }
-        };
+        });
         verticalAnimation.start();
     }
 
@@ -350,53 +331,35 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         if (!overshootVertical() || !bounces) {
             return;
         }
-        float endValue;
-        if (overshootHead()) {
-            endValue = -contentInsets.top;
-        } else {
-            endValue = contentSize.height - size.height + contentInsets.bottom;
-        }
-        verticalAnimation = new DecelerateAnimation(contentOffset.y, endValue, 500) {
-            @Override
-            protected void onEnd() {
-                onVerticalAnimationEnd();
-            }
-
-            @Override
-            protected void onUpdate(float value) {
-                setContentOffset(contentOffset.x, value);
-            }
-        };
+        float endValue = overshootHead() ? -contentInsets.top : contentSize.height - size.height + contentInsets.bottom;
+        verticalAnimation.config(contentOffset.y, endValue, 500);
         verticalAnimation.start();
     }
 
     private void onVerticalAnimationEnd() {
-        verticalAnimation = null;
-        if (horizontalAnimation == null && momentumScrolling) {
+        if (!horizontalAnimation.animating && momentumScrolling) {
             momentumScrolling = false;
             sendEvent("onCustomMomentumScrollEnd", null);
         }
     }
 
     private void onHorizontalAnimationEnd() {
-        horizontalAnimation = null;
-        if (verticalAnimation == null && momentumScrolling) {
+        if (!verticalAnimation.animating && momentumScrolling) {
             momentumScrolling = false;
             sendEvent("onCustomMomentumScrollEnd", null);
         }
     }
 
     private boolean cancelAllAnimations() {
-        boolean cancel = false;
-        if (verticalAnimation != null) {
-            cancel = verticalAnimation.cancel();
-            verticalAnimation = null;
+        boolean cancelVertical = false;
+        boolean cancelHorizontal = false;
+        if (verticalAnimation.animating) {
+            cancelVertical = verticalAnimation.cancel();
         }
-        if (horizontalAnimation != null) {
-            cancel = horizontalAnimation.cancel();
-            horizontalAnimation = null;
+        if (horizontalAnimation.animating) {
+            cancelHorizontal = horizontalAnimation.cancel();
         }
-        return cancel;
+        return cancelVertical || cancelVertical;
     }
 
 
@@ -481,6 +444,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         sendOnScrollEvent(event);
     }
 
+    private void momentumScroll() {
+
+    }
+
     private boolean overshootVertical() {
         return overshootHead() || overshootFooter();
     }
@@ -526,39 +493,28 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
     public void endRefresh() {
         if (!refreshStatus.equals("refreshing")) return;
         refreshStatus = "rebound";
-        if (verticalAnimation != null) verticalAnimation.cancel();
+        if (verticalAnimation.animating) verticalAnimation.cancel();
         contentInsets.top = 0;
-        verticalAnimation = new DecelerateAnimation(contentOffset.y, 0, 500) {
-            @Override
-            protected void onEnd() {
-                verticalAnimation = null;
-            }
-
-            @Override
-            protected void onUpdate(float value) {
-                setContentOffset(contentOffset.x, value);
-            }
-        };
+        verticalAnimation.config(contentOffset.y, 0, 500);
         verticalAnimation.start();
     }
 
     public void endLoading(boolean rebound) {
         if (!loadingStatus.equals("loading")) return;
         loadingStatus = rebound ? "rebound" : "waiting";
-        if (verticalAnimation != null) verticalAnimation.cancel();
-        verticalAnimation = new DecelerateAnimation(contentOffset.y,
-                contentSize.height - size.height + (rebound ? 0 : contentInsets.bottom), 500) {
+        if (verticalAnimation.animating) verticalAnimation.cancel();
+        verticalAnimation.config(contentOffset.y,
+                contentSize.height - size.height + (rebound ? 0 : contentInsets.bottom), 500);
+        verticalAnimation.setExtraListener(new DecelerateListener() {
             @Override
-            protected void onEnd() {
-                verticalAnimation = null;
-                if (loadingStatus.equals("rebound")) loadingStatus = "waiting";
+            public void onDecelerateUpdate(DecelerateAnimation animation, float value) {
             }
 
             @Override
-            protected void onUpdate(float value) {
-                setContentOffset(contentOffset.x, value);
+            public void onDecelerateEnd(DecelerateAnimation animation) {
+                if (loadingStatus.equals("rebound")) loadingStatus = "waiting";
             }
-        };
+        });
         contentInsets.bottom = 0;
         verticalAnimation.start();
     }
@@ -576,30 +532,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             moveToOffset(x, y);
             return;
         }
-        verticalAnimation = new DecelerateAnimation(contentOffset.y, y, 500) {
-            @Override
-            protected void onEnd() {
-                onVerticalAnimationEnd();
-            }
-
-            @Override
-            protected void onUpdate(float value) {
-                moveToOffset(contentOffset.x, value);
-            }
-        };
+        verticalAnimation.config(contentOffset.y, y, 500);
         verticalAnimation.start();
         if (x != contentOffset.x) {
-            horizontalAnimation = new DecelerateAnimation(contentOffset.x, x, 500) {
-                @Override
-                protected void onEnd() {
-                    onHorizontalAnimationEnd();
-                }
-
-                @Override
-                protected void onUpdate(float value) {
-                    setContentOffset(value, contentOffset.y);
-                }
-            };
+            horizontalAnimation.config(contentOffset.x, x, 500);
             horizontalAnimation.start();
         }
     }

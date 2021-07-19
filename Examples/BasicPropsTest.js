@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-07-18 23:48:18
+ * @LastEditTime: 2021-07-19 10:09:47
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -27,7 +27,7 @@ export class BasicPropsTest extends React.Component {
     return (
       <SpringScrollView
         {...this.state}
-        pagingEnabled={false}
+        pagingEnabled
         snapToInterval={200}
         snapToAlignment="start"
         decelerationRate={0.99}

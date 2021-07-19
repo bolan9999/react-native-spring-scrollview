@@ -225,13 +225,13 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   }
 
   scrollToBegin(animated: boolean) {
-    return this.scrollTo({x: this.contentOffset.x, y: 0}, animated);
+    return this.scrollTo({x: this._contentOffset.x, y: 0}, animated);
   }
 
   scrollToEnd(animated: boolean = true) {
     let toOffsetY = this._contentHeight - this._height;
     if (toOffsetY < 0) toOffsetY = 0;
-    return this.scrollTo({x: this.contentOffset.x, y: toOffsetY}, animated);
+    return this.scrollTo({x: this._contentOffset.x, y: toOffsetY}, animated);
   }
 
   beginRefresh() {
@@ -240,7 +240,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         'SpringScrollView: call beginRefresh without loadingFooter or loadingFooter height',
       );
     return this.scrollTo({
-      x: this.contentOffset.x,
+      x: this._contentOffset.x,
       y: -this.props.loadingFooter.height - 1,
     });
   }
