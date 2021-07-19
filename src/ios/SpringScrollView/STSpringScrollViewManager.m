@@ -22,6 +22,8 @@ RCT_EXPORT_VIEW_PROPERTY(refreshHeaderHeight, float)
 RCT_EXPORT_VIEW_PROPERTY(loadingFooterHeight, float)
 RCT_EXPORT_VIEW_PROPERTY(initialContentOffset, id)
 RCT_EXPORT_VIEW_PROPERTY(allLoaded, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(pageSize, id)
+RCT_EXPORT_VIEW_PROPERTY(pagingEnabledB, BOOL)
 
 - (UIView *)view
 {

@@ -21,6 +21,11 @@ export interface Offset {
   y: number
 }
 
+export interface Size {
+  width: number;
+  height: number;
+}
+
 export interface NativeContentOffset {
   x?: Animated.Value,
   y?: Animated.Value
@@ -44,6 +49,8 @@ export interface SpringScrollViewPropType extends ViewProps {
   contentStyle?: ViewStyle,
   bounces?: boolean,
   scrollEnabled?: boolean,
+  pagingEnabled?: boolean,
+  pageSize?: Size,
   directionalLockEnabled?: boolean,
   initialContentOffset?: Offset,
   showsVerticalScrollIndicator?: boolean,

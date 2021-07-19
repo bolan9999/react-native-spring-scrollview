@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-07-19 18:00:03
+ * @LastEditTime: 2021-07-19 23:48:30
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -28,7 +28,7 @@ export class BasicPropsTest extends React.Component {
       <SpringScrollView
         {...this.state}
         pagingEnabled
-        pageSize={{width:400,height:200}}
+        pageSize={{width:200,height:200}}
         >
         {Object.keys(this.state).map((key) => (
           <Row

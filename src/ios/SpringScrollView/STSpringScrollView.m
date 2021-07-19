@@ -12,16 +12,18 @@
 @interface STSpringScrollView ()
 @property(nonatomic, assign) float refreshHeaderHeight;
 @property(nonatomic, assign) float loadingFooterHeight;
-//@property(nonatomic, assign) UIEdgeInsets orgInsets;
 @property(nonatomic, copy) NSString *refreshStatus;
 @property(nonatomic, copy) NSString *loadingStatus;
 @property(nonatomic, copy) NSDictionary *initialContentOffset;
+@property(nonatomic, copy) NSDictionary *pageSize;
 @property(nonatomic, assign) BOOL allLoaded;
 @property(nonatomic, assign) BOOL initialed;
+@property(nonatomic, assign) BOOL pagingEnabledB;
 @end
 
-@implementation STSpringScrollView
-
+@implementation STSpringScrollView{
+  NSHashTable *_scrollListeners;
+}
 - (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher{
   if (self=[super initWithEventDispatcher:eventDispatcher]) {
     self.refreshStatus = self.loadingStatus = @"waiting";
@@ -35,6 +37,16 @@
     self.initialed = YES;
     [self.scrollView addObserver:self forKeyPath:@"contentSize" options:NSKeyValueObservingOptionNew context:nil];
   }
+}
+
+- (float) getPageWidth{
+  CGFloat width = [self.pageSize[@"width"] floatValue];
+  return width<=0?self.scrollView.frame.size.width:width;
+}
+
+- (float) getPageHeight{
+  CGFloat height = [self.pageSize[@"height"] floatValue];
+  return height<=0?self.scrollView.frame.size.height:height;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
@@ -51,10 +63,6 @@
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
   [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
-  //  if ([self shouldRefresh]) {
-  //    self.refreshStatus = @"refreshing";
-  //    [self.scrollView setContentInset:UIEdgeInsetsMake(self.refreshHeaderHeight, 0, 0, 0)];
-  //  } else
   if ([self shouldLoad]) {
     self.loadingStatus = @"loading";
     CGFloat fill = .0f;
@@ -62,10 +70,37 @@
       fill=self.scrollView.frame.size.height-self.scrollView.contentSize.height;
     }
     [self.scrollView setContentInset:UIEdgeInsetsMake(0, 0, self.loadingFooterHeight+fill, 0)];
-  }
-  else if ([self hitRefreshStatus:@[@"rebound"]] && !UIEdgeInsetsEqualToEdgeInsets(UIEdgeInsetsZero, scrollView.contentInset)){
+  } else if ([self hitRefreshStatus:@[@"rebound"]] && !UIEdgeInsetsEqualToEdgeInsets(UIEdgeInsetsZero, scrollView.contentInset)){
     [self.scrollView setContentOffset:CGPointMake(0, 0) animated:YES];
   }
+}
+
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
+                     withVelocity:(CGPoint)velocity
+              targetContentOffset:(inout CGPoint *)targetContentOffset
+{
+  if (self.pagingEnabledB) {
+    float displacement = 0;
+    float v = -velocity.x;
+    int duration = 0;
+    while (fabsf(v) > 0.01f) {
+      displacement += v;
+      v *= 0.99f;
+      duration++;
+    }
+    targetContentOffset->x = round((self.scrollView.contentOffset.x - displacement)/[self getPageWidth])*[self getPageWidth];
+    v = -velocity.y;
+    duration = 0;
+    displacement = 0;
+    while (fabsf(v) > 0.01f) {
+      displacement += v;
+      v *= 0.99f;
+      duration++;
+    }
+    targetContentOffset->y = round((self.scrollView.contentOffset.y - displacement)/[self getPageHeight])*[self getPageHeight];
+    return;
+  }
+  [super scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {

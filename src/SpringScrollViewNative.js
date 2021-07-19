@@ -1,3 +1,11 @@
+/*
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 2021-07-15 17:11:44
+ * @LastEditTime: 2021-07-19 20:34:28
+ * @LastEditors: 石破天惊
+ * @Description:
+ */
 /**
  * Author: Shi(bolan0000@icloud.com)
  * Date: 2019/1/17
@@ -19,6 +27,11 @@ export class SpringScrollViewNativeAdapter extends React.Component {
     return (
       <SpringScrollViewNative
         {...this.props}
+        pagingEnabled={Platform.select({
+          ios: false,
+          android: this.props.pagingEnabled,
+        })}
+        pagingEnabledB={this.props.pagingEnabled}
         ref={(ref) => (this._scrollViewRef = ref)}
         onTouchStart={(e) =>
           Platform.OS === 'ios' &&
@@ -49,17 +62,13 @@ export class SpringScrollViewNativeAdapter extends React.Component {
   }
 
   attachScrollNativeEvent(offset) {
-    return Animated.attachNativeEvent(
-      this._scrollViewRef,
-      'onScroll',
-      [
-        {
-          nativeEvent: {
-            contentOffset: offset,
-          },
+    return Animated.attachNativeEvent(this._scrollViewRef, 'onScroll', [
+      {
+        nativeEvent: {
+          contentOffset: offset,
         },
-      ],
-    );
+      },
+    ]);
   }
 }
 
