@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-07-19 10:09:47
+ * @LastEditTime: 2021-07-19 18:00:03
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -15,7 +15,7 @@ export class BasicPropsTest extends React.Component {
   state = {
     style: {flex:1},
     bounces: true,
-    contentStyle: {flexGrow: 1, height: 2000},
+    contentStyle: {flexGrow: 1, height: 2000,width:1000},
     scrollEnabled: true,
     directionalLockEnabled: true,
     showsVerticalScrollIndicator: true,
@@ -28,10 +28,7 @@ export class BasicPropsTest extends React.Component {
       <SpringScrollView
         {...this.state}
         pagingEnabled
-        snapToInterval={200}
-        snapToAlignment="start"
-        decelerationRate={0.99}
-        contentContainerStyle= {{ height: 10000}}
+        pageSize={{width:400,height:200}}
         >
         {Object.keys(this.state).map((key) => (
           <Row

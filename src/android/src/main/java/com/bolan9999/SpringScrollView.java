@@ -28,7 +28,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
     private DecelerateAnimation verticalAnimation, horizontalAnimation;
     private String refreshStatus, loadingStatus, draggingDirection;
     private Offset contentOffset, initContentOffset;
-    private Size size, contentSize;
+    private Size size, contentSize, pageSize;
     private Point lastPoint, beginPoint;
     private EdgeInsets contentInsets;
 
@@ -42,6 +42,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         contentSize = new Size();
         lastPoint = new Point();
         beginPoint = new Point();
+        pageSize = new Size();
         setClipChildren(false);
         verticalAnimation = new DecelerateAnimation(this);
         horizontalAnimation = new DecelerateAnimation(this);
@@ -106,6 +107,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (!scrollEnabled) return super.onInterceptTouchEvent(ev);
         int action = ev.getAction() & MotionEvent.ACTION_MASK;
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -222,7 +224,23 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             sendEvent("onCustomMomentumScrollBegin", null);
         }
         final long beginTimeInterval = System.currentTimeMillis();
-        horizontalAnimation.configFromSpeed(contentOffset.x, initialVelocity, 0.997f, true);
+        float dampingCoefficient = pagingEnabled ? 0.99f : 0.997f;
+        float end;
+        float displacement = 0;
+        float v = initialVelocity;
+        int duration = 0;
+        while (Math.abs(v) > 0.01f) {
+            displacement += v;
+            v *= dampingCoefficient;
+            duration++;
+        }
+        if (pagingEnabled) {
+            duration = 500;
+            end = Math.round((contentOffset.x - displacement) / getPageSize().width) * getPageSize().width;
+        } else {
+            end = contentOffset.x - displacement;
+        }
+        horizontalAnimation.config(contentOffset.x, end, duration);
         horizontalAnimation.setExtraListener(new DecelerateListener() {
             @Override
             public void onDecelerateUpdate(DecelerateAnimation animation, float value) {
@@ -284,7 +302,23 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             sendEvent("onCustomMomentumScrollBegin", null);
         }
         final long beginTimeInterval = System.currentTimeMillis();
-        verticalAnimation.configFromSpeed(contentOffset.y, initialVelocity, 0.997f, true);
+        float end;
+        float dampingCoefficient = pagingEnabled ? 0.99f : 0.997f;
+        float displacement = 0;
+        float v = initialVelocity;
+        int duration = 0;
+        while (Math.abs(v) > 0.01f) {
+            displacement += v;
+            v *= dampingCoefficient;
+            duration++;
+        }
+        if (pagingEnabled) {
+            duration = 500;
+            end = Math.round((contentOffset.y - displacement) / getPageSize().height) * getPageSize().height;
+        } else {
+            end = contentOffset.y - displacement;
+        }
+        verticalAnimation.config(contentOffset.y, end, duration);
         verticalAnimation.setExtraListener(new DecelerateListener() {
             @Override
             public void onDecelerateUpdate(DecelerateAnimation animation, float value) {
@@ -444,10 +478,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         sendOnScrollEvent(event);
     }
 
-    private void momentumScroll() {
-
-    }
-
     private boolean overshootVertical() {
         return overshootHead() || overshootFooter();
     }
@@ -459,6 +489,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         assert child != null;
         size.width = getWidth();
         size.height = getHeight();
+
         setContentSize(child.getMeasuredWidth(), child.getMeasuredHeight());
     }
 
@@ -559,6 +590,19 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
 
     public void setDirectionalLockEnabled(boolean directionalLockEnabled) {
         this.directionalLockEnabled = directionalLockEnabled;
+    }
+
+    public void setPagingEnabled(boolean pagingEnabled) {
+        this.pagingEnabled = pagingEnabled;
+    }
+
+    public void setPageSize(float width, float height) {
+        this.pageSize.width = width;
+        this.pageSize.height = height;
+    }
+
+    public Size getPageSize() {
+        return pageSize.width == 0 && pageSize.height == 0 ? contentSize : pageSize;
     }
 
     private boolean overshootHead() {

@@ -52,7 +52,6 @@ class DecelerateAnimation {
             @Override
             public void onAnimationCancel(Animator animation) {
                 DecelerateAnimation.this.animating = false;
-//                this.onAnimationEnd(animation);
             }
 
             @Override
@@ -74,7 +73,7 @@ class DecelerateAnimation {
     public void configFromSpeed(float base, float v, float dampingCoefficient, boolean shouldCompete) {
         int duration = 0;
         float displacement = 0;
-        while (Math.abs(v) > 0.1f) {
+        while (Math.abs(v) > 0.001f) {
             displacement += v;
             v *= dampingCoefficient;
             duration++;

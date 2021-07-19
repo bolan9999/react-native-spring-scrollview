@@ -51,8 +51,8 @@ class SpringScrollViewManager extends ViewGroupManager {
 
     @ReactProp(name = "initialContentOffset")
     public void setInitContentOffset(SpringScrollView view, ReadableMap offset) {
-        float x = PixelUtil.toPixelFromDIP(offset.getDouble("x"));
-        float y = PixelUtil.toPixelFromDIP(offset.getDouble("y"));
+        float x = offset != null ? PixelUtil.toPixelFromDIP(offset.getDouble("x")) : 0;
+        float y = offset != null ? PixelUtil.toPixelFromDIP(offset.getDouble("y")) : 0;
         view.setInitContentOffset(x, y);
     }
 
@@ -69,6 +69,18 @@ class SpringScrollViewManager extends ViewGroupManager {
     @ReactProp(name = "directionalLockEnabled")
     public void setDirectionalLockEnabled(SpringScrollView view, boolean directionalLockEnabled) {
         view.setDirectionalLockEnabled(directionalLockEnabled);
+    }
+
+    @ReactProp(name = "pagingEnabled")
+    public void setPagingEnabled(SpringScrollView view, boolean pagingEnabled) {
+        view.setPagingEnabled(pagingEnabled);
+    }
+
+    @ReactProp(name = "pageSize")
+    public void setPageSize(SpringScrollView view, ReadableMap pageSize) {
+        float width = pageSize != null ? PixelUtil.toPixelFromDIP( pageSize.getDouble("width")) : 0f;
+        float height = pageSize != null ? PixelUtil.toPixelFromDIP( pageSize.getDouble("height")) : 0f;
+        view.setPageSize(width, height);
     }
 
     @Nullable
