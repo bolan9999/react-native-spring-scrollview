@@ -21,6 +21,7 @@ import com.facebook.react.views.scroll.ReactScrollViewHelper;
 import com.facebook.react.views.view.ReactViewGroup;
 
 public class SpringScrollView extends ReactViewGroup implements View.OnLayoutChangeListener, DecelerateListener {
+    private int priority;
     private float refreshHeaderHeight, loadingFooterHeight;
     private boolean momentumScrolling, bounces, scrollEnabled, dragging, inverted,
             directionalLockEnabled, pagingEnabled;
@@ -112,9 +113,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 onDown(ev);
+                final int[] location = new int[2];
+                getLocationOnScreen(location);
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (dragging || (!this.shouldChildrenInterceptTouchEvent(this, ev) && shouldDrag(ev))) {
+                if (dragging || (!this.shouldChildrenInterceptTouchEvent(this, ev) && shouldDrag(ev, false))) {
                     if (!dragging) {
                         sendEvent("onCustomScrollBeginDrag", null);
                     }
@@ -124,9 +127,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if(!dragging) sendEvent("onCustomTouchEnd", null);
+                if (!dragging) sendEvent("onCustomTouchEnd", null);
                 break;
         }
+        Log.d("onInterceptTouchEvent ", "" + getId() + " action" + action + dragging);
         return dragging || super.onInterceptTouchEvent(ev);
     }
 
@@ -136,21 +140,42 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             if (child instanceof ViewGroup && this.shouldChildrenInterceptTouchEvent((ViewGroup) child, ev)) {
                 return true;
             }
-            if ((child instanceof SpringScrollView) && ((SpringScrollView) child).shouldDrag(ev)) {
+            if ((child instanceof SpringScrollView) && ((SpringScrollView) child).shouldDrag(ev, true)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean shouldDrag(MotionEvent ev) {
+    private boolean shouldDrag(MotionEvent ev, boolean child) {
         if (!scrollEnabled) return false;
         if (beginPoint.x == 0 && beginPoint.y == 0) return false;
         if (dragging) return true;
-        if (canHorizontalScroll() &&  Math.abs(ev.getX() - beginPoint.x) > PixelUtil.toPixelFromDIP(10)) {
-            return true;
+        float offsetX = ev.getRawX() - beginPoint.x;
+        float offsetY = ev.getRawY() - beginPoint.y;
+        if (inverted) {
+            offsetX = -offsetX;
+            offsetY = -offsetY;
         }
-        return Math.abs(ev.getY() - beginPoint.y) > PixelUtil.toPixelFromDIP(5);
+        if (canHorizontalScroll()) {
+            if (child) {
+                if (contentOffset.x == -contentInsets.left && offsetX > 0)
+                    return false;
+                if (contentOffset.x == contentInsets.right + contentSize.width - size.width && offsetX < 0)
+                    return false;
+            } else if (Math.abs(offsetX) > PixelUtil.toPixelFromDIP(10)) {
+                return true;
+            }
+        }
+        if (child) {
+            if (contentOffset.y == -contentInsets.top && offsetY > 0) {
+                Log.d("shouldDrag", "让父先行");
+                return false;
+            }
+            if (contentOffset.y == contentSize.height - size.height && offsetY < 0)
+                return false;
+        }
+        return Math.abs(offsetY) > PixelUtil.toPixelFromDIP(5);
     }
 
     @Override
@@ -168,8 +193,8 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
     }
 
     private void onDown(MotionEvent evt) {
-        beginPoint.x = lastPoint.x = evt.getX();
-        beginPoint.y = lastPoint.y = evt.getY();
+        beginPoint.x = lastPoint.x = evt.getRawX();
+        beginPoint.y = lastPoint.y = evt.getRawY();
         if (cancelAllAnimations()) {
             dragging = true;
         }
@@ -179,9 +204,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
 
     private void onMove(MotionEvent evt) {
         if (!scrollEnabled) return;
-        drag(lastPoint.x - evt.getX(), lastPoint.y - evt.getY());
-        lastPoint.x = evt.getX();
-        lastPoint.y = evt.getY();
+        if (inverted) drag(evt.getRawX() - lastPoint.x, evt.getRawY() - lastPoint.y);
+        else drag(lastPoint.x - evt.getRawX(), lastPoint.y - evt.getRawY());
+        lastPoint.x = evt.getRawX();
+        lastPoint.y = evt.getRawY();
         tracker.addMovement(evt);
     }
 
@@ -196,7 +222,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         if (draggingDirection != null && draggingDirection.equals("h")) vy = 0;
         else if (draggingDirection != null && draggingDirection.equals("v")) vx = 0;
         draggingDirection = null;
-        tracker.clear();
+        tracker.recycle();
         if (shouldLoad()) {
             loadingStatus = "loading";
             contentInsets.bottom = loadingFooterHeight;
@@ -254,7 +280,8 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             }
 
             @Override
-            public void onDecelerateEnd(DecelerateAnimation animation) {}
+            public void onDecelerateEnd(DecelerateAnimation animation) {
+            }
         });
         horizontalAnimation.start();
     }
@@ -595,11 +622,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
     }
 
     private float getPageWidth() {
-         return pageSize.width <= 0? size.width : pageSize.width;
+        return pageSize.width <= 0 ? size.width : pageSize.width;
     }
 
     private float getPageHeight() {
-        return pageSize.height <= 0? size.height : pageSize.height;
+        return pageSize.height <= 0 ? size.height : pageSize.height;
     }
 
     private boolean overshootHead() {

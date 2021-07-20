@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-07-20 10:49:41
+ * @LastEditTime: 2021-07-20 17:15:23
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -19,6 +19,7 @@ import {
 import {SpringScrollView} from '../src/SpringScrollView';
 
 export class BasicPropsTest extends React.Component {
+  _main: SpringScrollView;
   state = {
     bounces: true,
     scrollEnabled: true,
@@ -37,14 +38,14 @@ export class BasicPropsTest extends React.Component {
   };
   render() {
     const propertyKeys = Object.keys(this.state).filter(
-      (key, index) => index < Object.keys(this.state).findIndex((v) => v==='log'),
+      (key, index) =>
+        index < Object.keys(this.state).findIndex((v) => v === 'log'),
     );
     return (
-      <SpringScrollView
-        style={{backgroundColor: '#EEE'}}
-        contentStyle={{paddingHorizontal: 40, flexShrink: 1}}>
+      <SpringScrollView style={cs.container} contentStyle={cs.content}>
         <SpringScrollView
           {...this.state}
+          ref={(ref) => (this._main = ref)}
           onTouchBegin={this._onTouchBegin}
           onTouchEnd={this._onTouchEnd}
           onMomentumScrollBegin={this.onMomentumScrollBegin}
@@ -62,35 +63,37 @@ export class BasicPropsTest extends React.Component {
             />
           ))}
         </SpringScrollView>
-        <SpringScrollView style={cs.log}>
-          <Text>{this.state.log}</Text>
+        <SpringScrollView style={cs.log} inverted>
+          <Text style={cs.inverted}>{this.state.log}</Text>
         </SpringScrollView>
       </SpringScrollView>
     );
   }
 
+  // #region 基本事件响应函数
   _onTouchBegin = () => {
-    console.log('onTouchBegin');
+    this._log('onTouchBegin');
   };
 
   _onTouchEnd = () => {
-    console.log('onTouchEnd');
+    this._log('onTouchEnd');
   };
 
   onMomentumScrollBegin = () => {
-    console.log('onMomentumScrollBegin');
+    this._log('onMomentumScrollBegin');
   };
   _onMomentumScrollEnd = () => {
-    console.log('onMomentumScrollEnd');
+    this._log('onMomentumScrollEnd');
   };
 
   _onScrollBeginDrag = () => {
-    console.log('onScrollBeginDrag');
+    this._log('onScrollBeginDrag');
   };
 
   _onScrollEndDrag = () => {
-    console.log('onScrollEndDrag');
+    this._log('onScrollEndDrag');
   };
+  // #endregion
 
   _onChange = (e, key) => {
     try {
@@ -125,8 +128,12 @@ const Row = (props) => (
   </View>
 );
 
+//#region styles
 const cs = StyleSheet.create({
+  container: {backgroundColor: '#EEE'},
+  content: {padding: 40, flexShrink: 1},
   log: {height: 180, backgroundColor: 'lightgray'},
+  inverted: {transform: [{scaleY: -1}]},
 });
 
 const rs = StyleSheet.create({
@@ -148,3 +155,4 @@ const rs = StyleSheet.create({
     backgroundColor: 'lightgray',
   },
 });
+//#endregion
