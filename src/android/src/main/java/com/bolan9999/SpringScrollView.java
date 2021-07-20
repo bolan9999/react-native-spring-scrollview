@@ -21,7 +21,6 @@ import com.facebook.react.views.scroll.ReactScrollViewHelper;
 import com.facebook.react.views.view.ReactViewGroup;
 
 public class SpringScrollView extends ReactViewGroup implements View.OnLayoutChangeListener, DecelerateListener {
-    private int priority;
     private float refreshHeaderHeight, loadingFooterHeight;
     private boolean momentumScrolling, bounces, scrollEnabled, dragging, inverted,
             directionalLockEnabled, pagingEnabled;
@@ -130,7 +129,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
                 if (!dragging) sendEvent("onCustomTouchEnd", null);
                 break;
         }
-        Log.d("onInterceptTouchEvent ", "" + getId() + " action" + action + dragging);
         return dragging || super.onInterceptTouchEvent(ev);
     }
 
@@ -169,7 +167,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         }
         if (child) {
             if (contentOffset.y == -contentInsets.top && offsetY > 0) {
-                Log.d("shouldDrag", "让父先行");
                 return false;
             }
             if (contentOffset.y == contentSize.height - size.height && offsetY < 0)
