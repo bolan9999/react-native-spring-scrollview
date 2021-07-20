@@ -122,6 +122,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
                     getParent().requestDisallowInterceptTouchEvent(true);
                 }
                 break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                if(!dragging) sendEvent("onCustomTouchEnd", null);
+                break;
         }
         return dragging || super.onInterceptTouchEvent(ev);
     }
@@ -182,7 +186,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
     }
 
     private void onUp(MotionEvent evt) {
-        onMove(evt);
         dragging = false;
         sendEvent("onCustomTouchEnd", null);
         sendEvent("onCustomScrollEndDrag", null);

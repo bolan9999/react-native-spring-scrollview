@@ -38,21 +38,6 @@ export class ScrollToAndOnScrollExample extends React.Component {
         <SpringScrollView
           style={styles.container}
           ref={(ref) => (this._scrollView = ref)}
-          // onScroll={Animated.event(
-          //   [
-          //     {
-          //       nativeEvent: {
-          //         contentOffset: this._nativeOffset,
-          //       },
-          //     },
-          //   ],
-          //   {
-          //     useNativeDriver: true,
-          //     listener: (offset) => {
-          //       console.log('onScroll', offset.nativeEvent);
-          //     },
-          //   },
-          // )}
           onTouchBegin={this._onTouchBegin}
           onTouchEnd={this._onTouchEnd}
           onMomentumScrollBegin={this.onMomentumScrollBegin}

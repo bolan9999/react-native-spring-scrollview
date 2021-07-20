@@ -80,7 +80,6 @@ export class Examples extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: 20,
     backgroundColor: "white"
   }
 });

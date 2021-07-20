@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-15 17:11:44
- * @LastEditTime: 2021-07-19 20:34:28
+ * @LastEditTime: 2021-07-20 10:49:04
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -41,6 +41,10 @@ export class SpringScrollViewNativeAdapter extends React.Component {
         onCustomTouchBegin={(e) =>
           this.props.onTouchBegin && this.props.onTouchBegin(e)
         }
+        onTouchEnd={Platform.select({
+          ios: this.props.onTouchEnd,
+          android: null,
+        })}
         onCustomTouchEnd={(e) =>
           this.props.onTouchEnd && this.props.onTouchEnd(e)
         }

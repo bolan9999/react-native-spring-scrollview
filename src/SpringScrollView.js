@@ -76,6 +76,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       style,
       {transform: inverted ? [{scaleY: -1}] : []},
     ]);
+    const contentStyle=StyleSheet.flatten([styles.contentStyle, this.props.contentStyle])
     return (
       <SpringScrollViewNativeAdapter
         {...this.props}
@@ -89,7 +90,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         onMomentumScrollEnd={this._onMomentumScrollEnd}
         scrollEventThrottle={1}>
         <SpringScrollContentViewNative
-          style={this.props.contentStyle}
+          style={contentStyle}
           collapsable={false}
           onLayout={this._onContentLayoutChange}>
           {this._renderRefreshHeader()}

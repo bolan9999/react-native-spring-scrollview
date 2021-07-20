@@ -14,5 +14,10 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     overflow: "scroll"
+  },
+
+  contentStyle: {
+    flexGrow: 1,
+    // flexShrink: 1
   }
 });
