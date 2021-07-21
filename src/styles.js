@@ -17,7 +17,6 @@ export const styles = StyleSheet.create({
   },
 
   contentStyle: {
-    flexGrow: 1,
-    // flexShrink: 1
+    flexGrow: 1
   }
 });

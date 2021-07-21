@@ -76,7 +76,10 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       style,
       {transform: inverted ? [{scaleY: -1}] : []},
     ]);
-    const contentStyle=StyleSheet.flatten([styles.contentStyle, this.props.contentStyle])
+    const contentStyle = StyleSheet.flatten([
+      styles.contentStyle,
+      this.props.contentStyle,
+    ]);
     return (
       <SpringScrollViewNativeAdapter
         {...this.props}
@@ -517,8 +520,18 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       if (!this._height) return;
       if (this._contentHeight < this._height)
         this._contentHeight = this._height;
-      if (this._contentOffset.y > this._contentHeight - this._height)
-        this.scrollToEnd(false);
+      let {x: maxX, y: maxY} = this._contentOffset;
+      if (this._contentOffset.y > this._contentHeight - this._height) {
+        maxY = this._contentHeight - this._height;
+        if (maxY < 0) maxY = 0;
+      }
+      if (this._contentOffset.x > this._contentWidth - this._width) {
+        maxX = this._contentWidth - this._width;
+        if (maxX < 0) maxY = 0;
+      }
+      if (maxX !== this._contentOffset.x || maxY !== this._contentOffset.y) {
+        this.scrollTo({x: maxX, y: maxY}, false);
+      }
       this.forceUpdate();
     }
   };

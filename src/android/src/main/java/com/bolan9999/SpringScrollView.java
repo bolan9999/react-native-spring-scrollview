@@ -43,7 +43,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         lastPoint = new Point();
         beginPoint = new Point();
         pageSize = new Size();
-        setClipChildren(false);
         verticalAnimation = new DecelerateAnimation(this);
         horizontalAnimation = new DecelerateAnimation(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
