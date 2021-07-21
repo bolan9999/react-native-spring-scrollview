@@ -527,7 +527,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       }
       if (this._contentOffset.x > this._contentWidth - this._width) {
         maxX = this._contentWidth - this._width;
-        if (maxX < 0) maxY = 0;
+        if (maxX < 0) maxX = 0;
       }
       if (maxX !== this._contentOffset.x || maxY !== this._contentOffset.y) {
         this.scrollTo({x: maxX, y: maxY}, false);

@@ -14,7 +14,7 @@ import { ComplexExample } from "./ComplexExample";
 import { BouncesAndScrollEnabledExample } from "./BouncesAndScrollEnabledExample";
 import { RefreshAndLoadingExample } from "./RefreshAndLoadingExample";
 import { ScrollToAndOnScrollExample } from "./ScrollToAndOnScrollExample";
-import {BasicPropsTest} from "./BasicPropsTest";
+import {Test} from "./Test";
 
 export class Examples extends React.Component {
   constructor(props) {
@@ -33,7 +33,7 @@ export class Examples extends React.Component {
       case 0:
         return this._renderSelect();
       case 1:
-        return <BasicPropsTest />;
+        return <Test />;
       case 2:
         return <BouncesAndScrollEnabledExample />;
 
@@ -51,7 +51,7 @@ export class Examples extends React.Component {
       <View style={styles.container}>
         <Button
           onPress={() => this.setState({ select: 1 })}
-          title="BasicPropsTest"
+          title="Test"
         />
 
         <Button

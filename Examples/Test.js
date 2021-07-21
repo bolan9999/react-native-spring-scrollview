@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-07-21 09:58:23
+ * @LastEditTime: 2021-07-21 10:57:20
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -19,9 +19,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {SpringScrollView} from '../src/SpringScrollView';
+import {CommonLottieHeader} from '../src/Customize/CommonLottieHeader';
+import {CommonLottieFooter} from '../src/Customize/CommonLottieFooter';
 
 const AnimatedButton = Animated.createAnimatedComponent(TouchableOpacity);
-export class BasicPropsTest extends React.Component {
+export class Test extends React.Component {
   _main: SpringScrollView;
   state = {
     bounces: true,
@@ -36,7 +38,8 @@ export class BasicPropsTest extends React.Component {
     pageSize: {width: 200, height: 200},
 
     //do not in property
-    log: 'Log View\n',
+    log: tips,
+    allLoaded: false,
     logNativeOffset: {y: new Animated.Value(0)},
   };
   render() {
@@ -58,7 +61,12 @@ export class BasicPropsTest extends React.Component {
             onScrollBeginDrag={this._onScrollBeginDrag}
             onScrollEndDrag={this._onScrollEndDrag}
             onSizeChange={this._onSizeChange}
-            onContentSizeChange={this._onContentSizeChange}>
+            onContentSizeChange={this._onContentSizeChange}
+            onRefresh={this._onRefresh}
+            onLoading={this._onLoading}
+            allLoaded={this.state.allLoaded}
+            refreshHeader={CommonLottieHeader}
+            loadingFooter={CommonLottieFooter}>
             {propertyKeys.map((key) => (
               <Row
                 key={key}
@@ -89,10 +97,14 @@ export class BasicPropsTest extends React.Component {
             onPress={this._onReduceWidth}>
             <Text>-</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={cs.beginRefresh}
+            onPress={this._beginRefresh}>
+            <Text style={cs.clearText}>Begin Refresh</Text>
+          </TouchableOpacity>
         </View>
         <View style={cs.log}>
           <SpringScrollView
-            style={{}}
             inverted
             onNativeContentOffsetExtract={this.state.logNativeOffset}>
             <Text style={cs.inverted}>{this.state.log}</Text>
@@ -107,6 +119,24 @@ export class BasicPropsTest extends React.Component {
     );
   }
 
+  //#region Test refresh and loading
+  _beginRefresh = () => this._main.beginRefresh();
+  _onRefresh = () => {
+    this._log('Refresh start');
+    setTimeout(() => {
+      this._main.endRefresh();
+      this._log('Refresh end');
+    }, 1500);
+  };
+
+  _onLoading = () => {
+    this._log('Loading start');
+    setTimeout(() => {
+      this._main.endLoading(true);
+      this._log('Loading end');
+    }, 1500);
+  };
+  //#endregion
   //#region Test Content Size Change
   _onSizeChange = ({width, height}) =>
     this._log(`onSizeChange width=${width} height=${height}`);
@@ -136,8 +166,7 @@ export class BasicPropsTest extends React.Component {
     this.setState({contentStyle: {width, height: `${h}%`}});
   };
   //#endregion
-
-  // #region 基本事件响应函数
+  // #region Test Event
   _onTouchBegin = () => {
     this._log('onTouchBegin');
   };
@@ -163,7 +192,7 @@ export class BasicPropsTest extends React.Component {
   _onScroll = ({nativeEvent: {contentOffset}}) =>
     console.log('onScroll', contentOffset);
   // #endregion
-  //#region 其他函数
+  //#region Other functions
   _getClearButtonStyle = () => {
     return StyleSheet.flatten([
       cs.clear,
@@ -198,7 +227,6 @@ export class BasicPropsTest extends React.Component {
   };
 
   _clearLog = () => this.setState({log: 'Log View\n'});
-  //#endregion
 }
 
 const Row = (props) => (
@@ -216,8 +244,14 @@ const Row = (props) => (
     <View style={rs.line} />
   </View>
 );
-
+//#endregion
 //#region styles
+const absCenterGray = {
+  position: 'absolute',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'gray',
+};
 const cs = StyleSheet.create({
   container: {backgroundColor: '#EEE'},
   content: {padding: 40, flexShrink: 1},
@@ -229,49 +263,41 @@ const cs = StyleSheet.create({
     overflow: 'hidden',
   },
   increaseWidth: {
-    position: 'absolute',
+    ...absCenterGray,
     right: 0,
     top: 0,
     width: 20,
     bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'gray',
-    overflow: 'visible',
-  },
-  iwt: {
-    fontSize: 8,
-    transform: [{rotate: '90deg'}],
   },
   increaseHeight: {
-    position: 'absolute',
+    ...absCenterGray,
     right: 0,
     left: 0,
     height: 20,
     bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'gray',
   },
   reduceWidth: {
-    position: 'absolute',
+    ...absCenterGray,
     top: 0,
     left: 0,
     width: 20,
     bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'gray',
   },
   reduceHeight: {
-    position: 'absolute',
+    ...absCenterGray,
     right: 0,
     left: 0,
     height: 20,
     top: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'gray',
+  },
+  beginRefresh: {
+    ...absCenterGray,
+    right: 35,
+    bottom: 35,
+    width: 44,
+    height: 44,
+    borderRadius: 44,
+    backgroundColor: 'rgb(94,133,241)',
   },
   log: {
     marginTop: 10,
@@ -281,17 +307,15 @@ const cs = StyleSheet.create({
     backgroundColor: 'lightgray',
   },
   clear: {
-    position: 'absolute',
+    ...absCenterGray,
     right: 5,
     top: 5,
     width: 44,
     height: 44,
     borderRadius: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: 'rgb(94,133,241)',
   },
-  clearText: {fontSize: 10, color: 'white'},
+  clearText: {fontSize: 10, color: 'white', textAlign: 'center'},
   inverted: {transform: [{scaleY: -1}]},
 });
 
@@ -303,8 +327,8 @@ const rs = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  title: {fontSize: 14},
-  text: {fontSize: 14},
+  title: {fontSize: 12},
+  text: {fontSize: 8},
   line: {
     position: 'absolute',
     height: 1,
@@ -315,3 +339,7 @@ const rs = StyleSheet.create({
   },
 });
 //#endregion
+const tips =
+  'Log View:\n Click the gray button whose text is "+"' +
+  ' or "-" to test onContentSizeChange.\n Click Begin Refresh button ' +
+  'on the rightbottom of the main SpringScrollView to test beginRefresh.';

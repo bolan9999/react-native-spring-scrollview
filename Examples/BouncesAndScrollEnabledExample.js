@@ -29,7 +29,7 @@ export class BouncesAndScrollEnabledExample extends React.Component {
         contentStyle={{width: '300%', backgroundColor: 'lightgray'}}
         initialContentOffset={{x: 0, y: 550}}>
         {arr.map((i, index) => (
-          <View
+          <TouchableOpacity
             key={index}
             onPress={() => {
               this.setState((p) => ({
@@ -40,7 +40,7 @@ export class BouncesAndScrollEnabledExample extends React.Component {
               Modify the 'contentCount','bounces' and 'scrollEnabled' state in
               BouncesExample.js to check if VerticalScrollView works well.
             </Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </SpringScrollView>
     );
