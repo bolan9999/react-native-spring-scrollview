@@ -7,22 +7,24 @@
  *
  */
 
-import React from "react";
+import React from 'react';
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   Platform,
-  Animated
-} from "react-native";
-import { SpringScrollView } from "../src";
+  Animated,
+  ScrollView,
+} from 'react-native';
+import {SpringScrollView} from '../src';
 
+const AnimatedSpringScrollView = Animated.createAnimatedComponent(SpringScrollView);
 export class ScrollToAndOnScrollExample extends React.Component {
   _contentCount = 20;
   _scrollView;
   _nativeOffset = {
-    y: new Animated.Value(0)
+    y: new Animated.Value(0),
   };
 
   render() {
@@ -35,21 +37,22 @@ export class ScrollToAndOnScrollExample extends React.Component {
         </TouchableOpacity>
         <SpringScrollView
           style={styles.container}
-          ref={ref => (this._scrollView = ref)}
-          onScroll={this._onScroll}
+          ref={(ref) => (this._scrollView = ref)}
           onTouchBegin={this._onTouchBegin}
           onTouchEnd={this._onTouchEnd}
           onMomentumScrollBegin={this.onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
+          onScrollBeginDrag={this._onScrollBeginDrag}
+          onScrollEndDrag={this._onScrollEndDrag}
           onNativeContentOffsetExtract={this._nativeOffset}
-        >
-          {arr.map((i, index) =>
+          >
+          {arr.map((i, index) => (
             <Text key={index} style={styles.text}>
               Scroll and Look up the console log to check if
               'onScroll','onTouchBegin','onTouchEnd','onMomentumScrollBegin' and
               'onMomentumScrollEnd' work well!
             </Text>
-          )}
+          ))}
           <Animated.View style={this._stickyHeaderStyle}>
             <Text>Test `onNativeContentOffsetExtract`</Text>
           </Animated.View>
@@ -59,59 +62,63 @@ export class ScrollToAndOnScrollExample extends React.Component {
   }
 
   _stickyHeaderStyle = {
-    position: "absolute",
+    position: 'absolute',
     top: 20,
     left: 0,
     right: 0,
     height: 40,
-    justifyContent:"center",
-    alignItems:"center",
-    backgroundColor: "red",
-    transform: [{ translateY: this._nativeOffset.y }]
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'red',
+    transform: [{translateY: this._nativeOffset.y}],
   };
 
   _scrollTo = () => {
     if (this._scrollView) {
       this._scrollView
-        .scrollTo({ x: 0, y: 200 })
-        .then(() => console.log("ScrollTo has finished"));
+        .scrollTo({x: 0, y: 200})
+        .then(() => console.log('ScrollTo has finished'));
     }
   };
 
-  _onScroll = offset => {
-    console.log("onScroll", offset.nativeEvent);
-  };
-
   _onTouchBegin = () => {
-    console.log("onTouchBegin");
+    console.log('onTouchBegin');
   };
 
   _onTouchEnd = () => {
-    console.log("onTouchEnd");
+    console.log('onTouchEnd');
   };
 
   onMomentumScrollBegin = () => {
-    console.log("onMomentumScrollBegin");
+    console.log('onMomentumScrollBegin');
   };
   _onMomentumScrollEnd = () => {
-    console.log("onMomentumScrollEnd");
+    console.log('onMomentumScrollEnd');
+  };
+
+  _onScrollBeginDrag = () => {
+    console.log('onScrollBeginDrag');
+  };
+
+  _onScrollEndDrag = () => {
+    console.log('onScrollEndDrag');
   };
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   scrollTo: {
-    marginTop: Platform.OS === "ios" ? 20 : 0,
-    backgroundColor: "gray",
+    marginTop: Platform.OS === 'ios' ? 20 : 0,
+    backgroundColor: 'gray',
     zIndex: 100,
     height: 50,
-    justifyContent: "center",
-    alignItems: "center"
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   text: {
     fontSize: 16,
-    margin: 20
-  }
+    margin: 20,
+  },
 });

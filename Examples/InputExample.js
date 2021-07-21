@@ -7,9 +7,9 @@
  *
  */
 
-import React from "react";
-import { SpringScrollView } from "../src";
-import {TextInput, StyleSheet, Text, ScrollView} from "react-native";
+import React from 'react';
+import {SpringScrollView} from '../src';
+import {TextInput, StyleSheet, Text, ScrollView, View} from 'react-native';
 
 export class InputExample extends React.Component {
   _topInput = React.createRef();
@@ -17,14 +17,23 @@ export class InputExample extends React.Component {
 
   render() {
     return (
+      <View style={styles.container}>
       <SpringScrollView
         style={styles.container}
         tapToHideKeyboard={true}
-        textInputRefs={[this._topInput, this._bottomInput]}
-      >
+        textInputRefs={[this._topInput, this._bottomInput]}>
+        <SpringScrollView
+          style={{height: 500, margin: 50, backgroundColor: 'red'}}
+          bounces={false}
+          contentContainerStyle={{width: 10000}}
+          contentStyle={{height: 1000}}
+        >
+          <Text>123123</Text>
+          </SpringScrollView>
         <TextInput
           ref={this._topInput}
           style={styles.input}
+          returnKeyType="next"
           placeholder="Keyboard Test Top"
         />
         <Text style={styles.text}>
@@ -36,22 +45,23 @@ export class InputExample extends React.Component {
           placeholder="Keyboard Test Bottom"
         />
       </SpringScrollView>
+      
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   input: {
     marginHorizontal: 20,
-    marginVertical: 20
+    marginVertical: 20,
   },
   text: {
     marginHorizontal: 20,
     marginVertical: 300,
-    fontSize: 30
-  }
+    fontSize: 30,
+  },
 });
-

@@ -8,12 +8,13 @@
  */
 
 import React from "react";
-import { Button, StyleSheet, View } from "react-native";
+import { Button, StyleSheet, View, SafeAreaView } from "react-native";
 import { InputExample } from "./InputExample";
 import { ComplexExample } from "./ComplexExample";
 import { BouncesAndScrollEnabledExample } from "./BouncesAndScrollEnabledExample";
 import { RefreshAndLoadingExample } from "./RefreshAndLoadingExample";
 import { ScrollToAndOnScrollExample } from "./ScrollToAndOnScrollExample";
+import {Test} from "./Test";
 
 export class Examples extends React.Component {
   constructor(props) {
@@ -22,9 +23,9 @@ export class Examples extends React.Component {
   }
 
   render(){
-    return <View style={styles.container}>
+    return <SafeAreaView style={styles.container}>
       {this._renderContent()}
-    </View>
+    </SafeAreaView>
   }
 
   _renderContent() {
@@ -32,7 +33,7 @@ export class Examples extends React.Component {
       case 0:
         return this._renderSelect();
       case 1:
-        return <InputExample />;
+        return <Test />;
       case 2:
         return <BouncesAndScrollEnabledExample />;
 
@@ -50,7 +51,7 @@ export class Examples extends React.Component {
       <View style={styles.container}>
         <Button
           onPress={() => this.setState({ select: 1 })}
-          title="InputExample"
+          title="Test"
         />
 
         <Button
@@ -79,7 +80,6 @@ export class Examples extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // margin: 20,
     backgroundColor: "white"
   }
 });

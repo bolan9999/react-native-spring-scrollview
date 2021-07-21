@@ -2,6 +2,8 @@ package com.bolan9999;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
@@ -49,8 +51,8 @@ class SpringScrollViewManager extends ViewGroupManager {
 
     @ReactProp(name = "initialContentOffset")
     public void setInitContentOffset(SpringScrollView view, ReadableMap offset) {
-        float x = PixelUtil.toPixelFromDIP(offset.getDouble("x"));
-        float y = PixelUtil.toPixelFromDIP(offset.getDouble("y"));
+        float x = offset != null ? PixelUtil.toPixelFromDIP(offset.getDouble("x")) : 0;
+        float y = offset != null ? PixelUtil.toPixelFromDIP(offset.getDouble("y")) : 0;
         view.setInitContentOffset(x, y);
     }
 
@@ -58,6 +60,7 @@ class SpringScrollViewManager extends ViewGroupManager {
     public void setAllLoaded(SpringScrollView view, boolean allLoaded) {
         view.setAllLoaded(allLoaded);
     }
+
     @ReactProp(name = "inverted")
     public void setInverted(SpringScrollView view, boolean inverted) {
         view.setInverted(inverted);
@@ -68,39 +71,44 @@ class SpringScrollViewManager extends ViewGroupManager {
         view.setDirectionalLockEnabled(directionalLockEnabled);
     }
 
+    @ReactProp(name = "pagingEnabled")
+    public void setPagingEnabled(SpringScrollView view, boolean pagingEnabled) {
+        view.setPagingEnabled(pagingEnabled);
+    }
+
+    @ReactProp(name = "pageSize")
+    public void setPageSize(SpringScrollView view, ReadableMap pageSize) {
+        float width = pageSize != null ? PixelUtil.toPixelFromDIP( pageSize.getDouble("width")) : 0f;
+        float height = pageSize != null ? PixelUtil.toPixelFromDIP( pageSize.getDouble("height")) : 0f;
+        view.setPageSize(width, height);
+    }
+
     @Nullable
     @Override
-    public Map getExportedCustomBubblingEventTypeConstants() {
-        return MapBuilder.builder()
-                .put("onScroll", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onScroll")))
-                .put("onTouchBegin", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onTouchBegin")))
-                .put("onTouchEnd", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onTouchEnd")))
-                .put("onMomentumScrollBegin", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onMomentumScrollBegin")))
-                .put("onMomentumScrollEnd", MapBuilder.of(
-                        "phasedRegistrationNames",
-                        MapBuilder.of("bubbled", "onMomentumScrollEnd")))
-                .build();
+    public Map getExportedCustomDirectEventTypeConstants() {
+        return MapBuilder.of(
+                "onScroll", MapBuilder.of("registrationName", "onScroll"),
+                "onCustomTouchBegin", MapBuilder.of("registrationName", "onCustomTouchBegin"),
+                "onCustomTouchEnd", MapBuilder.of("registrationName", "onCustomTouchEnd"),
+                "onCustomMomentumScrollBegin", MapBuilder.of("registrationName", "onCustomMomentumScrollBegin"),
+                "onCustomMomentumScrollEnd", MapBuilder.of("registrationName", "onCustomMomentumScrollEnd"),
+                "onCustomScrollBeginDrag", MapBuilder.of("registrationName", "onCustomScrollBeginDrag"),
+                "onCustomScrollEndDrag", MapBuilder.of("registrationName", "onCustomScrollEndDrag")
+        );
+
     }
 
     @Override
-    public void receiveCommand(View root, int commandId, @Nullable ReadableArray args) {
+    public void receiveCommand(@NonNull View root, String commandId, @Nullable ReadableArray args) {
         SpringScrollView scrollView = (SpringScrollView) root;
         switch (commandId) {
-            case 10000:
+            case "10000":
                 scrollView.endRefresh();
                 break;
-            case 10001:
-                scrollView.endLoading();
+            case "10001":
+                scrollView.endLoading(args.getBoolean(0));
                 break;
-            case 10002:
+            case "10002":
                 scrollView.scrollTo(
                         PixelUtil.toPixelFromDIP(args.getDouble(0)),
                         PixelUtil.toPixelFromDIP(args.getDouble(1)),

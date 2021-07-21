@@ -13,5 +13,3 @@ export * from "./WithLastDateHeader";
 export * from "./ChineseWithLastDateHeader";
 export * from "./WithLastDateFooter";
 export * from "./ChineseWithLastDateFooter";
-// export * from "./CommonLottieHeader";
-// export * from "./CommonLottieFooter";
