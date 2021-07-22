@@ -19,6 +19,7 @@
 @property(nonatomic, assign) BOOL allLoaded;
 @property(nonatomic, assign) BOOL initialed;
 @property(nonatomic, assign) BOOL pagingEnabledB;
+@property(nonatomic, assign) BOOL dragging;
 @end
 
 @implementation STSpringScrollView{
@@ -61,8 +62,14 @@
   }
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
+  self.dragging = YES;
+  [super scrollViewWillBeginDragging:scrollView];
+}
+
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
   [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+  self.dragging = NO;
   if ([self shouldLoad]) {
     self.loadingStatus = @"loading";
     CGFloat fill = .0f;
@@ -155,7 +162,7 @@
 }
 
 - (BOOL) shouldRefresh{
-  return self.refreshHeaderHeight>0 && [self hitRefreshStatus:@[@"pullingEnough"]] && [self overshootRefresh];
+  return !self.dragging && self.refreshHeaderHeight>0 && [self hitRefreshStatus:@[@"pullingEnough"]] && [self overshootRefresh];
 }
 
 - (BOOL) shouldPullingCancel{

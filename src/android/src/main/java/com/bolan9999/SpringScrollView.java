@@ -664,7 +664,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
     }
 
     private boolean shouldRefresh() {
-        return refreshHeaderHeight > 0 && overshootRefresh() && refreshStatus.equals("pullingEnough");
+        return !dragging && refreshHeaderHeight > 0 && overshootRefresh() && refreshStatus.equals("pullingEnough");
     }
 
     private boolean shouldPullingCancel() {
