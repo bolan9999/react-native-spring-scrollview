@@ -69,7 +69,6 @@
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
   [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
-  self.dragging = NO;
   if ([self shouldLoad]) {
     self.loadingStatus = @"loading";
     CGFloat fill = .0f;
@@ -106,6 +105,12 @@
     }
     targetContentOffset->y = round((self.scrollView.contentOffset.y - displacement)/[self getPageHeight])*[self getPageHeight];
     return;
+  }
+  self.dragging = NO;
+  if([self shouldRefresh]){
+    self.scrollView.contentInset = UIEdgeInsetsMake(self.refreshHeaderHeight, 0, 0, 0);
+    targetContentOffset->y = -self.refreshHeaderHeight;
+    self.refreshStatus = @"refreshing";
   }
   [super scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
 }

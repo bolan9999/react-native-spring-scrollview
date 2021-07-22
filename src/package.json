@@ -1,6 +1,6 @@
 {
   "name": "react-native-spring-scrollview",
-  "version": "3.0.1",
+  "version": "3.0.1-rc.1",
   "description": "A cross-platform (iOS & Android) spring ScrollView",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,11 @@
   "license": "MIT",
   "peerDependencies": {
     "react": "^16.3.1",
-    "react-native": "^0.50.0",
-    "lottie-react-native":"latest"
+    "react-native": "^0.60.0"
+  },
+  "optionalDependencies":{
+    "lottie-ios": "3.1.8",
+    "lottie-react-native": "^4.0.2",
+    "@react-native-community/async-storage": "^1.12.1"
   }
 }

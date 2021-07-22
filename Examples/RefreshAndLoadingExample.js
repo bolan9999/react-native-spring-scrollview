@@ -45,8 +45,8 @@ export class RefreshAndLoadingExample extends React.Component {
         onLoading={this._onLoading}
         // onScroll={()=>console.log("RefreshAndLoadingExample onScroll")}
         // allLoaded={this.state.allLoaded}
-        refreshHeader={CommonLottieHeader}
-        loadingFooter={CommonLottieFooter}>
+        refreshHeader={ChineseWithLastDateHeader}
+        loadingFooter={ChineseWithLastDateFooter}>
         <TouchableOpacity
           style={styles.text}
           onPress={() => this._scrollView.beginRefresh()}>

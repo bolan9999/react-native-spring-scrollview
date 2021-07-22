@@ -10,6 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.15.5",
     "lottie-ios": "3.1.8",
     "lottie-react-native": "^4.0.2",
     "react": "17.0.1",
