@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2020-11-05 10:44:46
- * @LastEditTime: 2021-07-22 10:23:40
+ * @LastEditTime: 2021-07-23 20:44:14
  * @LastEditors: 石破天惊
  * @Description: 
 -->
@@ -14,9 +14,7 @@
         * [概述](zh-cn/V3/BasicContent)
         * [基本控制](zh-cn/V3/BasicControl)
         * [下拉刷新](zh-cn/V3/Refresh)
-        * [自定义下拉刷新](zh-cn/V3/CustomRefresh)
         * [上拉加载](zh-cn/V3/Loading)
-        * [自定义上拉加载](zh-cn/V3/CustomLoading)
         * [滑动 & 监听滑动](zh-cn/V3/Scroll)
         * [其他事件](zh-cn/V3/Event)
         * [处理键盘遮挡](zh-cn/V3/TextInput)
