@@ -91,7 +91,7 @@
     int duration = 0;
     while (fabsf(v) > 0.01f) {
       displacement += v;
-      v *= 0.99f;
+      v *= 0.997f;
       duration++;
     }
     targetContentOffset->x = round((self.scrollView.contentOffset.x - displacement)/[self getPageWidth])*[self getPageWidth];
@@ -100,7 +100,7 @@
     displacement = 0;
     while (fabsf(v) > 0.01f) {
       displacement += v;
-      v *= 0.99f;
+      v *= 0.997f;
       duration++;
     }
     targetContentOffset->y = round((self.scrollView.contentOffset.y - displacement)/[self getPageHeight])*[self getPageHeight];

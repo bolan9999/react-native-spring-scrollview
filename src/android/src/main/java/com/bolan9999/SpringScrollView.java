@@ -111,8 +111,6 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 onDown(ev);
-                final int[] location = new int[2];
-                getLocationOnScreen(location);
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (dragging || (!this.shouldChildrenInterceptTouchEvent(this, ev) && shouldDrag(ev, false))) {
@@ -125,10 +123,11 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                beginPoint.x = beginPoint.y = 0;
                 if (!dragging) sendEvent("onCustomTouchEnd", null);
                 break;
         }
-        return dragging || super.onInterceptTouchEvent(ev);
+        return dragging;
     }
 
     private boolean shouldChildrenInterceptTouchEvent(ViewGroup parent, MotionEvent ev) {
@@ -380,6 +379,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
     private void beginReboundAnimation() {
         if (!overshootVertical() || !bounces) {
             return;
+        }
+        if (shouldRefresh()) {
+            refreshStatus = "refreshing";
+            contentInsets.top = refreshHeaderHeight;
         }
         float endValue = overshootHead() ? -contentInsets.top : contentSize.height - size.height + contentInsets.bottom;
         verticalAnimation.config(contentOffset.y, endValue, 500);

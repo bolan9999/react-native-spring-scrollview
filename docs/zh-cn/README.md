@@ -1,10 +1,19 @@
+<!--
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 2020-11-05 10:44:46
+ * @LastEditTime: 2021-07-22 19:13:55
+ * @LastEditors: 石破天惊
+ * @Description: 
+-->
 # **React Native Spring ScrollView**！
 
-**React Native Spring ScrollView V2** 是原生桥接实现的一组高性能弹性ScrollView，
+**React Native Spring ScrollView V3** 是原生桥接实现的一组高性能弹性ScrollView，
 使用它可以轻松地实现iOS风格的下拉刷新及上拉加载更多，
 拥有完全一致的视图表现及原生的弹性体验，并且兼容iOS和Android。
 V2版本弃用了React-Native-Gesture-Handler, 采用原生桥接的方式，
-已经彻底解决了V1版本有时候JavaScript线程卡住造成无法弹回初始位置的问题
+已经彻底解决了V1版本有时候JavaScript线程卡住造成无法弹回初始位置的问题。
+V3版本在V2的基础上做了小幅调整，修复了一系列问题。
 
 ### 功能特性
 
@@ -17,6 +26,7 @@ V2版本弃用了React-Native-Gesture-Handler, 采用原生桥接的方式，
 * 支持根据滑动偏移自定义原生驱动动画（水平方向和垂直方向同时）
 * 支持初始化偏移
 * 根本上解决了onRefresh和onLoading在某些时候没有响应的问题
+* 安卓和iOS上均可自由嵌套
 
 ### 预览
 ![Preview](../res/LottieRefreshing.gif)
