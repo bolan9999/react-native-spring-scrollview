@@ -50,6 +50,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   _scrollEventAttachment;
   _nativeOffset;
   _touching = false;
+  _sizeChangeInterval = 0;
 
   constructor(props) {
     super(props);
@@ -227,7 +228,10 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
 
   scroll(offset: Offset, animated: boolean = true) {
     return this.scrollTo(
-      { x: offset.x, y: offset.y + this._contentOffset.y },
+      {
+        x: offset.x + this._contentOffset.x,
+        y: offset.y + this._contentOffset.y,
+      },
       animated
     );
   }
@@ -283,11 +287,12 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   }
 
   _onKeyboardWillShow = (evt) => {
+    this._touching = false;
     this.props.textInputRefs.every((input) => {
       if (idx(() => input.current.isFocused())) {
-        input.current.measure((x, y, w, h, l, t) => {
+        input.current.measureInWindow((x, y, w, h, l, t) => {
           this._keyboardHeight =
-            t + h - evt.endCoordinates.screenY + this.props.inputToolBarHeight;
+            -evt.endCoordinates.screenY + this.props.inputToolBarHeight + y + h;
           this._keyboardHeight > 0 &&
             this.scroll({ x: 0, y: this._keyboardHeight });
         });
@@ -503,11 +508,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
       this.props.onSizeChange && this.props.onSizeChange({ width, height });
       this._height = height;
       this._width = width;
-      if (!this._contentHeight) return;
-      if (this._contentHeight < this._height) this._contentHeight = height;
-      if (this._contentOffset.y > this._contentHeight - this._height)
-        this.scrollToEnd();
-      this.forceUpdate();
+      this._startSizeChangeInterval();
     }
   };
 
@@ -521,7 +522,14 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         this.props.onContentSizeChange({ width, height });
       this._contentHeight = height;
       this._contentWidth = width;
-      if (!this._height) return;
+      this._startSizeChangeInterval();
+    }
+  };
+
+  _startSizeChangeInterval = () => {
+    if (this._sizeChangeInterval) clearInterval(this._sizeChangeInterval);
+    this._sizeChangeInterval = setInterval(() => {
+      if (!this._height || !this._contentHeight) return;
       if (this._contentHeight < this._height)
         this._contentHeight = this._height;
       let { x: maxX, y: maxY } = this._contentOffset;
@@ -537,7 +545,9 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         Platform.OS === "android" && this.scrollTo({ x: maxX, y: maxY }, false);
       }
       this.forceUpdate();
-    }
+      clearInterval(this._sizeChangeInterval);
+      this._sizeChangeInterval = 0;
+    }, Platform.select({ ios: 10, android: 30 }));
   };
 
   _onTouchBegin = (e) => {

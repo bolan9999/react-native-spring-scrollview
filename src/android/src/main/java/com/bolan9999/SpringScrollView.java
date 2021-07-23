@@ -127,7 +127,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
                 if (!dragging) sendEvent("onCustomTouchEnd", null);
                 break;
         }
-        return dragging;
+        return dragging || super.onInterceptTouchEvent(ev);
     }
 
     private boolean shouldChildrenInterceptTouchEvent(ViewGroup parent, MotionEvent ev) {
