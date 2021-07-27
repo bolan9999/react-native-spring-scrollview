@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-07-23 08:59:51
+ * @LastEditTime: 2021-07-27 18:23:18
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -67,7 +67,7 @@ export class Test extends React.Component {
           <View style={cs.mainScroll}>
             <SpringScrollView
               {...this.state}
-              inputToolBarHeight={200}
+              inputToolBarHeight={Platform.select({ ios: 44, android: 200 })}
               textInputRefs={[this._contentStyleRef, this._pageSizeRef]}
               ref={(ref) => (this._main = ref)}
               onScroll={this._onScroll}
