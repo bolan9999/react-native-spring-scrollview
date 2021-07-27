@@ -65,7 +65,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
                 onVerticalAnimationEnd();
             }
         } else {
-            if (bounces && overshootHead()) {
+            if (bounces && overshootHorizontal()) {
                 horizontalAnimation.startOuter(contentOffset.x, v, 0.9f);
             } else {
                 onHorizontalAnimationEnd();
