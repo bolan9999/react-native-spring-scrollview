@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-07-27 18:23:18
+ * @LastEditTime: 2021-07-30 00:10:08
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -35,6 +35,7 @@ export class Test extends React.Component {
     showsHorizontalScrollIndicator: true,
     dragToHideKeyboard: true,
     pagingEnabled: false,
+    decelerationRate: 0.997,
     pageSize: { width: 200, height: 200 },
     contentStyle: { width: "100%", height: "350%" },
 
@@ -46,6 +47,7 @@ export class Test extends React.Component {
 
   _contentStyleRef = React.createRef();
   _pageSizeRef = React.createRef();
+  _decelerationRateRef = React.createRef();
 
   render() {
     const propertyKeys = Object.keys(this.state).filter(
@@ -68,7 +70,11 @@ export class Test extends React.Component {
             <SpringScrollView
               {...this.state}
               inputToolBarHeight={Platform.select({ ios: 44, android: 200 })}
-              textInputRefs={[this._contentStyleRef, this._pageSizeRef]}
+              textInputRefs={[
+                this._contentStyleRef,
+                this._pageSizeRef,
+                this._decelerationRateRef,
+              ]}
               ref={(ref) => (this._main = ref)}
               onScroll={this._onScroll}
               onTouchBegin={this._onTouchBegin}
@@ -94,6 +100,8 @@ export class Test extends React.Component {
                 let inputRef;
                 if (key === "contentStyle") inputRef = this._contentStyleRef;
                 if (key === "pageSize") inputRef = this._pageSizeRef;
+                if (key === "decelerationRate")
+                  inputRef = this._decelerationRateRef;
                 return (
                   <this.Row
                     key={key}

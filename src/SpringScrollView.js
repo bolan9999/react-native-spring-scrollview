@@ -572,6 +572,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
     refreshHeader: NormalHeader,
     loadingFooter: NormalFooter,
     textInputRefs: [],
+    decelerationRate: 0.997,
     inputToolBarHeight: 44,
     dragToHideKeyboard: true,
     keyboardShouldPersistTaps: "handled",

@@ -49,6 +49,11 @@ class SpringScrollViewManager extends ViewGroupManager {
         view.setScrollEnabled(scrollEnabled);
     }
 
+    @ReactProp(name = "decelerationRate")
+    public void setDecelerationRate(SpringScrollView view, float decelerationRate) {
+        view.setDecelerationRate(decelerationRate);
+    }
+
     @ReactProp(name = "initialContentOffset")
     public void setInitContentOffset(SpringScrollView view, ReadableMap offset) {
         float x = offset != null ? PixelUtil.toPixelFromDIP(offset.getDouble("x")) : 0;

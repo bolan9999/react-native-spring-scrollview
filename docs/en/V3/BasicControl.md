@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-23 23:43:47
- * @LastEditTime: 2021-07-24 00:00:31
+ * @LastEditTime: 2021-07-29 23:42:11
  * @LastEditors: 石破天惊
  * @Description: 
 -->
@@ -24,4 +24,5 @@ onSizeChange | ({width:number,height:number})=>any | undefined | The callback wh
 onContentSizeChange | ({width:number,height:number})=>any | undefined | The callback when the content view size changed.
 inverted | boolean | false | inverted. It is a service for LargeList.
 pagingEnabled | boolean | false | When true, the scroll view stops on multiples of `pageSize` when scrolling. This can be used for pagination on both horizontal and vertical directions.
+decelerationRate | number | 0.997 | decelerationRate
 pageSize | {width:number, height:number} | {width:0,height:0} | Works only when `pagingEnabled=true`, the scroll view stops on multiples of `pageSize` when scrolling. This can be used for pagination on both horizontal and vertical directions。If the width or height set to 0, it will equal to the view port of the SpringScrollView's width or height.

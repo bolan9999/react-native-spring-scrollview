@@ -93,6 +93,7 @@ declare module 'react-native-spring-scrollview' {
     scrollEnabled?: boolean;
     pagingEnabled?: boolean;
     pageSize?: Size;
+    decelerationRate?: number;
     directionalLockEnabled?: boolean;
     initialContentOffset?: Offset;
     showsVerticalScrollIndicator?: boolean;

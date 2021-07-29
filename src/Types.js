@@ -1,10 +1,10 @@
 /*
- *
- * Created by Stone
- * https://github.com/bolan9999
- * Email: shanshang130@gmail.com
- * Date: 2018/7/17
- *
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 2021-07-21 13:05:32
+ * @LastEditTime: 2021-07-29 23:34:45
+ * @LastEditors: 石破天惊
+ * @Description: 
  */
 
 import {Animated, ViewProps, ViewStyle} from 'react-native';
@@ -51,6 +51,7 @@ export interface SpringScrollViewPropType extends ViewProps {
   scrollEnabled?: boolean;
   pagingEnabled?: boolean;
   pageSize?: Size;
+  decelerationRate?: number;
   directionalLockEnabled?: boolean;
   initialContentOffset?: Offset;
   showsVerticalScrollIndicator?: boolean;

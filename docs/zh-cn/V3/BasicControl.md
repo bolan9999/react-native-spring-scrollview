@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-22 10:22:58
- * @LastEditTime: 2021-07-23 23:18:42
+ * @LastEditTime: 2021-07-29 23:41:55
  * @LastEditors: 石破天惊
  * @Description: 
 -->
@@ -23,6 +23,7 @@ dragToHideKeyboard | boolean | true | 点击SpringScrollView是否收起键盘
 onSizeChange | ({width:number,height:number})=>any | undefined | 外部Wrapper视图宽高变化时回调
 onContentSizeChange | ({width:number,height:number})=>any | undefined | 内部ContentView视图宽高变化时回调
 inverted | boolean | false | 将SpringScrollView上下翻转，此属性单独意义不大，主要是为了LargeList提供功能
+decelerationRate | number | 0.997 | decelerationRate
 pagingEnabled | boolean | false | 当值为 true 时，滚动条会停在设置的pageSize整数倍位置。这个属性在iOS和安卓上都支持双向分页。
 pageSize | {width:number, height:number} | {width:0,height:0} | 配合pagingEnabled使用分页，使滑动停止在设置的整数倍位置。同时支持水平和垂直双向分页。0代表使用SpringScrollView的视口大小。
 

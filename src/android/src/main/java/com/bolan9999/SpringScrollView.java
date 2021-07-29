@@ -18,9 +18,9 @@ import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.facebook.react.views.view.ReactViewGroup;
 
 public class SpringScrollView extends ReactViewGroup implements View.OnLayoutChangeListener, SpringAnimatorListener {
-    private float refreshHeaderHeight, loadingFooterHeight;
+    private float refreshHeaderHeight, loadingFooterHeight, decelerationRate;
     private boolean momentumScrolling, bounces, scrollEnabled, dragging, inverted,
-            directionalLockEnabled, pagingEnabled, shouldVerticalRebound;
+            directionalLockEnabled, pagingEnabled;
     private VelocityTracker tracker;
     private SpringAnimator verticalAnimation, horizontalAnimation;
     private String refreshStatus, loadingStatus, draggingDirection;
@@ -258,12 +258,12 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
             sendEvent("onCustomMomentumScrollBegin", null);
         }
         float maxY = contentSize.height + contentInsets.bottom - size.height;
-        verticalAnimation.startInner(contentOffset.y, -vy, pagingEnabled ? 0.99f : 0.997f,
+        verticalAnimation.startInner(contentOffset.y, -vy, pagingEnabled ? 0.99f : decelerationRate,
                 -contentInsets.top, maxY, pagingEnabled, getPageHeight());
 
         if (contentSize.width <= size.width) return;
         float maxX = contentSize.width - size.width + contentInsets.right;
-        horizontalAnimation.startInner(contentOffset.x, -vx, pagingEnabled ? 0.99f : 0.997f,
+        horizontalAnimation.startInner(contentOffset.x, -vx, pagingEnabled ? 0.99f : decelerationRate,
                 -contentInsets.left, maxX, pagingEnabled, getPageWidth());
     }
 
@@ -453,6 +453,10 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         if (x != contentOffset.x) {
             horizontalAnimation.startRebound(contentOffset.x, x, 500);
         }
+    }
+
+    public void setDecelerationRate(float rate){
+        decelerationRate = rate;
     }
 
     public void setBounces(boolean bounces) {
