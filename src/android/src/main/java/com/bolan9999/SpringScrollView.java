@@ -241,7 +241,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         sendEvent("onCustomTouchEnd", null);
         sendEvent("onCustomScrollEndDrag", null);
         beginPoint.x = beginPoint.y = 0;
-        tracker.computeCurrentVelocity(1, 9);
+        tracker.computeCurrentVelocity(1);
         float vy = tracker.getYVelocity();
         float vx = tracker.getXVelocity();
         if (draggingDirection != null && draggingDirection.equals("h")) vy = 0;
