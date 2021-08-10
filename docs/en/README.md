@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2020-11-05 10:44:46
- * @LastEditTime: 2021-07-23 23:49:00
+ * @LastEditTime: 2021-08-10 17:15:23
  * @LastEditors: 石破天惊
  * @Description: 
 -->
@@ -31,3 +31,15 @@ Check out our dedicated documentation page for info about this library, API refe
 ![Preview](../res/android-test.gif)
 
 
+### What's New in V3?
+
+1. Support `pagingEnabled`，and `pageSize` can be configured.
+2. Nested with self.
+3. Support refresh programally : `beginRefresh`
+4. Support react-native 0.60+
+5. Fix `inverted` bug in some android sdks.
+6. `tapToHideKeyboard` was depreciated，support `dragToHideKeyboard`
+7. `endLoading` can configure whether it should be rebound.
+8. `onScroll`修改为和官方一致，`SpringScrollView`支持`Animated.createAnimatedComponent`，并且`onScroll`支持`react-native-reanimated`
+9. Fix warnnings
+10. Enhance the sliding experience, optimize more details on Android。
