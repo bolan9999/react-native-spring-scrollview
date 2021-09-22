@@ -1,4 +1,12 @@
 /*
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 2021-07-21 13:05:32
+ * @LastEditTime: 2021-09-18 10:39:36
+ * @LastEditors: 石破天惊
+ * @Description: 
+ */
+/*
  *
  * Created by Stone
  * https://github.com/bolan9999
@@ -13,7 +21,7 @@ import {SpringScrollView} from '../src';
 
 export class BouncesAndScrollEnabledExample extends React.Component {
   state = {
-    contentCount: 20,
+    contentCount: 100,
     bounces: true,
     scrollEnabled: true,
     showsVerticalScrollIndicator: true,
@@ -33,7 +41,7 @@ export class BouncesAndScrollEnabledExample extends React.Component {
             key={index}
             onPress={() => {
               this.setState((p) => ({
-                contentCount: p.contentCount === 1 ? 20 : 1,
+                contentCount: p.contentCount === 1 ? 100 : 1,
               }));
             }}>
             <Text style={styles.text}>
