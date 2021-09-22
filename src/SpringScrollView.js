@@ -50,6 +50,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
   _scrollEventAttachment;
   _nativeOffset;
   _touching = false;
+  _dragging = false;
   _sizeChangeInterval = 0;
 
   constructor(props) {
@@ -95,6 +96,7 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         onScrollBeginDrag={this._onScrollBeginDrag}
         onMomentumScrollEnd={this._onMomentumScrollEnd}
         scrollEventThrottle={1}
+        onStartShouldSetResponderCapture={() => this._dragging}
       >
         <SpringScrollContentViewNative
           style={contentStyle}
@@ -557,11 +559,13 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
 
   _onMomentumScrollEnd = () => {
     this._touching = false;
+    this._dragging = false;
     this._beginIndicatorDismissAnimation();
     this.props.onMomentumScrollEnd && this.props.onMomentumScrollEnd();
   };
 
   _onScrollBeginDrag = () => {
+    this._dragging = true;
     if (this.props.dragToHideKeyboard) Keyboard.dismiss();
     this.props.onScrollBeginDrag && this.props.onScrollBeginDrag();
   };
