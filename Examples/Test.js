@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-07-30 00:10:08
+ * @LastEditTime: 2021-09-27 18:56:49
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -19,8 +19,8 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import { SpringScrollView } from "../src/SpringScrollView";
-import { CommonLottieHeader, CommonLottieFooter } from "../src/Customize";
+import { SpringScrollView } from "../upgrade/SpringScrollView";
+// import { CommonLottieHeader, CommonLottieFooter } from "../src/Customize";
 
 const AnimatedButton = Animated.createAnimatedComponent(TouchableOpacity);
 export class Test extends React.Component {
@@ -37,7 +37,7 @@ export class Test extends React.Component {
     pagingEnabled: false,
     decelerationRate: 0.997,
     pageSize: { width: 200, height: 200 },
-    contentStyle: { width: "100%", height: "350%" },
+    contentContainerStyle: { width: "100%", height: "350%" },
 
     //do not in property
     log: "Log View:\n",
@@ -57,13 +57,13 @@ export class Test extends React.Component {
     return (
       <SpringScrollView
         style={cs.container}
-        ref={(ref) => (this._container = ref)}
-        contentStyle={cs.content}
+        // ref={(ref) => (this._container = ref)}
+        contentContainerStyle={cs.content}
         onRefresh={this._onRefresh}
         onLoading={this._onLoading}
         allLoaded={this.state.allLoaded}
-        refreshHeader={CommonLottieHeader}
-        loadingFooter={CommonLottieFooter}
+        // refreshHeader={CommonLottieHeader}
+        // loadingFooter={CommonLottieFooter}
       >
         <View style={cs.main}>
           <View style={cs.mainScroll}>
@@ -75,7 +75,7 @@ export class Test extends React.Component {
                 this._pageSizeRef,
                 this._decelerationRateRef,
               ]}
-              ref={(ref) => (this._main = ref)}
+              // ref={(ref) => (this._main = ref)}
               onScroll={this._onScroll}
               onTouchBegin={this._onTouchBegin}
               onTouchEnd={this._onTouchEnd}
@@ -180,26 +180,26 @@ export class Test extends React.Component {
     this._log(`onContentSizeChange width=${width} height=${height}`);
 
   _onIncreaseWidth = () => {
-    let { width, height } = this.state.contentStyle;
+    let { width, height } = this.state.contentContainerStyle;
     const w = parseInt(width) + 50;
-    this.setState({ contentStyle: { width: `${w}%`, height } });
+    this.setState({ contentContainerStyle: { width: `${w}%`, height } });
   };
 
   _onIncreaseHeight = () => {
-    let { width, height } = this.state.contentStyle;
+    let { width, height } = this.state.contentContainerStyle;
     const h = parseInt(height) + 50;
-    this.setState({ contentStyle: { width, height: `${h}%` } });
+    this.setState({ contentContainerStyle: { width, height: `${h}%` } });
   };
 
   _onReduceWidth = () => {
-    let { width, height } = this.state.contentStyle;
+    let { width, height } = this.state.contentContainerStyle;
     const w = parseInt(width) - 50;
-    this.setState({ contentStyle: { width: `${w}%`, height } });
+    this.setState({ contentContainerStyle: { width: `${w}%`, height } });
   };
   _onReduceHeight = () => {
-    let { width, height } = this.state.contentStyle;
+    let { width, height } = this.state.contentContainerStyle;
     const h = parseInt(height) - 50;
-    this.setState({ contentStyle: { width, height: `${h}%` } });
+    this.setState({ contentContainerStyle: { width, height: `${h}%` } });
   };
   //#endregion
   // #region Test Event

@@ -2,29 +2,28 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 1985-10-26 16:15:00
- * @LastEditTime: 2021-09-27 16:02:35
+ * @LastEditTime: 2021-09-27 19:03:15
  * @LastEditors: 石破天惊
  * @Description:
  */
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { SafeAreaView, StyleSheet, Text, View, Animated } from "react-native";
+import ReactNative, { SafeAreaView, StyleSheet, Text, View, Animated } from "react-native";
 import {
   ScrollView,
   PanGestureHandler,
   NativeViewGestureHandler,
+  TouchableOpacity
 } from "react-native-gesture-handler";
+import { Test } from "./Examples/Test";
 import { SpringScrollView } from "./upgrade/SpringScrollView";
 import { styles } from "./upgrade/styles";
 
 export default function App() {
-  const scrollRef = React.createRef();
-  const panRef = React.createRef();
-  let base = 0,
-    gestureBase = 0;
   return (
-    <SafeAreaView style={{ flex: 1, flexDirection: "row" }}>
-      <SpringScrollView
+    <SafeAreaView style={{ flex: 1 }}>
+      <Test />
+      {/* <SpringScrollView
         inverted={false}
         contentContainerStyle={{ width: "150%" }}
         style={{ flex: 1, backgroundColor: "lightgray" }}
@@ -34,12 +33,16 @@ export default function App() {
           .map((_, idx) => (
             <Text key={idx}>iOS Running app on iPhone 12 {idx}</Text>
           ))}
-      </SpringScrollView>
+      </SpringScrollView> */}
     </SafeAreaView>
   );
 }
 
 function nativeScrollView() {
+  const scrollRef = React.createRef();
+  const panRef = React.createRef();
+  let base = 0,
+    gestureBase = 0;
   return (
     <NativeViewGestureHandler ref={scrollRef} simultaneousHandlers={panRef}>
       <Animated.ScrollView

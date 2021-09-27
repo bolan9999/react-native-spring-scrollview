@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-09-27 16:13:03
+ * @LastEditTime: 2021-09-27 18:47:15
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -10,8 +10,10 @@
 import React from "react";
 import { StyleSheet, ViewProps } from "react-native";
 import {
+  NativeViewGestureHandler,
   PanGestureHandler,
   TapGestureHandler,
+  createNativeWrapper,
 } from "react-native-gesture-handler";
 import Animated, {
   cancelAnimation,
@@ -24,7 +26,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { styles } from "./styles";
-
 export function SpringScrollView(props) {
   const size = { width: useSharedValue(0), height: useSharedValue(0) };
   const contentSize = { width: useSharedValue(0), height: useSharedValue(0) };
@@ -37,7 +38,7 @@ export function SpringScrollView(props) {
   };
   const refreshHeaderHeight = useSharedValue(80);
   const loadingFooterHeight = useSharedValue(80);
-  const directionalLockEnabled = useSharedValue(true);
+  const directionalLockEnabled = useSharedValue(props.directionalLockEnabled);
   const draggingDirection = useSharedValue("");
 
   const onSize = (e) => {
@@ -204,23 +205,23 @@ export function SpringScrollView(props) {
   });
   const containerStyle = useAnimatedStyle(() => {
     return {
+      flex: 1,
       overflow: "scroll",
       transform: [{ scaleY: props.inverted ? -1 : 1 }],
     };
   });
   const contentContainerStyle = useAnimatedStyle(() => {
     return {
+      flexGrow: 1,
       transform: [
         { translateX: -contentOffset.x.value },
         { translateY: -contentOffset.y.value },
       ],
     };
   });
+  const childRef = React.createRef();
   return (
-    <PanGestureHandler
-      onGestureEvent={panHandler}
-      shouldCancelWhenOutside={false}
-    >
+    <PanGestureHandler onGestureEvent={panHandler}>
       <Animated.View
         {...props}
         style={[containerStyle, props.style]}
@@ -243,4 +244,5 @@ export function SpringScrollView(props) {
 
 SpringScrollView.defaultProps = {
   decelerationRate: 0.998,
+  directionalLockEnabled: false,
 };
