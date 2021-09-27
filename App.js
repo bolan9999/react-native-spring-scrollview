@@ -1,112 +1,79 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
+/*
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 1985-10-26 16:15:00
+ * @LastEditTime: 2021-09-27 16:02:35
+ * @LastEditors: 石破天惊
+ * @Description:
  */
-
-import React from 'react';
-import type {Node} from 'react';
+import { StatusBar } from "expo-status-bar";
+import React from "react";
+import { SafeAreaView, StyleSheet, Text, View, Animated } from "react-native";
 import {
-  SafeAreaView,
   ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+  PanGestureHandler,
+  NativeViewGestureHandler,
+} from "react-native-gesture-handler";
+import { SpringScrollView } from "./upgrade/SpringScrollView";
+import { styles } from "./upgrade/styles";
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
+export default function App() {
+  const scrollRef = React.createRef();
+  const panRef = React.createRef();
+  let base = 0,
+    gestureBase = 0;
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
-
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView style={{ flex: 1, flexDirection: "row" }}>
+      <SpringScrollView
+        inverted={false}
+        contentContainerStyle={{ width: "150%" }}
+        style={{ flex: 1, backgroundColor: "lightgray" }}
+      >
+        {Array(75)
+          .fill("")
+          .map((_, idx) => (
+            <Text key={idx}>iOS Running app on iPhone 12 {idx}</Text>
+          ))}
+      </SpringScrollView>
     </SafeAreaView>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+function nativeScrollView() {
+  return (
+    <NativeViewGestureHandler ref={scrollRef} simultaneousHandlers={panRef}>
+      <Animated.ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ height: 1200 }}
+        onScroll={(e) => {
+          if (!base) base = Math.abs(e.nativeEvent.contentOffset.y);
+          console.log("onScroll", Math.abs(e.nativeEvent.contentOffset.y));
+        }}
+      >
+        <PanGestureHandler
+          ref={panRef}
+          minDist={0}
+          simultaneousHandlers={scrollRef}
+          onGestureEvent={(e) => {
+            if (base && gestureBase) {
+              console.log(
+                "pan",
+                Math.abs(e.nativeEvent.translationY) - gestureBase
+              );
+            } else gestureBase = base;
+          }}
+        >
+          <Animated.View>
+            <Text>iOS Running app on iPhone 12</Text>
+            <Text>iOS Running app on iPhone 12</Text>
+            <Text>iOS Running app on iPhone 12</Text>
+            <Text>iOS Running app on iPhone 12</Text>
+            <Text>iOS Running app on iPhone 12</Text>
+            <Text>iOS Running app on iPhone 12</Text>
+            <Text>iOS Running app on iPhone 12</Text>
+          </Animated.View>
+        </PanGestureHandler>
+      </Animated.ScrollView>
+    </NativeViewGestureHandler>
+  );
+}
