@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-09-27 18:56:49
+ * @LastEditTime: 2021-10-11 18:11:24
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -35,7 +35,7 @@ export class Test extends React.Component {
     showsHorizontalScrollIndicator: true,
     dragToHideKeyboard: true,
     pagingEnabled: false,
-    decelerationRate: 0.997,
+    decelerationRate: 0.998,
     pageSize: { width: 200, height: 200 },
     contentContainerStyle: { width: "100%", height: "350%" },
 
