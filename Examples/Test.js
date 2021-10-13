@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-11 18:11:24
+ * @LastEditTime: 2021-10-13 10:25:48
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -160,7 +160,7 @@ export class Test extends React.Component {
   _onRefresh = () => {
     this._log("Refresh start");
     setTimeout(() => {
-      this._container.endRefresh();
+      this._container && this._container.endRefresh();
       this._log("Refresh end");
     }, 1500);
   };
@@ -168,7 +168,7 @@ export class Test extends React.Component {
   _onLoading = () => {
     this._log("Loading start");
     setTimeout(() => {
-      this._container.endLoading(true);
+      this._container && this._container.endLoading(true);
       this._log("Loading end");
     }, 1500);
   };

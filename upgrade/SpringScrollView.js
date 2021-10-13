@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-12 17:54:17
+ * @LastEditTime: 2021-10-13 10:26:43
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -18,6 +18,7 @@ import {
 import Reanimated, {
   cancelAnimation,
   Easing,
+  runOnJS,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -26,6 +27,7 @@ import Reanimated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { NormalHeader } from "../src/NormalHeader";
 import { styles } from "./styles";
 export function SpringScrollView(props) {
   const size = { width: useSharedValue(0), height: useSharedValue(0) };
@@ -239,6 +241,11 @@ export function SpringScrollView(props) {
         );
       }
       if (vBounces && isOutOfVertical()) {
+        if (
+          props.onRefresh &&
+          contentOffset.y.value < -props.refreshHeader.height
+        )
+          contentInsets.top.value = props.refreshHeader.height;
         contentOffset.y.value = withSpring(
           isOutOfTop() ? -contentInsets.top.value : maxY,
           {
@@ -248,8 +255,15 @@ export function SpringScrollView(props) {
             stiffness: 225,
           },
           (isFinish) => {
-            if (isFinish)
+            if (isFinish) {
               vIndicatorOpacity.value = withDelay(1000, withTiming(0));
+              if (
+                props.onRefresh &&
+                contentInsets.top.value === props.refreshHeader.height
+              ) {
+                runOnJS(props.onRefresh)();
+              }
+            }
           }
         );
       } else {
@@ -257,7 +271,7 @@ export function SpringScrollView(props) {
           {
             velocity: vy,
             deceleration: props.decelerationRate,
-            clamp: [0, maxY],
+            clamp: [-contentInsets.top.value, maxY],
           },
           (isFinish) => {
             if (!isFinish) return;
@@ -381,4 +395,5 @@ SpringScrollView.defaultProps = {
   pagingEnabled: false,
   decelerationRate: 0.998,
   pageSize: { width: 0, height: 0 },
+  refreshHeader: NormalHeader
 };
