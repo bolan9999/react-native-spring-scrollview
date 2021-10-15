@@ -1,9 +1,10 @@
-/**
- * Author: Shi(bolan0000@icloud.com)
- * Date: 2019/1/18
- * Copyright (c) 2018, AoTang, Inc.
- *
- * Description:
+/*
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 2020-11-05 10:44:46
+ * @LastEditTime: 2021-10-14 09:45:45
+ * @LastEditors: 石破天惊
+ * @Description: 
  */
 
 import React from "react";
@@ -29,7 +30,6 @@ export class RefreshHeader extends React.Component<
   }
 
   onStateChange(oldStatus: HeaderStatus, newStatus: HeaderStatus) {
-    // console.log("newStatus", newStatus);
     this.setState({ status: newStatus });
   }
 

@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-13 10:25:48
+ * @LastEditTime: 2021-10-14 11:35:04
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -26,7 +26,7 @@ const AnimatedButton = Animated.createAnimatedComponent(TouchableOpacity);
 export class Test extends React.Component {
   _main: SpringScrollView;
   _container: SpringScrollView;
-  state = {
+  _defaultState = {
     inverted: false,
     bounces: true,
     scrollEnabled: true,
@@ -40,9 +40,16 @@ export class Test extends React.Component {
     contentContainerStyle: { width: "100%", height: "350%" },
 
     //do not in property
+    
+
+  };
+  state = {
+    ...this._defaultState,
     log: "Log View:\n",
     allLoaded: false,
     logNativeOffset: { y: new Animated.Value(0) },
+    refreshing: false,
+    preventReRender: false,
   };
 
   _contentStyleRef = React.createRef();
@@ -57,11 +64,13 @@ export class Test extends React.Component {
     return (
       <SpringScrollView
         style={cs.container}
-        // ref={(ref) => (this._container = ref)}
+        ref={(ref) => (this._container = ref)}
         contentContainerStyle={cs.content}
         onRefresh={this._onRefresh}
         onLoading={this._onLoading}
         allLoaded={this.state.allLoaded}
+        refreshing={this.state.refreshing}
+        preventReRender={this.state.preventReRender}
         // refreshHeader={CommonLottieHeader}
         // loadingFooter={CommonLottieFooter}
       >
@@ -159,9 +168,14 @@ export class Test extends React.Component {
   _beginRefresh = () => this._container.beginRefresh();
   _onRefresh = () => {
     this._log("Refresh start");
+    this.setState({ refreshing: true, preventReRender: true });
     setTimeout(() => {
-      this._container && this._container.endRefresh();
       this._log("Refresh end");
+      this.setState({
+        ...this._defaultState,
+        refreshing: false,
+        preventReRender: false,
+      });
     }, 1500);
   };
 
