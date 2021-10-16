@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-14 12:08:03
+ * @LastEditTime: 2021-10-15 22:26:58
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -49,6 +49,9 @@ export const SpringScrollView = React.forwardRef((props, ref) => {
     refreshAnimating: useSharedValue(false),
     refreshHeaderRef: useRef(),
     refreshStatus: useSharedValue("waiting"),
+    loadMoreAnimating: useSharedValue(false),
+    loadMoreFooterRef: useRef(),
+    loadMoreStatus: useSharedValue("waiting"),
   });
   return <SpringScrollViewClass ref={ref} {...props} {...sharedValues} />;
 });
@@ -128,6 +131,12 @@ class SpringScrollViewClass extends React.Component {
     const changeStateWrapper = (status) => {
       props.refreshHeaderRef.current?.changeToState(status);
     };
+    const onLoadingMoreStateChange = (status) =>
+      props.loadMoreFooterRef.current?.changeToState(status);
+
+    const loadMoreStateWrapper = (status) => {
+      props.loadMoreFooterRef.current?.changeToState(status);
+    };
 
     const drag = (offset) => {
       "worklet";
@@ -198,6 +207,27 @@ class SpringScrollViewClass extends React.Component {
         props.refreshStatus.value = "pullingCancel";
       }
       runOnJS(changeStateWrapper)(props.refreshStatus.value);
+      if (props.loadMoreStatus.value === "waiting" && isOutOfBottom()) {
+        props.loadMoreStatus.value = "dragging";
+      } else if (
+        (props.loadMoreStatus.value === "dragging" ||
+          props.loadMoreStatus.value === "draggingCancel") &&
+        props.contentOffset.y.value >
+          props.contentSize.height.value -
+            props.size.height.value +
+            props.loadingFooter.height
+      ) {
+        props.loadMoreStatus.value = "draggingEnough";
+      } else if (
+        props.loadMoreStatus.value === "draggingEnough" &&
+        props.contentOffset.y.value <
+          props.contentSize.height.value -
+            props.size.height.value +
+            props.loadingFooter.height
+      ) {
+        props.loadMoreStatus.value = "draggingCancel";
+      }
+      runOnJS(onLoadingMoreStateChange)(props.loadMoreStatus.value);
     };
 
     const panHandler = useAnimatedGestureHandler({
@@ -207,18 +237,12 @@ class SpringScrollViewClass extends React.Component {
         if (!props.scrollEnabled) return;
         if (
           props.showsVerticalScrollIndicator &&
-          props.size.height.value <
-            props.contentSize.height.value +
-              props.contentInsets.top.value +
-              props.contentInsets.bottom.value
+          props.size.height.value < props.contentSize.height.value
         )
           props.vIndicatorOpacity.value = 1;
         if (
           props.showsHorizontalScrollIndicator &&
-          props.size.width.value <
-            props.contentSize.width.value +
-              props.contentInsets.left.value +
-              props.contentInsets.right.value
+          props.size.width.value < props.contentSize.width.value
         )
           props.hIndicatorOpacity.value = 1;
         const factor = props.inverted ? -1 : 1;
@@ -234,7 +258,7 @@ class SpringScrollViewClass extends React.Component {
           props.contentSize.width.value -
           props.size.width.value +
           props.contentInsets.right.value;
-        const maxY =
+        let maxY =
           props.contentSize.height.value +
           props.contentInsets.bottom.value -
           props.size.height.value;
@@ -296,8 +320,17 @@ class SpringScrollViewClass extends React.Component {
             props.refreshStatus.value === "pullingEnough"
           ) {
             props.contentInsets.top.value = props.refreshHeader.height;
-            this.props.refreshAnimating.value = true;
+            props.refreshAnimating.value = true;
             runOnJS(props.onRefresh)();
+          }
+          if (
+            props.onLoadingMore &&
+            props.loadMoreStatus.value === "draggingEnough"
+          ) {
+            props.contentInsets.bottom.value = props.loadingFooter.height;
+            props.loadMoreAnimating.value = true;
+            maxY += props.loadingFooter.height;
+            runOnJS(props.onLoadingMore)();
           }
 
           props.contentOffset.y.value = withSpring(
@@ -311,7 +344,8 @@ class SpringScrollViewClass extends React.Component {
             (isFinish) => {
               if (isFinish) {
                 props.vIndicatorOpacity.value = withDelay(1000, withTiming(0));
-                this.props.refreshAnimating.value = false;
+                props.refreshAnimating.value = false;
+                props.loadMoreAnimating.value = false;
               }
             }
           );
@@ -429,6 +463,22 @@ class SpringScrollViewClass extends React.Component {
         transform: [{ translateY: -props.contentOffset.y.value }],
       };
     });
+    const loadMoreFooterStyle = useAnimatedStyle(() => {
+      let translateY =
+        props.contentSize.height.value -
+        props.size.height.value -
+        props.contentOffset.y.value;
+      if (translateY > 0) translateY = 0;
+
+      return {
+        left: 0,
+        right: 0,
+        position: "absolute",
+        bottom: -props.loadingFooter.height,
+        height: props.loadingFooter.height,
+        transform: [{ translateY }],
+      };
+    });
     return (
       <PanGestureHandler onGestureEvent={panHandler}>
         <Reanimated.View
@@ -439,6 +489,9 @@ class SpringScrollViewClass extends React.Component {
         >
           <Reanimated.View style={refreshHeaderStyle}>
             <props.refreshHeader ref={props.refreshHeaderRef} />
+          </Reanimated.View>
+          <Reanimated.View style={loadMoreFooterStyle}>
+            <props.loadingFooter ref={props.loadMoreFooterRef} />
           </Reanimated.View>
           <Reanimated.View
             onLayout={onContentSize}
@@ -453,23 +506,38 @@ class SpringScrollViewClass extends React.Component {
     );
   };
 
-  shouldComponentUpdate(nextProps) {
-    if (this.props.refreshing !== nextProps.refreshing) {
-      if (nextProps.refreshing) {
-        this.props.refreshAnimating.value = true;
-        this.props.refreshStatus.value = "refreshing";
-        this.props.refreshHeaderRef.current?.changeToState("refreshing");
+  shouldComponentUpdate(next) {
+    const {
+      size,
+      contentSize,
+      contentOffset,
+      contentInsets,
+      refreshing,
+      refreshAnimating,
+      refreshStatus,
+      refreshHeaderRef,
+      loadingMore,
+      loadingFooter,
+      loadMoreAnimating,
+      loadMoreStatus,
+      loadMoreFooterRef,
+    } = this.props;
+    if (refreshing !== next.refreshing) {
+      if (next.refreshing) {
+        refreshAnimating.value = true;
+        refreshStatus.value = "refreshing";
+        refreshHeaderRef.current?.changeToState("refreshing");
       } else {
-        this.props.refreshStatus.value = "rebound";
-        this.props.refreshHeaderRef.current?.changeToState("rebound");
+        refreshStatus.value = "rebound";
+        refreshHeaderRef.current?.changeToState("rebound");
       }
-      if (!this.props.refreshAnimating.value) {
+      if (!refreshAnimating.value) {
         const reboundCallback = () =>
-          this.props.refreshHeaderRef.current?.changeToState("waiting");
-        cancelAnimation(this.props.contentOffset.y);
-        const to = nextProps.refreshing ? this.props.refreshHeader.height : 0;
-        this.props.contentInsets.top.value = to;
-        this.props.contentOffset.y.value = withSpring(
+          refreshHeaderRef.current?.changeToState("waiting");
+        cancelAnimation(contentOffset.y);
+        const to = next.refreshing ? refreshHeader.height : 0;
+        contentInsets.top.value = to;
+        contentOffset.y.value = withSpring(
           -to,
           {
             velocity: -10,
@@ -478,17 +546,56 @@ class SpringScrollViewClass extends React.Component {
             stiffness: 225,
           },
           (isFinish) => {
-            if (this.props.refreshStatus.value === "refreshing") {
-              this.props.refreshAnimating.value = false;
+            if (refreshStatus.value === "refreshing") {
+              refreshAnimating.value = false;
             } else {
-              this.props.refreshStatus.value = "waiting";
+              refreshStatus.value = "waiting";
               runOnJS(reboundCallback)();
             }
           }
         );
       }
     }
-    return !nextProps.preventReRender;
+    if (loadingMore !== next.loadingMore) {
+      if (next.loadingMore) {
+        contentInsets.bottom.value = loadingFooter.height;
+        loadMoreAnimating.value = true;
+        loadMoreStatus.value = "loading";
+        loadMoreFooterRef.current?.changeToState("loading");
+      } else {
+        contentInsets.bottom.value = 0;
+        loadMoreStatus.value = "rebound";
+        loadMoreFooterRef.current?.changeToState("rebound");
+      }
+      if (!loadMoreAnimating.value) {
+        const reboundCallback = () =>
+          loadMoreFooterRef.current?.changeToState("waiting");
+        cancelAnimation(contentOffset.y);
+        const to =
+          contentSize.height.value -
+          size.height.value +
+          (next.loadingMore ? loadingFooter.height : 0);
+
+        contentOffset.y.value = withSpring(
+          to,
+          {
+            velocity: 10,
+            damping: 30,
+            mass: 1,
+            stiffness: 225,
+          },
+          (isFinish) => {
+            if (loadMoreStatus.value === "loading") {
+              loadMoreAnimating.value = false;
+            } else {
+              loadMoreStatus.value = "waiting";
+              runOnJS(reboundCallback)();
+            }
+          }
+        );
+      }
+    }
+    return !next.preventReRender;
   }
 
   static defaultProps = {
@@ -505,5 +612,6 @@ class SpringScrollViewClass extends React.Component {
     refreshHeader: RefreshHeader,
     loadingFooter: LoadingFooter,
     refreshing: false,
+    loadingMore: false,
   };
 }

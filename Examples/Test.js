@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-14 11:35:04
+ * @LastEditTime: 2021-10-15 18:03:49
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -40,8 +40,6 @@ export class Test extends React.Component {
     contentContainerStyle: { width: "100%", height: "350%" },
 
     //do not in property
-    
-
   };
   state = {
     ...this._defaultState,
@@ -50,6 +48,7 @@ export class Test extends React.Component {
     logNativeOffset: { y: new Animated.Value(0) },
     refreshing: false,
     preventReRender: false,
+    loadingMore:false,
   };
 
   _contentStyleRef = React.createRef();
@@ -67,10 +66,11 @@ export class Test extends React.Component {
         ref={(ref) => (this._container = ref)}
         contentContainerStyle={cs.content}
         onRefresh={this._onRefresh}
-        onLoading={this._onLoading}
+        onLoadingMore={this._onLoading}
         allLoaded={this.state.allLoaded}
         refreshing={this.state.refreshing}
         preventReRender={this.state.preventReRender}
+        loadingMore={this.state.loadingMore}
         // refreshHeader={CommonLottieHeader}
         // loadingFooter={CommonLottieFooter}
       >
@@ -181,8 +181,14 @@ export class Test extends React.Component {
 
   _onLoading = () => {
     this._log("Loading start");
+    this.setState({ loadingMore: true, preventReRender: true });
     setTimeout(() => {
-      this._container && this._container.endLoading(true);
+      this.setState({
+        ...this._defaultState,
+        loadingMore: false,
+        preventReRender: false,
+      });
+      // this._container && this._container.endLoading(true);
       this._log("Loading end");
     }, 1500);
   };
