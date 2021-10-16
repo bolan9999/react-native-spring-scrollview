@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-16 10:56:33
+ * @LastEditTime: 2021-10-16 20:43:44
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -32,32 +32,51 @@ import { RefreshHeader } from "./RefreshHeader";
 import { LoadingFooter } from "./LoadingFooter";
 import { styles } from "./styles";
 
-export const SpringScrollView = React.forwardRef((props, ref) => {
-  const [sharedValues] = useState({
-    size: { width: useSharedValue(0), height: useSharedValue(0) },
-    contentSize: { width: useSharedValue(0), height: useSharedValue(0) },
-    contentOffset: { x: useSharedValue(0), y: useSharedValue(0) },
-    contentInsets: {
-      top: useSharedValue(0),
-      bottom: useSharedValue(0),
-      left: useSharedValue(0),
-      right: useSharedValue(0),
-    },
-    directionalLockEnabled: useSharedValue(true),
-    draggingDirection: useSharedValue(""),
-    vIndicatorOpacity: useSharedValue(0),
-    hIndicatorOpacity: useSharedValue(0),
-    refreshAnimating: useSharedValue(false),
-    refreshHeaderRef: useRef(),
-    refreshStatus: useSharedValue("waiting"),
-    loadMoreAnimating: useSharedValue(false),
-    loadMoreFooterRef: useRef(),
-    loadMoreStatus: useSharedValue("waiting"),
-  });
-  return <SpringScrollViewClass ref={ref} {...props} {...sharedValues} />;
-});
+interface SpringScrollViewType {
+  inverted?: boolean;
+  bounces?: boolean | "vertical" | "horizontal";
+  scrollEnabled?: boolean | "vertical" | "horizontal";
+  directionalLockEnabled?: boolean;
+  showsVerticalScrollIndicator?: boolean;
+  showsHorizontalScrollIndicator?: boolean;
+  // dragToHideKeyboard: true,
+  pagingEnabled?: boolean;
+  decelerationRate?: number;
+  pageSize?: { width: number, height: number };
+  refreshHeader?: RefreshHeader;
+  loadingFooter?: LoadingFooter;
+  refreshing?: boolean;
+  loadingMore?: boolean;
+}
 
-class SpringScrollViewClass extends React.Component {
+export const SpringScrollView = React.forwardRef(
+  (props: SpringScrollViewType, ref) => {
+    const [sharedValues] = useState({
+      size: { width: useSharedValue(0), height: useSharedValue(0) },
+      contentSize: { width: useSharedValue(0), height: useSharedValue(0) },
+      contentOffset: { x: useSharedValue(0), y: useSharedValue(0) },
+      contentInsets: {
+        top: useSharedValue(0),
+        bottom: useSharedValue(0),
+        left: useSharedValue(0),
+        right: useSharedValue(0),
+      },
+      directionalLock: useSharedValue(true),
+      draggingDirection: useSharedValue(""),
+      vIndicatorOpacity: useSharedValue(0),
+      hIndicatorOpacity: useSharedValue(0),
+      refreshAnimating: useSharedValue(false),
+      refreshHeaderRef: useRef(),
+      refreshStatus: useSharedValue("waiting"),
+      loadMoreAnimating: useSharedValue(false),
+      loadMoreFooterRef: useRef(),
+      loadMoreStatus: useSharedValue("waiting"),
+    });
+    return <SpringScrollViewClass ref={ref} {...props} {...sharedValues} />;
+  }
+);
+
+class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
   render() {
     return <this.SpringScrollViewCore {...this.props} />;
   }
@@ -65,12 +84,6 @@ class SpringScrollViewClass extends React.Component {
   SpringScrollViewCore = (props) => {
     const vBounces = props.bounces === true || props.bounces === "vertical";
     const hBounces = props.bounces === true || props.bounces === "horizontal";
-
-    if (!props.showsHorizontalScrollIndicator)
-      props.hIndicatorOpacity.value = 0;
-    if (!props.showsVerticalScrollIndicator) props.vIndicatorOpacity.value = 0;
-
-    props.directionalLockEnabled.value = props.directionalLockEnabled;
     const onSize = (e) => {
       props.size.width.value = e.nativeEvent.layout.width;
       props.size.height.value = e.nativeEvent.layout.height;
@@ -177,7 +190,7 @@ class SpringScrollViewClass extends React.Component {
             props.contentOffset.y.value;
         }
       }
-      if (props.directionalLockEnabled.value) {
+      if (props.directionalLock.value) {
         if (!props.draggingDirection.value) {
           props.draggingDirection.value =
             Math.abs(offset.x) > Math.abs(offset.y) ? "h" : "v";
@@ -230,7 +243,7 @@ class SpringScrollViewClass extends React.Component {
       }
       runOnJS(onLoadingMoreStateChange)(props.loadMoreStatus.value);
     };
-    
+
     const panHandler = useAnimatedGestureHandler({
       onStart: (evt, ctx) =>
         (ctx.last = { x: evt.absoluteX, y: evt.absoluteY }),
@@ -469,7 +482,7 @@ class SpringScrollViewClass extends React.Component {
         props.contentSize.height.value -
         props.size.height.value -
         props.contentOffset.y.value;
-      if (translateY > 0) translateY = 0;
+      // if (translateY > 0) translateY = 0;
 
       return {
         left: 0,
@@ -526,7 +539,20 @@ class SpringScrollViewClass extends React.Component {
       loadMoreAnimating,
       loadMoreStatus,
       loadMoreFooterRef,
+      hIndicatorOpacity,
+      vIndicatorOpacity,
+      directionalLock,
+      directionalLockEnabled,
     } = this.props;
+    if (!next.showsHorizontalScrollIndicator) {
+      cancelAnimation(hIndicatorOpacity);
+      hIndicatorOpacity.value = 0;
+    }
+    if (!next.showsVerticalScrollIndicator) {
+      cancelAnimation(vIndicatorOpacity);
+      vIndicatorOpacity.value = 0;
+    }
+    directionalLock.value = directionalLockEnabled;
     if (refreshing !== next.refreshing) {
       if (next.refreshing) {
         refreshAnimating.value = true;

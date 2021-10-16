@@ -1,4 +1,12 @@
 /*
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 2021-07-21 13:05:32
+ * @LastEditTime: 2021-10-16 16:29:54
+ * @LastEditors: 石破天惊
+ * @Description:
+ */
+/*
  *
  * Created by Stone
  * https://github.com/bolan9999
@@ -8,13 +16,13 @@
  */
 
 import React from "react";
-import { Button, StyleSheet, View, SafeAreaView } from "react-native";
+import { Button, StyleSheet, View, SafeAreaView, Platform } from "react-native";
 import { InputExample } from "./InputExample";
 import { ComplexExample } from "./ComplexExample";
 import { BouncesAndScrollEnabledExample } from "./BouncesAndScrollEnabledExample";
 import { RefreshAndLoadingExample } from "./RefreshAndLoadingExample";
 import { ScrollToAndOnScrollExample } from "./ScrollToAndOnScrollExample";
-import {Test} from "./Test";
+import { Test } from "./Test";
 
 export class Examples extends React.Component {
   constructor(props) {
@@ -22,10 +30,8 @@ export class Examples extends React.Component {
     this.state = { select: 0 };
   }
 
-  render(){
-    return <SafeAreaView style={styles.container}>
-      {this._renderContent()}
-    </SafeAreaView>
+  render() {
+    return this._renderContent();
   }
 
   _renderContent() {
@@ -49,10 +55,7 @@ export class Examples extends React.Component {
   _renderSelect() {
     return (
       <View style={styles.container}>
-        <Button
-          onPress={() => this.setState({ select: 1 })}
-          title="Test"
-        />
+        <Button onPress={() => this.setState({ select: 1 })} title="Test" />
 
         <Button
           onPress={() => this.setState({ select: 2 })}
@@ -80,6 +83,7 @@ export class Examples extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white"
-  }
+    paddingTop: Platform.select({ android: 50 }),
+    backgroundColor: "white",
+  },
 });

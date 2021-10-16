@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 1985-10-26 16:15:00
- * @LastEditTime: 2021-10-16 16:01:21
+ * @LastEditTime: 2021-10-16 16:26:19
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -30,7 +30,7 @@ export default function App() {
       style={{
         flex: 1,
         flexDirection: "row",
-        marginTop: Platform.select({ android: 70 }),
+        marginTop: Platform.select({ android: 25 }),
       }}
     >
       <Examples />
