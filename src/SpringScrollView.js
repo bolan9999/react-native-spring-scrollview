@@ -1,590 +1,622 @@
-/**
- * Author: Shi(bolan0000@icloud.com)
- * Date: 2019/1/17
- * Copyright (c) 2018, AoTang, Inc.
- *
- * Description:
+/*
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 2021-09-24 09:47:22
+ * @LastEditTime: 2021-10-16 10:56:33
+ * @LastEditors: 石破天惊
+ * @Description:
  */
 
-import * as React from "react";
+import React, { useRef, useState } from "react";
+import { Animated, Platform, StyleSheet, ViewProps } from "react-native";
 import {
-  Animated,
-  requireNativeComponent,
-  View,
-  findNodeHandle,
-  UIManager,
-  Keyboard,
-  Platform,
-  NativeModules,
-  StyleSheet,
-  ViewProps,
-  ViewStyle,
-  ScrollView,
-} from "react-native";
-import {
-  SpringScrollViewNativeAdapter,
-  SpringScrollContentViewNative,
-} from "./SpringScrollViewNative";
-import { FooterStatus } from "./LoadingFooter";
-import { NormalHeader } from "./NormalHeader";
-import { NormalFooter } from "./NormalFooter";
-import type { HeaderStatus } from "./RefreshHeader";
-import { idx } from "./idx";
-import type { Offset, SpringScrollViewPropType } from "./Types";
+  NativeViewGestureHandler,
+  PanGestureHandler,
+  TapGestureHandler,
+  createNativeWrapper,
+} from "react-native-gesture-handler";
+import Reanimated, {
+  cancelAnimation,
+  Easing,
+  runOnJS,
+  useAnimatedGestureHandler,
+  useAnimatedRef,
+  useAnimatedStyle,
+  useSharedValue,
+  withDecay,
+  withDelay,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { RefreshHeader } from "./RefreshHeader";
+import { LoadingFooter } from "./LoadingFooter";
 import { styles } from "./styles";
 
-export class SpringScrollView extends React.PureComponent<SpringScrollViewPropType> {
-  _contentOffset: Offset = { x: 0, y: 0 };
-  _keyboardHeight: number;
-  _refreshHeader;
-  _loadingFooter;
-  _width: number;
-  _height: number;
-  _scrollView: View;
-  _indicatorOpacity: Animated.Value = new Animated.Value(1);
-  _contentHeight: number;
-  _contentWidth: number;
-  _refreshStatus: HeaderStatus = "waiting";
-  _loadingStatus: FooterStatus = "waiting";
-  _indicatorAnimation;
-  _scrollEventAttachment;
-  _nativeOffset;
-  _touching = false;
-  _dragging = false;
-  _sizeChangeInterval = 0;
+export const SpringScrollView = React.forwardRef((props, ref) => {
+  const [sharedValues] = useState({
+    size: { width: useSharedValue(0), height: useSharedValue(0) },
+    contentSize: { width: useSharedValue(0), height: useSharedValue(0) },
+    contentOffset: { x: useSharedValue(0), y: useSharedValue(0) },
+    contentInsets: {
+      top: useSharedValue(0),
+      bottom: useSharedValue(0),
+      left: useSharedValue(0),
+      right: useSharedValue(0),
+    },
+    directionalLockEnabled: useSharedValue(true),
+    draggingDirection: useSharedValue(""),
+    vIndicatorOpacity: useSharedValue(0),
+    hIndicatorOpacity: useSharedValue(0),
+    refreshAnimating: useSharedValue(false),
+    refreshHeaderRef: useRef(),
+    refreshStatus: useSharedValue("waiting"),
+    loadMoreAnimating: useSharedValue(false),
+    loadMoreFooterRef: useRef(),
+    loadMoreStatus: useSharedValue("waiting"),
+  });
+  return <SpringScrollViewClass ref={ref} {...props} {...sharedValues} />;
+});
 
-  constructor(props) {
-    super(props);
-    this._nativeOffset = {
-      x: new Animated.Value(0),
-      y: new Animated.Value(0),
-      ...props.onNativeContentOffsetExtract,
-    };
-    this._nativeOffset.x.setValue(props.initialContentOffset.y);
-    this._nativeOffset.y.setValue(props.initialContentOffset.y);
-  }
-
+class SpringScrollViewClass extends React.Component {
   render() {
-    const {
-      style,
-      inverted,
-      children,
-      onRefresh,
-      onLoading,
-      refreshHeader: Refresh,
-      loadingFooter: Loading,
-    } = this.props;
-    const wStyle = StyleSheet.flatten([
-      styles.wrapperStyle,
-      style,
-      { transform: inverted ? [{ scaleY: -1 }] : [] },
-    ]);
-    const contentStyle = StyleSheet.flatten([
-      styles.contentStyle,
-      this.props.contentStyle,
-    ]);
-    return (
-      <SpringScrollViewNativeAdapter
-        {...this.props}
-        ref={(ref) => (this._scrollView = ref)}
-        style={wStyle}
-        onScroll={this._onScroll}
-        refreshHeaderHeight={onRefresh ? Refresh.height : 0}
-        loadingFooterHeight={onLoading ? Loading.height : 0}
-        onLayout={this._onWrapperLayoutChange}
-        onTouchBegin={this._onTouchBegin}
-        onScrollBeginDrag={this._onScrollBeginDrag}
-        onMomentumScrollEnd={this._onMomentumScrollEnd}
-        scrollEventThrottle={1}
-        onStartShouldSetResponderCapture={() => this._dragging}
-      >
-        <SpringScrollContentViewNative
-          style={contentStyle}
-          collapsable={false}
-          onLayout={this._onContentLayoutChange}
-        >
-          {this._renderRefreshHeader()}
-          {this._renderLoadingFooter()}
-          {children}
-        </SpringScrollContentViewNative>
-        {this._renderHorizontalIndicator()}
-        {this._renderVerticalIndicator()}
-      </SpringScrollViewNativeAdapter>
-    );
+    return <this.SpringScrollViewCore {...this.props} />;
   }
 
-  _renderRefreshHeader() {
-    const { onRefresh, refreshHeader: Refresh } = this.props;
-    const measured =
-      this._height !== undefined && this._contentHeight !== undefined;
-    if (!measured) return null;
-    return (
-      onRefresh && (
-        <Animated.View style={this._getRefreshHeaderStyle()}>
-          <Refresh
-            ref={(ref) => (this._refreshHeader = ref)}
-            offset={this._nativeOffset.y}
-            maxHeight={Refresh.height}
-          />
-        </Animated.View>
-      )
-    );
-  }
+  SpringScrollViewCore = (props) => {
+    const vBounces = props.bounces === true || props.bounces === "vertical";
+    const hBounces = props.bounces === true || props.bounces === "horizontal";
 
-  _renderLoadingFooter() {
-    const { onLoading, loadingFooter: Footer } = this.props;
-    const measured =
-      this._height !== undefined && this._contentHeight !== undefined;
-    if (!measured) return null;
-    return (
-      onLoading && (
-        <Animated.View style={this._getLoadingFooterStyle()}>
-          <Footer
-            ref={(ref) => (this._loadingFooter = ref)}
-            offset={this._nativeOffset.y}
-            maxHeight={Footer.height}
-            bottomOffset={this._contentHeight - this._height}
-          />
-        </Animated.View>
-      )
-    );
-  }
+    if (!props.showsHorizontalScrollIndicator)
+      props.hIndicatorOpacity.value = 0;
+    if (!props.showsVerticalScrollIndicator) props.vIndicatorOpacity.value = 0;
 
-  _renderVerticalIndicator() {
-    if (Platform.OS === "ios") return null;
-    const { showsVerticalScrollIndicator } = this.props;
-    const measured =
-      this._height !== undefined && this._contentHeight !== undefined;
-    if (!measured) return null;
-    return (
-      showsVerticalScrollIndicator &&
-      this._contentHeight > this._height && (
-        <Animated.View style={this._getVerticalIndicatorStyle()} />
-      )
-    );
-  }
+    props.directionalLockEnabled.value = props.directionalLockEnabled;
+    const onSize = (e) => {
+      props.size.width.value = e.nativeEvent.layout.width;
+      props.size.height.value = e.nativeEvent.layout.height;
+    };
+    const onContentSize = (e) => {
+      props.contentSize.width.value = e.nativeEvent.layout.width;
+      props.contentSize.height.value = e.nativeEvent.layout.height;
+    };
 
-  _renderHorizontalIndicator() {
-    if (Platform.OS === "ios") return null;
-    const { showsHorizontalScrollIndicator } = this.props;
-    const measured =
-      this._height !== undefined && this._contentHeight !== undefined;
-    if (!measured) return null;
-    return (
-      showsHorizontalScrollIndicator &&
-      this._contentWidth > this._width && (
-        <Animated.View style={this._getHorizontalIndicatorStyle()} />
-      )
-    );
-  }
-
-  componentDidMount() {
-    this._scrollEventAttachment = this._scrollView.attachScrollNativeEvent(
-      this._nativeOffset
-    );
-    this._beginIndicatorDismissAnimation();
-    this._keyboardShowSub = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      this._onKeyboardWillShow
-    );
-    this._keyboardHideSub = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-      this._onKeyboardWillHide
-    );
-  }
-
-  componentDidUpdate() {
-    if (this._scrollEventAttachment) this._scrollEventAttachment.detach();
-    this._scrollEventAttachment = this._scrollView.attachScrollNativeEvent(
-      this._nativeOffset
-    );
-    this._beginIndicatorDismissAnimation();
-  }
-
-  componentWillUnmount() {
-    this._scrollEventAttachment && this._scrollEventAttachment.detach();
-    this._keyboardShowSub.remove();
-    this._keyboardHideSub.remove();
-  }
-
-  scrollTo(offset: Offset, animated: boolean = true) {
-    if (Platform.OS === "ios") {
-      NativeModules.SpringScrollView.scrollTo(
-        findNodeHandle(this._scrollView),
-        offset.x,
-        offset.y,
-        animated
+    const isOutOfTop = () => {
+      "worklet";
+      return props.contentOffset.y.value < -props.contentInsets.top.value;
+    };
+    const isEnoughToRefresh = () => {
+      "worklet";
+      return (
+        props.contentOffset.y.value <
+        -props.contentInsets.top.value - props.refreshHeader.height
       );
-    } else if (Platform.OS === "android") {
-      UIManager.dispatchViewManagerCommand(
-        findNodeHandle(this._scrollView),
-        "10002",
-        [offset.x, offset.y, animated]
+    };
+    const isOutOfBottom = () => {
+      "worklet";
+      return (
+        props.contentOffset.y.value >
+        props.contentSize.height.value - props.size.height.value
       );
-    }
-    return new Promise((resolve, reject) => {
-      if (animated) setTimeout(resolve, 500);
-      else resolve();
-    });
-  }
-
-  scroll(offset: Offset, animated: boolean = true) {
-    return this.scrollTo(
-      {
-        x: offset.x + this._contentOffset.x,
-        y: offset.y + this._contentOffset.y,
-      },
-      animated
-    );
-  }
-
-  scrollToBegin(animated: boolean) {
-    return this.scrollTo({ x: this._contentOffset.x, y: 0 }, animated);
-  }
-
-  scrollToEnd(animated: boolean = true) {
-    let toOffsetY = this._contentHeight - this._height;
-    if (toOffsetY < 0) toOffsetY = 0;
-    return this.scrollTo({ x: this._contentOffset.x, y: toOffsetY }, animated);
-  }
-
-  beginRefresh() {
-    if (!this.props.loadingFooter || this.props.loadingFooter.height <= 0)
-      return Promise.reject(
-        "SpringScrollView: call beginRefresh without loadingFooter or loadingFooter height"
+    };
+    const isEnoughToLoadMore = () => {
+      "worklet";
+      return (
+        props.contentOffset.y.value >
+        -props.size.height.value +
+          props.contentSize.height.value +
+          props.loadingFooter.height
       );
-    return this.scrollTo({
-      x: this._contentOffset.x,
-      y: -this.props.loadingFooter.height - 1,
-    });
-  }
+    };
+    const isOutOfLeft = () => {
+      "worklet";
+      return props.contentOffset.x.value < -props.contentInsets.left.value;
+    };
+    const isOutOfRight = () => {
+      "worklet";
+      return (
+        props.contentOffset.x.value >
+        props.contentInsets.right.value +
+          props.contentSize.width.value -
+          props.size.width.value
+      );
+    };
+    const isOutOfHorizontal = () => {
+      "worklet";
+      return isOutOfLeft() || isOutOfRight();
+    };
+    const isOutOfVertical = () => {
+      "worklet";
+      return isOutOfTop() || isOutOfBottom();
+    };
 
-  endRefresh() {
-    if (Platform.OS === "ios") {
-      NativeModules.SpringScrollView.endRefresh(
-        findNodeHandle(this._scrollView)
-      );
-    } else if (Platform.OS === "android") {
-      UIManager.dispatchViewManagerCommand(
-        findNodeHandle(this._scrollView),
-        "10000",
-        []
-      );
-    }
-  }
+    const changeStateWrapper = (status) => {
+      props.refreshHeaderRef.current?.changeToState(status);
+    };
+    const onLoadingMoreStateChange = (status) =>
+      props.loadMoreFooterRef.current?.changeToState(status);
 
-  endLoading(rebound: boolean = false) {
-    if (Platform.OS === "ios") {
-      NativeModules.SpringScrollView.endLoading(
-        findNodeHandle(this._scrollView),
-        rebound
-      );
-    } else if (Platform.OS === "android") {
-      UIManager.dispatchViewManagerCommand(
-        findNodeHandle(this._scrollView),
-        "10001",
-        [rebound]
-      );
-    }
-  }
+    const loadMoreStateWrapper = (status) => {
+      props.loadMoreFooterRef.current?.changeToState(status);
+    };
 
-  _onKeyboardWillShow = (evt) => {
-    this._touching = false;
-    this.props.textInputRefs.every((input) => {
-      if (idx(() => input.current.isFocused())) {
-        input.current.measureInWindow((x, y, w, h, l, t) => {
-          this._keyboardHeight =
-            -evt.endCoordinates.screenY + this.props.inputToolBarHeight + y + h;
-          this._keyboardHeight > 0 &&
-            this.scroll({ x: 0, y: this._keyboardHeight });
+    const drag = (offset) => {
+      "worklet";
+      if (props.bounces === false || props.bounces === "vertical") {
+        const estX = props.contentOffset.x.value + offset.x;
+        if (estX < -props.contentInsets.left.value) {
+          offset.x =
+            -props.contentInsets.left.value - props.contentOffset.x.value;
+        } else if (
+          estX >
+          props.contentSize.width.value -
+            props.size.width.value +
+            props.contentInsets.right.value
+        ) {
+          offset.x =
+            props.contentSize.width.value -
+            props.size.width.value +
+            props.contentInsets.right.value -
+            props.contentOffset.x.value;
+        }
+      }
+      if (props.bounces === false || props.bounces === "horizontal") {
+        const estY = props.contentOffset.y.value + offset.y;
+        if (estY < -props.contentInsets.top.value) {
+          offset.y =
+            -props.contentInsets.top.value - props.contentOffset.y.value;
+        } else if (
+          estY >
+          props.contentSize.height.value -
+            props.size.height.value +
+            props.contentInsets.bottom.value
+        ) {
+          offset.y =
+            props.contentSize.height.value -
+            props.size.height.value +
+            props.contentInsets.bottom.value -
+            props.contentOffset.y.value;
+        }
+      }
+      if (props.directionalLockEnabled.value) {
+        if (!props.draggingDirection.value) {
+          props.draggingDirection.value =
+            Math.abs(offset.x) > Math.abs(offset.y) ? "h" : "v";
+        }
+        if (props.draggingDirection.value === "h") offset.y = 0;
+        if (props.draggingDirection.value === "v") offset.x = 0;
+      }
+      if ((offset.x < 0 && isOutOfLeft()) || (offset.x > 0 && isOutOfRight())) {
+        offset.x = offset.x * (-0.001 * Math.abs(offset.x) + 0.5);
+      }
+      if ((offset.y < 0 && isOutOfTop()) || (offset.y > 0 && isOutOfBottom())) {
+        offset.y = offset.y * (-0.001 * Math.abs(offset.y) + 0.5);
+      }
+      props.contentOffset.x.value += offset.x;
+      props.contentOffset.y.value += offset.y;
+      if (props.refreshStatus.value === "waiting" && isOutOfTop()) {
+        props.refreshStatus.value = "pulling";
+      } else if (
+        (props.refreshStatus.value === "pulling" ||
+          props.refreshStatus.value === "pullingCancel") &&
+        props.contentOffset.y.value < -props.refreshHeader.height
+      ) {
+        props.refreshStatus.value = "pullingEnough";
+      } else if (
+        props.refreshStatus.value === "pullingEnough" &&
+        props.contentOffset.y.value > -props.refreshHeader.height
+      ) {
+        props.refreshStatus.value = "pullingCancel";
+      }
+      runOnJS(changeStateWrapper)(props.refreshStatus.value);
+      if (props.loadMoreStatus.value === "waiting" && isOutOfBottom()) {
+        props.loadMoreStatus.value = "dragging";
+      } else if (
+        (props.loadMoreStatus.value === "dragging" ||
+          props.loadMoreStatus.value === "draggingCancel") &&
+        props.contentOffset.y.value >
+          props.contentSize.height.value -
+            props.size.height.value +
+            props.loadingFooter.height
+      ) {
+        props.loadMoreStatus.value = "draggingEnough";
+      } else if (
+        props.loadMoreStatus.value === "draggingEnough" &&
+        props.contentOffset.y.value <
+          props.contentSize.height.value -
+            props.size.height.value +
+            props.loadingFooter.height
+      ) {
+        props.loadMoreStatus.value = "draggingCancel";
+      }
+      runOnJS(onLoadingMoreStateChange)(props.loadMoreStatus.value);
+    };
+    
+    const panHandler = useAnimatedGestureHandler({
+      onStart: (evt, ctx) =>
+        (ctx.last = { x: evt.absoluteX, y: evt.absoluteY }),
+      onActive: (evt, ctx) => {
+        if (!props.scrollEnabled) return;
+        if (
+          props.showsVerticalScrollIndicator &&
+          props.size.height.value < props.contentSize.height.value
+        )
+          props.vIndicatorOpacity.value = 1;
+        if (
+          props.showsHorizontalScrollIndicator &&
+          props.size.width.value < props.contentSize.width.value
+        )
+          props.hIndicatorOpacity.value = 1;
+        const factor = props.inverted ? -1 : 1;
+        drag({
+          x: ctx.last.x - evt.absoluteX,
+          y: factor * (ctx.last.y - evt.absoluteY),
         });
-        return false;
-      }
-      return true;
+        ctx.last = { x: evt.absoluteX, y: evt.absoluteY };
+      },
+      onEnd: (evt) => {
+        if (!props.scrollEnabled) return;
+        const maxX =
+          props.contentSize.width.value -
+          props.size.width.value +
+          props.contentInsets.right.value;
+        let maxY =
+          props.contentSize.height.value +
+          props.contentInsets.bottom.value -
+          props.size.height.value;
+        const vx = props.draggingDirection.value === "v" ? 0 : -evt.velocityX;
+        const vy =
+          evt.velocityY *
+          (props.inverted ? 1 : -1) *
+          (props.draggingDirection.value === "h" ? 0 : 1);
+
+        if (hBounces && isOutOfHorizontal()) {
+          props.contentOffset.x.value = withSpring(
+            isOutOfLeft() ? -props.contentInsets.left.value : maxX,
+            {
+              velocity: vx,
+              damping: 30,
+              mass: 1,
+              stiffness: 225,
+            },
+            (isFinish) => {
+              if (isFinish)
+                props.hIndicatorOpacity.value = withDelay(1000, withTiming(0));
+            }
+          );
+        } else {
+          props.contentOffset.x.value = withDecay(
+            {
+              velocity: vx,
+              deceleration: props.decelerationRate,
+              clamp: [0, maxX],
+            },
+            (isFinish) => {
+              if (!isFinish) return;
+              if (hBounces) {
+                props.contentOffset.x.value = withSpring(
+                  props.contentOffset.x.value + 0.01,
+                  {
+                    velocity: vx,
+                    damping: 48,
+                    mass: 2.56,
+                    stiffness: 225,
+                  },
+                  (isFinish) => {
+                    if (isFinish)
+                      props.hIndicatorOpacity.value = withDelay(
+                        1000,
+                        withTiming(0)
+                      );
+                  }
+                );
+              } else {
+                props.hIndicatorOpacity.value = withDelay(1000, withTiming(0));
+              }
+            }
+          );
+        }
+        if (vBounces && isOutOfVertical()) {
+          if (
+            props.onRefresh &&
+            props.refreshStatus.value === "pullingEnough"
+          ) {
+            props.contentInsets.top.value = props.refreshHeader.height;
+            props.refreshAnimating.value = true;
+            runOnJS(props.onRefresh)();
+          }
+          if (
+            props.onLoadingMore &&
+            props.loadMoreStatus.value === "draggingEnough"
+          ) {
+            props.contentInsets.bottom.value = props.loadingFooter.height;
+            props.loadMoreAnimating.value = true;
+            maxY += props.loadingFooter.height;
+            runOnJS(props.onLoadingMore)();
+          }
+
+          props.contentOffset.y.value = withSpring(
+            isOutOfTop() ? -props.contentInsets.top.value : maxY,
+            {
+              velocity: vy,
+              damping: 30,
+              mass: 1,
+              stiffness: 225,
+            },
+            (isFinish) => {
+              if (isFinish) {
+                props.vIndicatorOpacity.value = withDelay(1000, withTiming(0));
+                props.refreshAnimating.value = false;
+                props.loadMoreAnimating.value = false;
+              }
+            }
+          );
+        } else {
+          props.contentOffset.y.value = withDecay(
+            {
+              velocity: vy,
+              deceleration: props.decelerationRate,
+              clamp: [-props.contentInsets.top.value, maxY],
+            },
+            (isFinish) => {
+              if (!isFinish) return;
+              if (vBounces) {
+                props.contentOffset.y.value = withSpring(
+                  props.contentOffset.y.value + 0.01,
+                  {
+                    velocity: vy,
+                    damping: 48,
+                    mass: 2.56,
+                    stiffness: 225,
+                  },
+                  (isFinish) => {
+                    if (isFinish)
+                      props.vIndicatorOpacity.value = withDelay(
+                        1000,
+                        withTiming(0)
+                      );
+                  }
+                );
+              } else {
+                props.vIndicatorOpacity.value = withDelay(1000, withTiming(0));
+              }
+            }
+          );
+        }
+      },
     });
+    const touchHandler = {
+      onTouchStart: () => {
+        // console.log("onTouchStart");
+        props.draggingDirection.value = "";
+        cancelAnimation(props.contentOffset.x);
+        cancelAnimation(props.contentOffset.y);
+        cancelAnimation(props.vIndicatorOpacity);
+        cancelAnimation(props.hIndicatorOpacity);
+      },
+      onTouchEnd: () => {
+        // console.log("onTouchEnd");
+        props.vIndicatorOpacity.value = withDelay(2000, withTiming(0));
+        props.hIndicatorOpacity.value = withDelay(2000, withTiming(0));
+      },
+      onTouchCancel: () => {
+        // console.log("onTouchCancel");
+      },
+    };
+    const containerStyle = useAnimatedStyle(() => {
+      return {
+        flex: 1,
+        overflow: Platform.OS === "ios" ? "scroll" : "hidden",
+        transform: [{ scaleY: props.inverted ? -1 : 1 }],
+      };
+    });
+    const contentContainerStyle = useAnimatedStyle(() => {
+      return {
+        flexGrow: 1,
+        transform: [
+          { translateX: -props.contentOffset.x.value },
+          { translateY: -props.contentOffset.y.value },
+        ],
+      };
+    });
+    const vIndicatorStyle = useAnimatedStyle(() => {
+      return {
+        opacity: props.vIndicatorOpacity.value,
+        height: props.contentSize.height.value
+          ? (props.size.height.value * props.size.height.value) /
+              props.contentSize.height.value -
+            6
+          : props.contentSize.height.value,
+        transform: [
+          {
+            translateY: props.contentSize.height.value
+              ? (props.contentOffset.y.value * props.size.height.value) /
+                props.contentSize.height.value
+              : 0,
+          },
+        ],
+      };
+    });
+    const hIndicatorStyle = useAnimatedStyle(() => {
+      return {
+        opacity: props.hIndicatorOpacity.value,
+        width: props.contentSize.width.value
+          ? (props.size.width.value * props.size.width.value) /
+              props.contentSize.width.value -
+            6
+          : props.contentSize.width.value,
+        transform: [
+          {
+            translateX: props.contentSize.width.value
+              ? (props.contentOffset.x.value * props.size.width.value) /
+                props.contentSize.width.value
+              : 0,
+          },
+        ],
+      };
+    });
+    const refreshHeaderStyle = useAnimatedStyle(() => {
+      return {
+        left: 0,
+        right: 0,
+        position: "absolute",
+        top: -props.refreshHeader.height,
+        height: props.refreshHeader.height,
+        transform: [{ translateY: -props.contentOffset.y.value }],
+      };
+    });
+    const loadMoreFooterStyle = useAnimatedStyle(() => {
+      let translateY =
+        props.contentSize.height.value -
+        props.size.height.value -
+        props.contentOffset.y.value;
+      if (translateY > 0) translateY = 0;
+
+      return {
+        left: 0,
+        right: 0,
+        position: "absolute",
+        bottom: -props.loadingFooter.height,
+        height: props.loadingFooter.height,
+        transform: [{ translateY }],
+      };
+    });
+    return (
+      <PanGestureHandler onGestureEvent={panHandler}>
+        <Reanimated.View
+          {...props}
+          style={[containerStyle, props.style]}
+          onLayout={onSize}
+          {...touchHandler}
+        >
+          {props.onRefresh && (
+            <Reanimated.View style={refreshHeaderStyle}>
+              <props.refreshHeader ref={props.refreshHeaderRef} />
+            </Reanimated.View>
+          )}
+          {props.onLoadingMore && (
+            <Reanimated.View style={loadMoreFooterStyle}>
+              <props.loadingFooter ref={props.loadMoreFooterRef} />
+            </Reanimated.View>
+          )}
+          <Reanimated.View
+            onLayout={onContentSize}
+            style={[contentContainerStyle, props.contentContainerStyle]}
+          >
+            {props.children}
+          </Reanimated.View>
+          <Reanimated.View style={[styles.hIndicator, hIndicatorStyle]} />
+          <Reanimated.View style={[styles.vIndicator, vIndicatorStyle]} />
+        </Reanimated.View>
+      </PanGestureHandler>
+    );
   };
 
-  _onKeyboardWillHide = () => {
-    if (this._keyboardHeight > 0) {
-      !this._touching && this.scroll({ x: 0, y: -this._keyboardHeight });
-      this._keyboardHeight = 0;
-    }
-  };
-
-  _beginIndicatorDismissAnimation() {
-    this._indicatorOpacity.setValue(1);
-    this._indicatorAnimation && this._indicatorAnimation.stop();
-    this._indicatorAnimation = Animated.timing(this._indicatorOpacity, {
-      toValue: 0,
-      delay: 500,
-      duration: 500,
-      useNativeDriver: true,
-    });
-    this._indicatorAnimation.start(({ finished }) => {
-      if (!finished) {
-        this._indicatorOpacity.setValue(1);
-      }
-      this._indicatorAnimation = null;
-    });
-  }
-
-  _onScroll = (e) => {
+  shouldComponentUpdate(next) {
     const {
-      contentOffset: { x, y },
+      size,
+      contentSize,
+      contentOffset,
+      contentInsets,
+      refreshing,
+      refreshAnimating,
       refreshStatus,
-      loadingStatus,
-    } = e.nativeEvent;
-    this._contentOffset = { x, y };
-    if (this._refreshStatus !== refreshStatus) {
-      this._toRefreshStatus(refreshStatus);
-      this.props.onRefresh &&
-        refreshStatus === "refreshing" &&
-        this.props.onRefresh();
-    }
-    if (this._loadingStatus !== loadingStatus) {
-      this._toLoadingStatus(loadingStatus);
-      this.props.onLoading &&
-        loadingStatus === "loading" &&
-        this.props.onLoading();
-    }
-    this.props.onScroll && this.props.onScroll(e);
-    if (!this._indicatorAnimation) {
-      this._indicatorOpacity.setValue(1);
-    }
-  };
-
-  _toRefreshStatus(status: HeaderStatus) {
-    this._refreshStatus = status;
-    idx(() => this._refreshHeader.changeToState(status));
-  }
-
-  _toLoadingStatus(status: FooterStatus) {
-    this._loadingStatus = status;
-    idx(() => this._loadingFooter.changeToState(status));
-  }
-
-  _getVerticalIndicatorStyle() {
-    const indicatorHeight = (this._height / this._contentHeight) * this._height;
-    return {
-      position: "absolute",
-      top: 0,
-      right: 2,
-      height: indicatorHeight,
-      width: 3,
-      borderRadius: 3,
-      opacity: this._indicatorOpacity,
-      backgroundColor: "#A8A8A8",
-      transform: [
-        {
-          translateY: Animated.multiply(
-            this._nativeOffset.y,
-            this._height / this._contentHeight
-          ),
-        },
-      ],
-    };
-  }
-
-  _getHorizontalIndicatorStyle() {
-    const indicatorWidth = (this._width / this._contentWidth) * this._width;
-    return {
-      position: "absolute",
-      bottom: 2,
-      left: 0,
-      height: 3,
-      width: indicatorWidth,
-      borderRadius: 3,
-      opacity: this._indicatorOpacity,
-      backgroundColor: "#A8A8A8",
-      transform: [
-        {
-          translateX: Animated.multiply(
-            this._nativeOffset.x,
-            this._width / this._contentWidth
-          ),
-        },
-      ],
-    };
-  }
-
-  _getRefreshHeaderStyle() {
-    const rHeight = this.props.refreshHeader.height;
-    const style = this.props.refreshHeader.style;
-    let transform = [];
-    if (style === "topping") {
-      transform = [
-        {
-          translateY: this._nativeOffset.y.interpolate({
-            inputRange: [-rHeight - 1, -rHeight, 0, 1],
-            outputRange: [-1, 0, rHeight, rHeight],
-          }),
-        },
-      ];
-    } else if (style === "stickyScrollView") {
-      transform = [
-        {
-          translateY: this._nativeOffset.y.interpolate({
-            inputRange: [-rHeight - 1, -rHeight, 0, 1],
-            outputRange: [-1, 0, 0, 0],
-          }),
-        },
-      ];
-    } else if (style !== "stickyContent") {
-      console.warn(
-        "unsupported value: '",
-        style,
-        "' in SpringScrollView, " +
-          "select one in 'topping','stickyScrollView','stickyContent' please"
-      );
-    }
-    if (this.props.inverted) transform.push({ scaleY: -1 });
-    return {
-      position: "absolute",
-      top: -rHeight,
-      right: 0,
-      height: rHeight,
-      left: 0,
-      transform,
-    };
-  }
-
-  _getLoadingFooterStyle() {
-    const fHeight = this.props.loadingFooter.height;
-    const maxOffset = this._contentHeight - this._height;
-    const style = this.props.loadingFooter.style;
-    let transform = [];
-    if (style === "bottoming") {
-      transform = [
-        {
-          translateY: this._nativeOffset.y.interpolate({
-            inputRange: [
-              maxOffset - 1,
-              maxOffset,
-              maxOffset + fHeight,
-              maxOffset + fHeight + 1,
-            ],
-            outputRange: [-fHeight, -fHeight, 0, 1],
-          }),
-        },
-      ];
-    } else if (style === "stickyScrollView") {
-      transform = [
-        {
-          translateY: this._nativeOffset.y.interpolate({
-            inputRange: [
-              maxOffset - 1,
-              maxOffset,
-              maxOffset + fHeight,
-              maxOffset + fHeight + 1,
-            ],
-            outputRange: [0, 0, 0, 1],
-          }),
-        },
-      ];
-    } else if (style !== "stickyContent") {
-      console.warn(
-        "unsupported value: '",
-        style,
-        "' in SpringScrollView, " +
-          "select one in 'bottoming','stickyScrollView' and 'stickyContent' please!"
-      );
-    }
-    if (this.props.inverted) transform.push({ scaleY: -1 });
-    return {
-      position: "absolute",
-      right: 0,
-      top:
-        this._height > this._contentHeight ? this._height : this._contentHeight,
-      height: fHeight,
-      left: 0,
-      transform,
-    };
-  }
-
-  _onWrapperLayoutChange = ({
-    nativeEvent: {
-      layout: { x, y, width, height },
-    },
-  }) => {
-    if (this._height !== height || this._width !== width) {
-      this.props.onSizeChange && this.props.onSizeChange({ width, height });
-      this._height = height;
-      this._width = width;
-      this._startSizeChangeInterval();
-    }
-  };
-
-  _onContentLayoutChange = ({
-    nativeEvent: {
-      layout: { x, y, width, height },
-    },
-  }) => {
-    if (this._contentHeight !== height || this._contentWidth !== width) {
-      this.props.onContentSizeChange &&
-        this.props.onContentSizeChange({ width, height });
-      this._contentHeight = height;
-      this._contentWidth = width;
-      this._startSizeChangeInterval();
-    }
-  };
-
-  _startSizeChangeInterval = () => {
-    if (this._sizeChangeInterval) clearInterval(this._sizeChangeInterval);
-    this._sizeChangeInterval = setInterval(() => {
-      if (!this._height || !this._contentHeight) return;
-      if (this._contentHeight < this._height)
-        this._contentHeight = this._height;
-      let { x: maxX, y: maxY } = this._contentOffset;
-      if (this._contentOffset.y > this._contentHeight - this._height) {
-        maxY = this._contentHeight - this._height;
-        if (maxY < 0) maxY = 0;
+      refreshHeaderRef,
+      loadingMore,
+      loadingFooter,
+      loadMoreAnimating,
+      loadMoreStatus,
+      loadMoreFooterRef,
+    } = this.props;
+    if (refreshing !== next.refreshing) {
+      if (next.refreshing) {
+        refreshAnimating.value = true;
+        refreshStatus.value = "refreshing";
+        refreshHeaderRef.current?.changeToState("refreshing");
+      } else {
+        refreshStatus.value = "rebound";
+        refreshHeaderRef.current?.changeToState("rebound");
       }
-      if (this._contentOffset.x > this._contentWidth - this._width) {
-        maxX = this._contentWidth - this._width;
-        if (maxX < 0) maxX = 0;
+      if (!refreshAnimating.value) {
+        const reboundCallback = () =>
+          refreshHeaderRef.current?.changeToState("waiting");
+        cancelAnimation(contentOffset.y);
+        const to = next.refreshing ? refreshHeader.height : 0;
+        contentInsets.top.value = to;
+        contentOffset.y.value = withSpring(
+          -to,
+          {
+            velocity: -10,
+            damping: 30,
+            mass: 1,
+            stiffness: 225,
+          },
+          (isFinish) => {
+            if (refreshStatus.value === "refreshing") {
+              refreshAnimating.value = false;
+            } else {
+              refreshStatus.value = "waiting";
+              runOnJS(reboundCallback)();
+            }
+          }
+        );
       }
-      if (maxX !== this._contentOffset.x || maxY !== this._contentOffset.y) {
-        Platform.OS === "android" && this.scrollTo({ x: maxX, y: maxY }, false);
+    }
+    if (loadingMore !== next.loadingMore) {
+      if (next.loadingMore) {
+        contentInsets.bottom.value = loadingFooter.height;
+        loadMoreAnimating.value = true;
+        loadMoreStatus.value = "loading";
+        loadMoreFooterRef.current?.changeToState("loading");
+      } else {
+        contentInsets.bottom.value = 0;
+        loadMoreStatus.value = "rebound";
+        loadMoreFooterRef.current?.changeToState("rebound");
       }
-      this.forceUpdate();
-      clearInterval(this._sizeChangeInterval);
-      this._sizeChangeInterval = 0;
-    }, Platform.select({ ios: 10, android: 30 }));
-  };
+      if (!loadMoreAnimating.value) {
+        const reboundCallback = () =>
+          loadMoreFooterRef.current?.changeToState("waiting");
+        cancelAnimation(contentOffset.y);
+        const to =
+          contentSize.height.value -
+          size.height.value +
+          (next.loadingMore ? loadingFooter.height : 0);
 
-  _onTouchBegin = (e) => {
-    this._touching = true;
-    this.props.onTouchBegin && this.props.onTouchBegin(e);
-  };
-
-  _onMomentumScrollEnd = () => {
-    this._touching = false;
-    this._dragging = false;
-    this._beginIndicatorDismissAnimation();
-    this.props.onMomentumScrollEnd && this.props.onMomentumScrollEnd();
-  };
-
-  _onScrollBeginDrag = () => {
-    this._dragging = true;
-    if (this.props.dragToHideKeyboard) Keyboard.dismiss();
-    this.props.onScrollBeginDrag && this.props.onScrollBeginDrag();
-  };
+        contentOffset.y.value = withSpring(
+          to,
+          {
+            velocity: 10,
+            damping: 30,
+            mass: 1,
+            stiffness: 225,
+          },
+          (isFinish) => {
+            if (loadMoreStatus.value === "loading") {
+              loadMoreAnimating.value = false;
+            } else {
+              loadMoreStatus.value = "waiting";
+              runOnJS(reboundCallback)();
+            }
+          }
+        );
+      }
+    }
+    return !next.preventReRender;
+  }
 
   static defaultProps = {
+    inverted: false,
     bounces: true,
     scrollEnabled: true,
-    refreshHeader: NormalHeader,
-    loadingFooter: NormalFooter,
-    textInputRefs: [],
-    decelerationRate: 0.997,
-    inputToolBarHeight: 44,
-    dragToHideKeyboard: true,
-    keyboardShouldPersistTaps: "handled",
+    directionalLockEnabled: true,
     showsVerticalScrollIndicator: true,
     showsHorizontalScrollIndicator: true,
-    initialContentOffset: { x: 0, y: 0 },
-    alwaysBounceVertical: true,
+    dragToHideKeyboard: true,
     pagingEnabled: false,
+    decelerationRate: 0.998,
     pageSize: { width: 0, height: 0 },
+    refreshHeader: RefreshHeader,
+    loadingFooter: LoadingFooter,
+    refreshing: false,
+    loadingMore: false,
   };
 }

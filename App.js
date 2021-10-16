@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 1985-10-26 16:15:00
- * @LastEditTime: 2021-10-11 17:38:33
+ * @LastEditTime: 2021-10-16 16:01:21
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -18,13 +18,11 @@ import ReactNative, {
 } from "react-native";
 import {
   ScrollView,
+  TouchableOpacity,
   PanGestureHandler,
   NativeViewGestureHandler,
-  TouchableOpacity,
 } from "react-native-gesture-handler";
-import { Test } from "./Examples/Test";
-import { SpringScrollView } from "./upgrade/SpringScrollView";
-import { styles } from "./upgrade/styles";
+import { Examples } from "./Examples";
 
 export default function App() {
   return (
@@ -32,10 +30,10 @@ export default function App() {
       style={{
         flex: 1,
         flexDirection: "row",
-        marginTop: Platform.select({ android: 25 }),
+        marginTop: Platform.select({ android: 70 }),
       }}
     >
-      <Test />
+      <Examples />
       {false && nativeScrollView()}
     </SafeAreaView>
   );

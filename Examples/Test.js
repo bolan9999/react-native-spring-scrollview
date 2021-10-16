@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-15 18:03:49
+ * @LastEditTime: 2021-10-16 09:56:21
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -19,7 +19,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import { SpringScrollView } from "../upgrade/SpringScrollView";
+import { SpringScrollView } from "../src/SpringScrollView";
 // import { CommonLottieHeader, CommonLottieFooter } from "../src/Customize";
 
 const AnimatedButton = Animated.createAnimatedComponent(TouchableOpacity);
@@ -38,8 +38,6 @@ export class Test extends React.Component {
     decelerationRate: 0.998,
     pageSize: { width: 200, height: 200 },
     contentContainerStyle: { width: "100%", height: "350%" },
-
-    //do not in property
   };
   state = {
     ...this._defaultState,
