@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-18 11:15:15
+ * @LastEditTime: 2021-10-18 14:27:33
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -249,7 +249,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         props.refreshStatus.value = "pullingCancel";
         shouldChange = true;
       }
-      // shouldChange && runOnJS(changeStateWrapper)(props.refreshStatus.value);
+      shouldChange && runOnJS(changeStateWrapper)(props.refreshStatus.value);
       shouldChange = false;
       if (props.loadMoreStatus.value === "waiting" && isOutOfBottom()) {
         props.loadMoreStatus.value = "dragging";
@@ -274,8 +274,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         props.loadMoreStatus.value = "draggingCancel";
         shouldChange = true;
       }
-      // shouldChange &&
-      // runOnJS(onLoadingMoreStateChange)(props.loadMoreStatus.value);
+      shouldChange &&
+        runOnJS(onLoadingMoreStateChange)(props.loadMoreStatus.value);
     };
 
     const shouldParentsFocus = () => {
@@ -296,6 +296,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       } else {
         direction = evt.translationY > 0 ? "up" : "down";
       }
+      
       if (!props.scrollEnabled)
         return props.onParantPanActive && props.onParantPanActive(evt, ctx);
       if (!props.focusing.value) {
@@ -312,6 +313,12 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
             return true;
           }
         }
+      }
+      if((direction==="up" || direction==="down") ){
+        if(!vScroll) return false;
+      }
+      if((direction==="left" || direction==="right") ){
+        if(!hScroll) return false;
       }
       if (!props.focusing.value) props.focusing.value = true;
       if (
