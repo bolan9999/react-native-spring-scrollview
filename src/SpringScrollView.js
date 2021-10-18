@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-18 14:27:33
+ * @LastEditTime: 2021-10-18 15:53:35
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -93,6 +93,8 @@ SpringScrollView.defaultProps = {
   loadingFooter: LoadingFooter,
   refreshing: false,
   loadingMore: false,
+  pagingEnabled: true,
+  pageSize: { width: 0, height: 0 },
 };
 
 class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
@@ -296,7 +298,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       } else {
         direction = evt.translationY > 0 ? "up" : "down";
       }
-      
+
       if (!props.scrollEnabled)
         return props.onParantPanActive && props.onParantPanActive(evt, ctx);
       if (!props.focusing.value) {
@@ -314,11 +316,11 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           }
         }
       }
-      if((direction==="up" || direction==="down") ){
-        if(!vScroll) return false;
+      if (direction === "up" || direction === "down") {
+        if (!vScroll) return false;
       }
-      if((direction==="left" || direction==="right") ){
-        if(!hScroll) return false;
+      if (direction === "left" || direction === "right") {
+        if (!hScroll) return false;
       }
       if (!props.focusing.value) props.focusing.value = true;
       if (
@@ -375,39 +377,57 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
             }
           );
         } else {
-          props.contentOffset.x.value = withDecay(
-            {
-              velocity: vx,
-              deceleration: props.decelerationRate,
-              clamp: [0, maxX],
-            },
-            (isFinish) => {
-              if (!isFinish) return;
-              if (hBounces) {
-                props.contentOffset.x.value = withSpring(
-                  props.contentOffset.x.value + 0.01,
-                  {
-                    velocity: vx,
-                    damping: 48,
-                    mass: 2.56,
-                    stiffness: 225,
-                  },
-                  (isFinish) => {
-                    if (isFinish) {
-                      props.focusing.value = false;
-                      props.hIndicatorOpacity.value = withDelay(
-                        1000,
-                        withTiming(0)
-                      );
+          if (props.pagingEnabled) {
+            const pageWidth =
+              props.pageSize.width === 0
+                ? props.size.width.value
+                : props.pageSize.width;
+            let page = Math.floor(props.contentOffset.x.value / pageWidth);
+            if (evt.velocityX < 0) page++;
+            props.contentOffset.x.value = withSpring(page * pageWidth, {
+              velocity: 50,
+              damping: 30,
+              mass: 1,
+              stiffness: 225,
+            });
+          } else {
+            props.contentOffset.x.value = withDecay(
+              {
+                velocity: vx,
+                deceleration: props.decelerationRate,
+                clamp: [0, maxX],
+              },
+              (isFinish) => {
+                if (!isFinish) return;
+                if (hBounces) {
+                  props.contentOffset.x.value = withSpring(
+                    props.contentOffset.x.value + 0.01,
+                    {
+                      velocity: vx,
+                      damping: 48,
+                      mass: 2.56,
+                      stiffness: 225,
+                    },
+                    (isFinish) => {
+                      if (isFinish) {
+                        props.focusing.value = false;
+                        props.hIndicatorOpacity.value = withDelay(
+                          1000,
+                          withTiming(0)
+                        );
+                      }
                     }
-                  }
-                );
-              } else {
-                props.focusing.value = false;
-                props.hIndicatorOpacity.value = withDelay(1000, withTiming(0));
+                  );
+                } else {
+                  props.focusing.value = false;
+                  props.hIndicatorOpacity.value = withDelay(
+                    1000,
+                    withTiming(0)
+                  );
+                }
               }
-            }
-          );
+            );
+          }
         }
       }
       if (vScroll) {
@@ -448,39 +468,57 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
             }
           );
         } else {
-          props.contentOffset.y.value = withDecay(
-            {
-              velocity: vy,
-              deceleration: props.decelerationRate,
-              clamp: [-props.contentInsets.top.value, maxY],
-            },
-            (isFinish) => {
-              if (!isFinish) return;
-              if (vBounces) {
-                props.contentOffset.y.value = withSpring(
-                  props.contentOffset.y.value + 0.01,
-                  {
-                    velocity: vy,
-                    damping: 48,
-                    mass: 2.56,
-                    stiffness: 225,
-                  },
-                  (isFinish) => {
-                    if (isFinish) {
-                      props.focusing.value = false;
-                      props.vIndicatorOpacity.value = withDelay(
-                        1000,
-                        withTiming(0)
-                      );
+          if (props.pagingEnabled) {
+            const pageHeight =
+              props.pageSize.height === 0
+                ? props.size.height.value
+                : props.pageSize.height;
+            let page = Math.floor(props.contentOffset.y.value / pageHeight);
+            if (evt.velocityY < 0) page++;
+            props.contentOffset.y.value = withSpring(page * pageHeight, {
+              velocity: 50,
+              damping: 30,
+              mass: 1,
+              stiffness: 225,
+            });
+          } else {
+            props.contentOffset.y.value = withDecay(
+              {
+                velocity: vy,
+                deceleration: props.decelerationRate,
+                clamp: [-props.contentInsets.top.value, maxY],
+              },
+              (isFinish) => {
+                if (!isFinish) return;
+                if (vBounces) {
+                  props.contentOffset.y.value = withSpring(
+                    props.contentOffset.y.value + 0.01,
+                    {
+                      velocity: vy,
+                      damping: 48,
+                      mass: 2.56,
+                      stiffness: 225,
+                    },
+                    (isFinish) => {
+                      if (isFinish) {
+                        props.focusing.value = false;
+                        props.vIndicatorOpacity.value = withDelay(
+                          1000,
+                          withTiming(0)
+                        );
+                      }
                     }
-                  }
-                );
-              } else {
-                props.focusing.value = false;
-                props.vIndicatorOpacity.value = withDelay(1000, withTiming(0));
+                  );
+                } else {
+                  props.focusing.value = false;
+                  props.vIndicatorOpacity.value = withDelay(
+                    1000,
+                    withTiming(0)
+                  );
+                }
               }
-            }
-          );
+            );
+          }
         }
       }
       return true;

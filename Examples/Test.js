@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-18 14:34:50
+ * @LastEditTime: 2021-10-18 15:50:56
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -35,9 +35,9 @@ export class Test extends React.Component {
     showsHorizontalScrollIndicator: true,
     dragToHideKeyboard: true,
     pagingEnabled: false,
-    // decelerationRate: 0.998,
-    // pageSize: { width: 200, height: 200 },
-    // contentContainerStyle: { width: "100%", height: "350%" },
+    decelerationRate: 0.998,
+    pageSize: { width: 0, height: 0 },
+    contentContainerStyle: { width: "100%", height: "350%" },
   };
   state = {
     ...this._defaultState,
@@ -60,8 +60,8 @@ export class Test extends React.Component {
     );
     return (
       <SpringScrollView
-        bounces="horizontal"
-        scrollEnabled={"horizontal"}
+        bounces={false}
+        scrollEnabled={false}
         style={cs.container}
         ref={(ref) => (this._container = ref)}
         contentContainerStyle={cs.content}
@@ -79,6 +79,8 @@ export class Test extends React.Component {
                 this._pageSizeRef,
                 this._decelerationRateRef,
               ]}
+              bounces
+              scrollEnabled
               onRefresh={this._onRefresh}
               onLoadingMore={this._onLoading}
               allLoaded={this.state.allLoaded}
