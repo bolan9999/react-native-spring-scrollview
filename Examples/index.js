@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-21 13:05:32
- * @LastEditTime: 2021-10-16 16:29:54
+ * @LastEditTime: 2021-10-16 23:09:54
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -23,6 +23,7 @@ import { BouncesAndScrollEnabledExample } from "./BouncesAndScrollEnabledExample
 import { RefreshAndLoadingExample } from "./RefreshAndLoadingExample";
 import { ScrollToAndOnScrollExample } from "./ScrollToAndOnScrollExample";
 import { Test } from "./Test";
+import { ChildrenTest } from "./ChildrenTest";
 
 export class Examples extends React.Component {
   constructor(props) {
@@ -49,6 +50,8 @@ export class Examples extends React.Component {
         return <ComplexExample />;
       case 5:
         return <ScrollToAndOnScrollExample />;
+      case 6:
+        return <ChildrenTest />;
     }
   }
 
@@ -74,6 +77,10 @@ export class Examples extends React.Component {
         <Button
           onPress={() => this.setState({ select: 5 })}
           title="ScrollToAndOnScrollExample"
+        />
+        <Button
+          onPress={() => this.setState({ select: 6 })}
+          title="ChildrenTest"
         />
       </View>
     );

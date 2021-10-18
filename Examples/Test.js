@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-16 09:56:21
+ * @LastEditTime: 2021-10-18 11:20:50
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -28,8 +28,8 @@ export class Test extends React.Component {
   _container: SpringScrollView;
   _defaultState = {
     inverted: false,
-    bounces: true,
-    scrollEnabled: true,
+    // bounces: true,
+    // scrollEnabled: true,
     directionalLockEnabled: true,
     showsVerticalScrollIndicator: true,
     showsHorizontalScrollIndicator: true,
@@ -46,7 +46,7 @@ export class Test extends React.Component {
     logNativeOffset: { y: new Animated.Value(0) },
     refreshing: false,
     preventReRender: false,
-    loadingMore:false,
+    loadingMore: false,
   };
 
   _contentStyleRef = React.createRef();
@@ -60,15 +60,12 @@ export class Test extends React.Component {
     );
     return (
       <SpringScrollView
+        // bounces="horizontal"
+        // scrollEnabled={"horizontal"}
         style={cs.container}
         ref={(ref) => (this._container = ref)}
         contentContainerStyle={cs.content}
-        onRefresh={this._onRefresh}
-        onLoadingMore={this._onLoading}
-        allLoaded={this.state.allLoaded}
-        refreshing={this.state.refreshing}
-        preventReRender={this.state.preventReRender}
-        loadingMore={this.state.loadingMore}
+
         // refreshHeader={CommonLottieHeader}
         // loadingFooter={CommonLottieFooter}
       >
@@ -82,6 +79,12 @@ export class Test extends React.Component {
                 this._pageSizeRef,
                 this._decelerationRateRef,
               ]}
+              onRefresh={this._onRefresh}
+              onLoadingMore={this._onLoading}
+              allLoaded={this.state.allLoaded}
+              refreshing={this.state.refreshing}
+              preventReRender={this.state.preventReRender}
+              loadingMore={this.state.loadingMore}
               // ref={(ref) => (this._main = ref)}
               onScroll={this._onScroll}
               onTouchBegin={this._onTouchBegin}
