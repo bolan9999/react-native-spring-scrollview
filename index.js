@@ -1,15 +1,17 @@
-/*
- *
- * Created by Stone
- * https://github.com/bolan9999
- * Email: shanshang130@gmail.com
- * Date: 2018/7/5
- *
+/**
+ * @format
  */
 
-export * from "./SpringScrollView";
-export * from "./Types";
-export * from "./RefreshHeader";
-export * from "./LoadingFooter";
-export * from "./NormalHeader";
-export * from "./NormalFooter";
+// import {AppRegistry} from 'react-native';
+// import App from './App';
+// import {name as appName} from './app.json';
+
+// AppRegistry.registerComponent(appName, () => App);
+
+
+
+import {AppRegistry} from 'react-native';
+import {Examples} from './Examples';
+import {name} from './package.json';
+
+AppRegistry.registerComponent(name, () => Examples);

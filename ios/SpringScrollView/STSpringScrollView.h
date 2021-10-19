@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface STSpringScrollView : RCTScrollView
 
 -(void)endRefresh;
-- (void)endLoading;
+-(void)endLoading:(BOOL)rebound;
 
 @end
 

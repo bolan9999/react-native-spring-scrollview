@@ -8,9 +8,10 @@
  */
 
 import React from "react";
-import { Text, StyleSheet, AsyncStorage } from "react-native";
+import { Text, StyleSheet } from "react-native";
 import { NormalHeader } from "../NormalHeader";
 import { HeaderStatus } from "../RefreshHeader";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RefreshKey = "org.bolan9999.spring_scrollview.refresh_time";
 
