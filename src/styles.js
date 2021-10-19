@@ -2,17 +2,9 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-21 13:05:32
- * @LastEditTime: 2021-10-16 09:49:42
+ * @LastEditTime: 2021-10-19 19:50:25
  * @LastEditors: 石破天惊
  * @Description:
- */
-/*
- *
- * Created by Stone
- * https://github.com/bolan9999
- * Email: shanshang130@gmail.com
- * Date: 2019/2/14
- *
  */
 
 import { StyleSheet } from "react-native";
@@ -44,3 +36,22 @@ export const styles = StyleSheet.create({
     backgroundColor: "#A8A8A8",
   },
 });
+
+
+// if(this.fd){
+//   if(this.fd >= pan.d){
+//     if(out && !this.bounces){
+//       if(parent.handle) return true;
+//     }
+//   } else if (parent.handle){
+//      return true
+//   }
+// } else {
+//   if(this.sd>=pan.d){
+//     if(out){
+//       if(parent.handle) return true;
+//     }
+//   } else {
+//      return parent.handle
+//    }
+// }

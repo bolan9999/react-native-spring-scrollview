@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:05:14
- * @LastEditTime: 2021-10-19 00:03:02
+ * @LastEditTime: 2021-10-19 16:12:56
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -43,13 +43,6 @@ export const CrossHeaderTab = React.forwardRef(
         }
       },
     });
-    const children = arr.map((_, index) => {
-      return React.Children.map(props.renderTab(index), (child, childIndex) => {
-        return React.cloneElement(child, {
-          onHeaderPan: onHeaderPans[index],
-        });
-      });
-    });
     return (
       <View style={{ flex: 1 }}>
         <SpringScrollView
@@ -62,7 +55,13 @@ export const CrossHeaderTab = React.forwardRef(
             flexDirection: "row",
           }}
         >
-          {children}
+          {arr.map((_, index) => {
+            return (
+              <React.Fragment key={index}>
+                {props.renderTab(index)}
+              </React.Fragment>
+            );
+          })}
         </SpringScrollView>
         <PanGestureHandler onGestureEvent={panHandler}>
           <Reanimated.View

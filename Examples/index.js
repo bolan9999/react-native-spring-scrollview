@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-21 13:05:32
- * @LastEditTime: 2021-10-18 22:30:16
+ * @LastEditTime: 2021-10-19 16:28:57
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -24,6 +24,7 @@ import { RefreshAndLoadingExample } from "./RefreshAndLoadingExample";
 import { ScrollToAndOnScrollExample } from "./ScrollToAndOnScrollExample";
 import { Test } from "./Test";
 import { CrossHeaderTabExample } from "./CrossHeaderTabExample";
+import { ChildrenTest } from "./ChildrenTest";
 
 export class Examples extends React.Component {
   constructor(props) {
@@ -52,6 +53,8 @@ export class Examples extends React.Component {
         return <ScrollToAndOnScrollExample />;
       case 6:
         return <CrossHeaderTabExample />;
+      case 7:
+        return <ChildrenTest />;
     }
   }
 
@@ -81,6 +84,10 @@ export class Examples extends React.Component {
         <Button
           onPress={() => this.setState({ select: 6 })}
           title="CrossHeaderTabExample"
+        />
+        <Button
+          onPress={() => this.setState({ select: 7 })}
+          title="ChildrenTest"
         />
       </View>
     );
