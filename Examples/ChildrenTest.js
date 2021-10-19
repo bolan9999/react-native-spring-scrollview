@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-16 23:07:39
- * @LastEditTime: 2021-10-17 00:06:50
+ * @LastEditTime: 2021-10-18 16:19:19
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -11,16 +11,12 @@ import React, { useRef } from "react";
 import { Text } from "react-native";
 import { PanGestureHandler } from "react-native-gesture-handler";
 import Reanimated from "react-native-reanimated";
+import { CrossHeaderTab } from "../src/CrossHeaderTab";
 import { SpringScrollView } from "../src/SpringScrollView";
 
 export const ChildrenTest = () => {
   return (
-    <SpringScrollView>
-      <Text>123</Text>
-      <SpringScrollView>
-        <Text>456</Text>
-      </SpringScrollView>
-    </SpringScrollView>
+    <CrossHeaderTab />
   );
 };
 

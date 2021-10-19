@@ -2,13 +2,19 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-18 15:53:35
+ * @LastEditTime: 2021-10-19 00:02:41
  * @LastEditors: 石破天惊
  * @Description:
  */
 
 import React, { useRef, useState } from "react";
-import { Animated, Platform, StyleSheet, ViewProps } from "react-native";
+import {
+  Animated,
+  Platform,
+  StyleSheet,
+  ViewProps,
+  ViewStyle,
+} from "react-native";
 import {
   NativeViewGestureHandler,
   PanGestureHandler,
@@ -32,7 +38,8 @@ import { RefreshHeader } from "./RefreshHeader";
 import { LoadingFooter } from "./LoadingFooter";
 import { styles } from "./styles";
 
-interface SpringScrollViewType {
+interface SpringScrollViewType extends ViewProps {
+  contentContainerStyle?: ViewStyle;
   inverted?: boolean;
   bounces?: boolean | "vertical" | "horizontal";
   scrollEnabled?: boolean | "vertical" | "horizontal";
@@ -93,7 +100,7 @@ SpringScrollView.defaultProps = {
   loadingFooter: LoadingFooter,
   refreshing: false,
   loadingMore: false,
-  pagingEnabled: true,
+  pagingEnabled: false,
   pageSize: { width: 0, height: 0 },
 };
 
@@ -384,12 +391,18 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                 : props.pageSize.width;
             let page = Math.floor(props.contentOffset.x.value / pageWidth);
             if (evt.velocityX < 0) page++;
-            props.contentOffset.x.value = withSpring(page * pageWidth, {
-              velocity: 50,
-              damping: 30,
-              mass: 1,
-              stiffness: 225,
-            });
+            props.contentOffset.x.value = withSpring(
+              page * pageWidth,
+              {
+                velocity: 50,
+                damping: 30,
+                mass: 1,
+                stiffness: 225,
+              },
+              (isFinish) => {
+                if (isFinish) props.focusing.value = false;
+              }
+            );
           } else {
             props.contentOffset.x.value = withDecay(
               {
@@ -475,12 +488,18 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                 : props.pageSize.height;
             let page = Math.floor(props.contentOffset.y.value / pageHeight);
             if (evt.velocityY < 0) page++;
-            props.contentOffset.y.value = withSpring(page * pageHeight, {
-              velocity: 50,
-              damping: 30,
-              mass: 1,
-              stiffness: 225,
-            });
+            props.contentOffset.y.value = withSpring(
+              page * pageHeight,
+              {
+                velocity: 50,
+                damping: 30,
+                mass: 1,
+                stiffness: 225,
+              },
+              (isFinish) => {
+                if (isFinish) props.focusing.value = false;
+              }
+            );
           } else {
             props.contentOffset.y.value = withDecay(
               {
@@ -530,6 +549,10 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       onActive,
       onEnd,
     });
+    if (props.onHeaderPan && !props.onHeaderPan.value) {
+      props.onHeaderPan.onActive = onActive;
+      props.onHeaderPan.onEnd = onEnd;
+    }
     const touchHandler = {
       onTouchStart: () => {
         // console.log("onTouchStart");

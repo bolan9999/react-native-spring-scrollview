@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-18 15:50:56
+ * @LastEditTime: 2021-10-19 12:14:16
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -60,8 +60,8 @@ export class Test extends React.Component {
     );
     return (
       <SpringScrollView
-        bounces={false}
-        scrollEnabled={false}
+        // bounces={false}
+        // scrollEnabled={false}
         style={cs.container}
         ref={(ref) => (this._container = ref)}
         contentContainerStyle={cs.content}
