@@ -8,9 +8,10 @@
  */
 
 import React from "react";
-import { Text, StyleSheet, AsyncStorage } from "react-native";
+import { Text, StyleSheet } from "react-native";
 import { HeaderStatus } from "../RefreshHeader";
 import {NormalFooter} from "../NormalFooter";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoadingKey = "org.bolan9999.spring_scrollview.loading_time";
 

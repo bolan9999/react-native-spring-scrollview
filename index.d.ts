@@ -6,9 +6,9 @@
  * Description:
  */
 
-declare module "react-native-spring-scrollview" {
-  import { Animated, ViewProps, ViewStyle } from "react-native";
-  import * as React from "react";
+declare module 'react-native-spring-scrollview' {
+  import {Animated, ViewProps, ViewStyle} from 'react-native';
+  import * as React from 'react';
 
   export interface Offset {
     x: number;
@@ -16,8 +16,8 @@ declare module "react-native-spring-scrollview" {
   }
 
   export interface Size {
-    width:number;
-    height:number;
+    width: number;
+    height: number;
   }
 
   export interface NativeContentOffset {
@@ -25,9 +25,9 @@ declare module "react-native-spring-scrollview" {
     y?: Animated.Value;
   }
 
-  export type RefreshStyle = "topping" | "stickyScrollView" | "stickyContent";
+  export type RefreshStyle = 'topping' | 'stickyScrollView' | 'stickyContent';
 
-  export type LoadingStyle = "bottoming" | "stickyScrollView" | "stickyContent";
+  export type LoadingStyle = 'bottoming' | 'stickyScrollView' | 'stickyContent';
 
   export interface ScrollEvent {
     nativeEvent: {
@@ -39,12 +39,12 @@ declare module "react-native-spring-scrollview" {
   }
 
   export type HeaderStatus =
-    | "waiting"
-    | "pulling"
-    | "pullingEnough"
-    | "pullingCancel"
-    | "refreshing"
-    | "rebound";
+    | 'waiting'
+    | 'pulling'
+    | 'pullingEnough'
+    | 'pullingCancel'
+    | 'refreshing'
+    | 'rebound';
 
   export interface RefreshHeaderPropType {
     maxHeight: number;
@@ -61,14 +61,14 @@ declare module "react-native-spring-scrollview" {
   export class NormalHeader extends RefreshHeader {}
 
   export type FooterStatus =
-    | "waiting"
-    | "dragging"
-    | "draggingEnough"
-    | "draggingCancel"
-    | "releaseRebound"
-    | "loading"
-    | "rebound"
-    | "allLoaded";
+    | 'waiting'
+    | 'dragging'
+    | 'draggingEnough'
+    | 'draggingCancel'
+    | 'releaseRebound'
+    | 'loading'
+    | 'rebound'
+    | 'allLoaded';
 
   export interface LoadingFooterPropType {
     maxHeight: number;
@@ -91,18 +91,27 @@ declare module "react-native-spring-scrollview" {
     contentStyle?: ViewStyle;
     bounces?: boolean;
     scrollEnabled?: boolean;
+    pagingEnabled?: boolean;
+    pageSize?: Size;
+    decelerationRate?: number;
     directionalLockEnabled?: boolean;
     initialContentOffset?: Offset;
     showsVerticalScrollIndicator?: boolean;
     showsHorizontalScrollIndicator?: boolean;
-    refreshHeader?: React.ComponentClass<RefreshHeaderPropType, RefreshHeaderStateType>;
-    loadingFooter?: React.ComponentClass<LoadingFooterPropType, LoadingFooterStateType>;
+    refreshHeader?: React.ComponentClass<
+      RefreshHeaderPropType,
+      RefreshHeaderStateType
+    >;
+    loadingFooter?: React.ComponentClass<
+      LoadingFooterPropType,
+      LoadingFooterStateType
+    >;
     onRefresh?: () => any;
     onLoading?: () => any;
     allLoaded?: boolean;
     textInputRefs?: any[];
     inputToolBarHeight?: number;
-    tapToHideKeyboard?: boolean;
+    dragToHideKeyboard?: boolean;
     onTouchBegin?: () => any;
     onTouchEnd?: () => any;
     inverted?: boolean;
@@ -110,7 +119,7 @@ declare module "react-native-spring-scrollview" {
     onMomentumScrollEnd?: () => any;
     onScroll?: (evt: ScrollEvent) => any;
     onNativeContentOffsetExtract?: NativeContentOffset;
-    onSizeChange?: (size:Size) => any;
+    onSizeChange?: (size: Size) => any;
     onContentSizeChange?: (size: Size) => any;
   }
   export class SpringScrollView extends React.PureComponent<SpringScrollViewPropType> {
@@ -118,7 +127,8 @@ declare module "react-native-spring-scrollview" {
     scroll(offset: Offset, animated?: boolean): Promise<void>;
     scrollToBegin(animated?: boolean): Promise<void>;
     scrollToEnd(animated?: boolean): Promise<void>;
+    beginRefresh(): Promise<any>;
     endRefresh(): void;
-    endLoading(): void;
+    endLoading(rebound: boolean): void;
   }
 }
