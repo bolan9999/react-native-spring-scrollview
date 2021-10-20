@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-20 11:24:30
+ * @LastEditTime: 2021-10-20 16:39:25
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -79,8 +79,8 @@ export class Test extends React.Component {
                 this._pageSizeRef,
                 this._decelerationRateRef,
               ]}
-              bounces
-              scrollEnabled
+              // bounces
+              // scrollEnabled
               onRefresh={this._onRefresh}
               onLoadingMore={this._onLoading}
               allLoaded={this.state.allLoaded}

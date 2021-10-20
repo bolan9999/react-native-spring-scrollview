@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-20 11:28:41
+ * @LastEditTime: 2021-10-20 17:28:22
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -55,11 +55,7 @@ interface SpringScrollViewType extends ViewProps {
   loadingMore?: boolean;
 }
 
-const PanHandlerContext = React.createContext({
-  shouldParentsFocus: () => {
-    "worklet";
-    return false;
-  },
+export const PanHandlerContext = React.createContext({
   onStart: () => {
     "worklet";
     return false;
@@ -73,6 +69,8 @@ const PanHandlerContext = React.createContext({
     return false;
   },
 });
+
+export const CrossHeaderTabContext = React.createContext();
 
 export const SpringScrollView = React.forwardRef(
   (props: SpringScrollViewType, ref) => {
@@ -129,7 +127,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
   }
 
   SpringScrollViewCore = (props) => {
-    const parentHandler = React.useContext(PanHandlerContext);
+    const parentHandlerContext = React.useContext(PanHandlerContext);
+    const crossHeaderContext = React.useContext(CrossHeaderTabContext);
     const vBounces = props.bounces === true || props.bounces === "vertical";
     const hBounces = props.bounces === true || props.bounces === "horizontal";
     const vScroll =
@@ -337,26 +336,26 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     };
 
     const panHandler = {
-      shouldParentsFocus: () => {
+      onStart: (evt, ctx, preventEventBubble) => {
         "worklet";
-        return props.focus.value || parentHandler.shouldParentsFocus();
-      },
-      onStart: (evt, ctx) => {
-        "worklet";
-        if (props.focus.value) {
-          if (isPanFitFocus(evt)) {
-            if (isPanOutOfRange(evt)) {
-              if (parentHandler.onStart(evt, ctx)) return true;
+        console.log("onStart", evt);
+        if (!preventEventBubble) {
+          if (props.focus.value) {
+            if (!isPanFitFocus(evt)) {
+              props.focus.value = false;
+              return parentHandlerContext.onStart(evt, ctx);
             }
-          }
-          if (parentHandler.onStart(evt, ctx)) return true;
-        } else {
-          if (isPanFitScroll(evt)) {
             if (isPanOutOfRange(evt)) {
-              if (parentHandler.onStart(evt, ctx)) return true;
+              if (parentHandlerContext.onStart(evt, ctx)) return true;
             }
-          } else if (parentHandler.onStart(evt, ctx)) {
-            return true;
+          } else {
+            if (!isPanFitScroll(evt)) {
+              props.focus.value = false;
+              return parentHandlerContext.onStart(evt, ctx);
+            }
+            if (isPanOutOfRange(evt)) {
+              if (parentHandlerContext.onStart(evt, ctx)) return true;
+            }
           }
         }
         if (props.scrollEnabled) {
@@ -377,42 +376,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       },
       onActive: (evt, ctx) => {
         "worklet";
-        if (!props.focus.value) return parentHandler.onActive(evt, ctx);
-        // if (
-        //   Math.abs(evt.translationY) < 0.1 &&
-        //   Math.abs(evt.translationX) < 0.1
-        // )
-        //   return false;
-        // let direction = "";
-        // if (Math.abs(evt.translationX) > Math.abs(evt.translationY)) {
-        //   direction = evt.translationX > 0 ? "left" : "right";
-        // } else {
-        //   direction = evt.translationY > 0 ? "up" : "down";
-        // }
-
-        // if (!props.scrollEnabled) return parentHandler.onActive(evt, ctx);
-        // if (!props.focus.value) {
-        //   if (parentHandler.shouldParentsFocus()) {
-        //     return parentHandler.onActive(evt, ctx);
-        //   }
-        //   if (
-        //     (direction === "up" && isOutOfTop()) ||
-        //     (direction === "down" && isOutOfBottom()) ||
-        //     (direction === "left" && isOutOfLeft()) ||
-        //     (direction === "right" && isOutOfRight())
-        //   ) {
-        //     if (parentHandler.onActive(evt, ctx)) {
-        //       return true;
-        //     }
-        //   }
-        // }
-        // if (direction === "up" || direction === "down") {
-        //   if (!vScroll) return false;
-        // }
-        // if (direction === "left" || direction === "right") {
-        //   if (!hScroll) return false;
-        // }
-        // if (!props.focus.value) props.focus.value = true;
+        if (!props.focus.value) return parentHandlerContext.onActive(evt, ctx);
         if (
           props.showsVerticalScrollIndicator &&
           props.size.height.value < props.contentSize.height.value
@@ -434,7 +398,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       onEnd: (evt) => {
         "worklet";
         props.dragging.value = false;
-        if (!props.focus.value) return parentHandler.onEnd(evt);
+        if (!props.focus.value) return parentHandlerContext.onEnd(evt);
         if (!props.scrollEnabled) return;
         const maxX =
           props.contentSize.width.value -
@@ -634,9 +598,14 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     };
 
     const panHandlerWrapper = useAnimatedGestureHandler(panHandler);
+    if (crossHeaderContext) {
+      crossHeaderContext.onStart = panHandler.onStart;
+      crossHeaderContext.onActive = panHandler.onActive;
+      crossHeaderContext.onEnd = panHandler.onEnd;
+    }
     const touchHandler = {
-      onTouchStart: () => {
-        // console.log("onTouchStart");
+      onTouchStart: (evt) => {
+        console.log("onTouchStart", evt.nativeEvent);
         props.dragging.value = "";
         cancelAnimation(props.contentOffset.x);
         cancelAnimation(props.contentOffset.y);

@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:03:04
- * @LastEditTime: 2021-10-19 00:05:09
+ * @LastEditTime: 2021-10-20 12:57:58
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -25,9 +25,30 @@ export class CrossHeaderTabExample extends React.Component {
               alignItems: "center",
             }}
           >
-            <Text>I am header</Text>
+            <SpringScrollView
+              style={{
+                flex: 0,
+                width: 200,
+                height: 100,
+                backgroundColor: "lightgray",
+              }}
+              // pagingEnabled
+              scrollEnabled="horizontal"
+              contentContainerStyle={{ width: "300%", flexDirection: "row" }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text>I am Header1</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text>I am Header2</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text>I am Header3</Text>
+              </View>
+            </SpringScrollView>
           </View>
         )}
+        renderHeader={() => null}
         renderTab={(idx) => <TestSpringScrollView />}
       />
     );
