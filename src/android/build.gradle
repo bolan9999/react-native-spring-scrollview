@@ -16,12 +16,12 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion safeExtGet('compileSdkVersion', 26)
+    compileSdkVersion safeExtGet('compileSdkVersion', 29)
     publishNonDefault true
 
     defaultConfig {
-        minSdkVersion safeExtGet('minSdkVersion', 20)
-        targetSdkVersion safeExtGet('targetSdkVersion', 26)
+        minSdkVersion safeExtGet('minSdkVersion', 24)
+        targetSdkVersion safeExtGet('targetSdkVersion', 29)
     }
     lintOptions {
         abortOnError false
@@ -33,6 +33,6 @@ repositories {
 }
 
 dependencies {
-    api 'com.facebook.react:react-native:+'
+    api 'com.facebook.react:react-native:0.65.1'
 }
   

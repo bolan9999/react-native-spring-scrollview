@@ -186,7 +186,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
-    implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation "com.facebook.react:react-native:0.65.1"  // From node_modules
     api project(':lottie-react-native')
     api project(':react-native-spring-scroll-view')
 
