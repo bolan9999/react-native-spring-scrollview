@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:05:14
- * @LastEditTime: 2021-10-20 12:13:16
+ * @LastEditTime: 2021-10-21 16:20:34
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -34,29 +34,32 @@ export const CrossHeaderTab = React.forwardRef(
         onEnd: null,
       }))
     );
-    const panHandler = useAnimatedGestureHandler({
+    const panHandler = {
       onStart: (evt, ctx) => {
+        "worklet";
         if (childrenPanActions[currentIndex.value].onStart) {
           childrenPanActions[currentIndex.value].onStart(evt, ctx, true);
         }
       },
       onActive: (evt, ctx) => {
+        "worklet";
         if (childrenPanActions[currentIndex.value].onActive) {
-          childrenPanActions[currentIndex.value].onActive(evt, ctx);
+          childrenPanActions[currentIndex.value].onActive(evt, ctx, true);
         }
       },
       onEnd: (evt, ctx) => {
+        "worklet";
         if (childrenPanActions[currentIndex.value].onEnd) {
-          childrenPanActions[currentIndex.value].onEnd(evt, ctx);
+          childrenPanActions[currentIndex.value].onEnd(evt, ctx, true);
         }
       },
-    });
+    };
     return (
       <View style={{ flex: 1 }}>
         <SpringScrollView
           bounces="horizontal"
           scrollEnabled="horizontal"
-          pagingEnabled
+          pagingEnabled="horizontal"
           contentContainerStyle={{
             flex: 1,
             width: `${props.tabCount}00%`,
@@ -74,19 +77,18 @@ export const CrossHeaderTab = React.forwardRef(
             );
           })}
         </SpringScrollView>
-        <PanGestureHandler onGestureEvent={panHandler}>
-          <Reanimated.View
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              backgroundColor: "white",
-            }}
-          >
-            {props.renderHeader()}
-          </Reanimated.View>
-        </PanGestureHandler>
+        <SpringScrollView
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: "white",
+          }}
+          panHandler={panHandler}
+        >
+          {props.renderHeader()}
+        </SpringScrollView>
       </View>
     );
   }

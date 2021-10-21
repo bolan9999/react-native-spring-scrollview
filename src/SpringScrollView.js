@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-21 10:39:35
+ * @LastEditTime: 2021-10-21 16:20:49
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -26,6 +26,7 @@ import Reanimated, {
   Easing,
   runOnJS,
   useAnimatedGestureHandler,
+  useAnimatedReaction,
   useAnimatedRef,
   useAnimatedStyle,
   useSharedValue,
@@ -46,14 +47,13 @@ interface SpringScrollViewType extends ViewProps {
   directionalLockEnabled?: boolean;
   showsVerticalScrollIndicator?: boolean;
   showsHorizontalScrollIndicator?: boolean;
-  pagingEnabled?: boolean;
+  pagingEnabled?: null | undefined | "vertical" | "horizontal";
   decelerationRate?: number;
   pageSize?: { width: number, height: number };
   refreshHeader?: RefreshHeader;
   loadingFooter?: LoadingFooter;
   refreshing?: boolean;
   loadingMore?: boolean;
-  onScrollUI?: () => void;
 }
 
 export const PanHandlerContext = React.createContext({
@@ -97,6 +97,7 @@ export const SpringScrollView = React.forwardRef(
       loadMoreStatus: useSharedValue("waiting"),
       panRef: useRef(),
       focus: useSharedValue(false),
+      currentPage: useSharedValue(0),
     });
     return <SpringScrollViewClass ref={ref} {...props} {...sharedValues} />;
   }
@@ -118,7 +119,6 @@ SpringScrollView.defaultProps = {
   loadingFooter: LoadingFooter,
   refreshing: false,
   loadingMore: false,
-  pagingEnabled: false,
   pageSize: { width: 0, height: 0 },
 };
 
@@ -156,14 +156,14 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       "worklet";
       return (
         props.contentOffset.y.value <=
-        -props.contentInsets.top.value - props.refreshHeader.height
+        -props.contentInsets.top.value - props.refreshHeader.height + 0.1
       );
     };
     const isOutOfBottom = () => {
       "worklet";
       return (
         props.contentOffset.y.value >=
-        props.contentSize.height.value - props.size.height.value
+        props.contentSize.height.value - props.size.height.value - 0.1
       );
     };
     const isEnoughToLoadMore = () => {
@@ -172,20 +172,31 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         props.contentOffset.y.value >=
         -props.size.height.value +
           props.contentSize.height.value +
-          props.loadingFooter.height
+          props.loadingFooter.height -
+          0.1
       );
     };
     const isOutOfLeft = () => {
       "worklet";
-      return props.contentOffset.x.value <= -props.contentInsets.left.value;
+      return (
+        props.contentOffset.x.value <= -props.contentInsets.left.value + 0.1
+      );
     };
     const isOutOfRight = () => {
       "worklet";
+      console.log(
+        "isOutOfRight",
+        props.contentOffset.x.value,
+        props.contentInsets.right.value,
+        props.contentSize.width.value,
+        props.size.width.value
+      );
       return (
         props.contentOffset.x.value >=
         props.contentInsets.right.value +
           props.contentSize.width.value -
-          props.size.width.value
+          props.size.width.value -
+          0.1
       );
     };
     const isOutOfHorizontal = () => {
@@ -307,7 +318,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     const isPanFitFocus = (evt) => {
       "worklet";
       if (props.focus.value === true) return true;
-      if (Math.abs(evt.velocityX) > Math.abs(evt.velocityY)) {
+      if (Math.abs(evt.translationX) > Math.abs(evt.translationY)) {
         return props.focus.value === "horizontal";
       } else {
         return props.focus.value === "vertical";
@@ -316,20 +327,21 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     //判断视图已经碰边，并且仍然向改方向滑动
     const isPanOutOfRange = (evt) => {
       "worklet";
-      if (Math.abs(evt.velocityX) > Math.abs(evt.velocityY)) {
+      if (Math.abs(evt.translationX) > Math.abs(evt.translationY)) {
         if (!hBounces) return false;
-        if (evt.velocityX > 0) return isOutOfLeft();
+        if (evt.translationX > 0) return isOutOfLeft();
         else return isOutOfRight();
       } else {
         if (!vBounces) return false;
-        if (evt.velocityY > 0) return isOutOfTop();
+        if (evt.translationY > 0) return isOutOfTop();
         else return isOutOfBottom();
       }
     };
+    //判断手势方向是否是当前滑动的方向
     const isPanFitScroll = (evt) => {
       "worklet";
       if (props.scrollEnabled === true) return true;
-      if (Math.abs(evt.velocityX) > Math.abs(evt.velocityY)) {
+      if (Math.abs(evt.translationX) > Math.abs(evt.translationY)) {
         return props.scrollEnabled === "horizontal";
       } else {
         return props.scrollEnabled === "vertical";
@@ -337,8 +349,10 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     };
     const onStart = (evt, ctx, preventEventBubble) => {
       "worklet";
-      
-      if (evt.velocityX === 0 && evt.velocityY === 0) return false;
+      if (evt.translationX === 0 && evt.translationY === 0) {
+        ctx.started = false;
+        return false;
+      }
       ctx.started = true;
       if (!preventEventBubble) {
         if (props.focus.value) {
@@ -366,7 +380,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           props.focus.value = true;
         } else {
           props.dragging.value =
-            Math.abs(evt.velocityX) > Math.abs(evt.velocityY)
+            Math.abs(evt.translationX) > Math.abs(evt.translationY)
               ? "horizontal"
               : "vertical";
           props.focus.value = props.dragging.value;
@@ -375,119 +389,64 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       }
       return false;
     };
-    const panHandler = {
-      onStart,
-      onActive: (evt, ctx) => {
-        "worklet";
-        console.log("evt.translation", evt.translationX, evt.translationY);
-        if (!ctx.started && !onStart(evt, ctx)) return false;
-
-        if (!props.focus.value) return parentHandlerContext.onActive(evt, ctx);
-        if (
-          props.showsVerticalScrollIndicator &&
-          props.size.height.value < props.contentSize.height.value
-        )
-          props.vIndicatorOpacity.value = 1;
-        if (
-          props.showsHorizontalScrollIndicator &&
-          props.size.width.value < props.contentSize.width.value
-        )
-          props.hIndicatorOpacity.value = 1;
-        const factor = props.inverted ? -1 : 1;
-        drag({
-          x: ctx.last.x - evt.absoluteX,
-          y: factor * (ctx.last.y - evt.absoluteY),
-        });
-        ctx.last = { x: evt.absoluteX, y: evt.absoluteY };
-        return true;
-      },
-      onEnd: (evt) => {
-        "worklet";
-        props.dragging.value = false;
-        if (!props.focus.value) return parentHandlerContext.onEnd(evt);
-        if (!props.scrollEnabled) return;
-        const maxX =
-          props.contentSize.width.value -
-          props.size.width.value +
-          props.contentInsets.right.value;
-        let maxY =
-          props.contentSize.height.value +
-          props.contentInsets.bottom.value -
-          props.size.height.value;
-        const vx = props.dragging.value === "v" ? 0 : -evt.velocityX;
-        const vy =
-          evt.velocityY *
-          (props.inverted ? 1 : -1) *
-          (props.dragging.value === "h" ? 0 : 1);
-        if (hScroll) {
-          if (hBounces && isOutOfHorizontal()) {
-            props.contentOffset.x.value = withSpring(
-              isOutOfLeft() ? -props.contentInsets.left.value : maxX,
-              {
-                velocity: vx,
-                damping: 30,
-                mass: 1,
-                stiffness: 225,
-              },
-              (isFinish) => {
-                if (isFinish) {
-                  props.focus.value = false;
-                  props.hIndicatorOpacity.value = withDelay(
-                    1000,
-                    withTiming(0)
-                  );
-                }
-              }
-            );
-          } else {
-            if (props.pagingEnabled) {
-              const pageWidth =
-                props.pageSize.width === 0
-                  ? props.size.width.value
-                  : props.pageSize.width;
-              let page = Math.floor(props.contentOffset.x.value / pageWidth);
-              if (evt.velocityX < 0) page++;
+    let panHandler = props.panHandler;
+    if (!panHandler)
+      panHandler = {
+        onStart,
+        onActive: (evt, ctx, preventEventBubble) => {
+          "worklet";
+          if (!ctx.started && !onStart(evt, ctx, preventEventBubble))
+            return false;
+          if (!props.focus.value)
+            return parentHandlerContext.onActive(evt, ctx, preventEventBubble);
+          if (
+            props.showsVerticalScrollIndicator &&
+            props.size.height.value < props.contentSize.height.value
+          )
+            props.vIndicatorOpacity.value = 1;
+          if (
+            props.showsHorizontalScrollIndicator &&
+            props.size.width.value < props.contentSize.width.value
+          )
+            props.hIndicatorOpacity.value = 1;
+          const factor = props.inverted ? -1 : 1;
+          drag({
+            x: ctx.last.x - evt.absoluteX,
+            y: factor * (ctx.last.y - evt.absoluteY),
+          });
+          ctx.last = { x: evt.absoluteX, y: evt.absoluteY };
+          return true;
+        },
+        onEnd: (evt, ctx, preventEventBubble) => {
+          "worklet";
+          props.dragging.value = false;
+          if (!props.focus.value) return parentHandlerContext.onEnd(evt);
+          if (!props.scrollEnabled) return;
+          const maxX =
+            props.contentSize.width.value -
+            props.size.width.value +
+            props.contentInsets.right.value;
+          let maxY =
+            props.contentSize.height.value +
+            props.contentInsets.bottom.value -
+            props.size.height.value;
+          const vx = props.dragging.value === "v" ? 0 : -evt.velocityX;
+          const vy =
+            evt.velocityY *
+            (props.inverted ? 1 : -1) *
+            (props.dragging.value === "h" ? 0 : 1);
+          if (hScroll) {
+            if (isOutOfHorizontal()) {
               props.contentOffset.x.value = withSpring(
-                page * pageWidth,
+                isOutOfLeft() ? -props.contentInsets.left.value : maxX,
                 {
-                  velocity: 50,
+                  velocity: vx,
                   damping: 30,
                   mass: 1,
                   stiffness: 225,
                 },
                 (isFinish) => {
-                  if (isFinish) props.focus.value = false;
-                }
-              );
-            } else {
-              props.contentOffset.x.value = withDecay(
-                {
-                  velocity: vx,
-                  deceleration: props.decelerationRate,
-                  clamp: [0, maxX],
-                },
-                (isFinish) => {
-                  if (!isFinish) return;
-                  if (hBounces) {
-                    props.contentOffset.x.value = withSpring(
-                      props.contentOffset.x.value + 0.01,
-                      {
-                        velocity: vx,
-                        damping: 48,
-                        mass: 2.56,
-                        stiffness: 225,
-                      },
-                      (isFinish) => {
-                        if (isFinish) {
-                          props.focus.value = false;
-                          props.hIndicatorOpacity.value = withDelay(
-                            1000,
-                            withTiming(0)
-                          );
-                        }
-                      }
-                    );
-                  } else {
+                  if (isFinish) {
                     props.focus.value = false;
                     props.hIndicatorOpacity.value = withDelay(
                       1000,
@@ -496,112 +455,186 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                   }
                 }
               );
+            } else {
+              if (props.pagingEnabled === "horizontal") {
+                console.log("pagingEnabled");
+                const pageWidth =
+                  props.pageSize.width === 0
+                    ? props.size.width.value
+                    : props.pageSize.width;
+                if (evt.velocityX < -3) props.currentPage.value++;
+                else if (evt.velocityX > 3) props.currentPage.value--;
+                if (props.currentPage.value < 0) props.currentPage.value = 0;
+                if (
+                  props.currentPage.value >
+                  Math.ceil(props.contentSize.width.value / pageWidth)
+                )
+                  props.currentPage.value = Math.ceil(
+                    props.contentSize.width.value / pageWidth
+                  );
+                props.contentOffset.x.value = withSpring(
+                  props.currentPage.value * pageWidth,
+                  {
+                    velocity: 50,
+                    damping: 30,
+                    mass: 1,
+                    stiffness: 225,
+                  },
+                  (isFinish) => {
+                    if (isFinish) props.focus.value = false;
+                  }
+                );
+              } else {
+                props.contentOffset.x.value = withDecay(
+                  {
+                    velocity: vx,
+                    deceleration: props.decelerationRate,
+                    clamp: [0, maxX],
+                  },
+                  (isFinish) => {
+                    if (!isFinish) return;
+                    if (hBounces) {
+                      props.contentOffset.x.value = withSpring(
+                        props.contentOffset.x.value + 0.01,
+                        {
+                          velocity: vx,
+                          damping: 48,
+                          mass: 2.56,
+                          stiffness: 225,
+                        },
+                        (isFinish) => {
+                          if (isFinish) {
+                            props.focus.value = false;
+                            props.hIndicatorOpacity.value = withDelay(
+                              1000,
+                              withTiming(0)
+                            );
+                          }
+                        }
+                      );
+                    } else {
+                      props.focus.value = false;
+                      props.hIndicatorOpacity.value = withDelay(
+                        1000,
+                        withTiming(0)
+                      );
+                    }
+                  }
+                );
+              }
             }
           }
-        }
-        if (vScroll) {
-          if (vBounces && isOutOfVertical()) {
-            if (
-              props.onRefresh &&
-              props.refreshStatus.value === "pullingEnough"
-            ) {
-              props.contentInsets.top.value = props.refreshHeader.height;
-              props.refreshAnimating.value = true;
-              runOnJS(props.onRefresh)();
-            }
-            if (
-              props.onLoadingMore &&
-              props.loadMoreStatus.value === "draggingEnough"
-            ) {
-              props.contentInsets.bottom.value = props.loadingFooter.height;
-              props.loadMoreAnimating.value = true;
-              maxY += props.loadingFooter.height;
-              runOnJS(props.onLoadingMore)();
-            }
-
-            props.contentOffset.y.value = withSpring(
-              isOutOfTop() ? -props.contentInsets.top.value : maxY,
-              {
-                velocity: vy,
-                damping: 30,
-                mass: 1,
-                stiffness: 225,
-              },
-              (isFinish) => {
-                if (isFinish) {
-                  props.focus.value = false;
-                  props.vIndicatorOpacity.value = withDelay(
-                    1000,
-                    withTiming(0)
-                  );
-                  props.refreshAnimating.value = false;
-                  props.loadMoreAnimating.value = false;
-                }
+          if (vScroll) {
+            if (isOutOfVertical()) {
+              if (
+                props.onRefresh &&
+                props.refreshStatus.value === "pullingEnough"
+              ) {
+                props.contentInsets.top.value = props.refreshHeader.height;
+                props.refreshAnimating.value = true;
+                runOnJS(props.onRefresh)();
               }
-            );
-          } else {
-            if (props.pagingEnabled) {
-              const pageHeight =
-                props.pageSize.height === 0
-                  ? props.size.height.value
-                  : props.pageSize.height;
-              let page = Math.floor(props.contentOffset.y.value / pageHeight);
-              if (evt.velocityY < 0) page++;
+              if (
+                props.onLoadingMore &&
+                props.loadMoreStatus.value === "draggingEnough"
+              ) {
+                props.contentInsets.bottom.value = props.loadingFooter.height;
+                props.loadMoreAnimating.value = true;
+                maxY += props.loadingFooter.height;
+                runOnJS(props.onLoadingMore)();
+              }
+
               props.contentOffset.y.value = withSpring(
-                page * pageHeight,
+                isOutOfTop() ? -props.contentInsets.top.value : maxY,
                 {
-                  velocity: 50,
+                  velocity: vy,
                   damping: 30,
                   mass: 1,
                   stiffness: 225,
                 },
                 (isFinish) => {
-                  if (isFinish) props.focus.value = false;
-                }
-              );
-            } else {
-              props.contentOffset.y.value = withDecay(
-                {
-                  velocity: vy,
-                  deceleration: props.decelerationRate,
-                  clamp: [-props.contentInsets.top.value, maxY],
-                },
-                (isFinish) => {
-                  if (!isFinish) return;
-                  if (vBounces) {
-                    props.contentOffset.y.value = withSpring(
-                      props.contentOffset.y.value + 0.01,
-                      {
-                        velocity: vy,
-                        damping: 48,
-                        mass: 2.56,
-                        stiffness: 225,
-                      },
-                      (isFinish) => {
-                        if (isFinish) {
-                          props.focus.value = false;
-                          props.vIndicatorOpacity.value = withDelay(
-                            1000,
-                            withTiming(0)
-                          );
-                        }
-                      }
-                    );
-                  } else {
+                  if (isFinish) {
                     props.focus.value = false;
                     props.vIndicatorOpacity.value = withDelay(
                       1000,
                       withTiming(0)
                     );
+                    props.refreshAnimating.value = false;
+                    props.loadMoreAnimating.value = false;
                   }
                 }
               );
+            } else {
+              if (props.pagingEnabled === "vertical") {
+                const pageHeight =
+                  props.pageSize.height === 0
+                    ? props.size.height.value
+                    : props.pageSize.height;
+                if (evt.velocityY < -3) props.currentPage.value--;
+                else if (evt.velocityY > 3) props.currentPage.value++;
+                if (props.currentPage.value < 0) props.currentPage.value = 0;
+                if (
+                  props.currentPage.value >
+                  Math.ceil(props.contentSize.height.value / pageHeight)
+                )
+                  props.currentPage.value = Math.ceil(
+                    props.contentSize.height.value / pageHeight
+                  );
+                props.contentOffset.y.value = withSpring(
+                  props.currentPage.value * pageHeight,
+                  {
+                    velocity: 50,
+                    damping: 30,
+                    mass: 1,
+                    stiffness: 225,
+                  },
+                  (isFinish) => {
+                    if (isFinish) props.focus.value = false;
+                  }
+                );
+              } else {
+                props.contentOffset.y.value = withDecay(
+                  {
+                    velocity: vy,
+                    deceleration: props.decelerationRate,
+                    clamp: [-props.contentInsets.top.value, maxY],
+                  },
+                  (isFinish) => {
+                    if (!isFinish) return;
+                    if (vBounces) {
+                      props.contentOffset.y.value = withSpring(
+                        props.contentOffset.y.value + 0.01,
+                        {
+                          velocity: vy,
+                          damping: 48,
+                          mass: 2.56,
+                          stiffness: 225,
+                        },
+                        (isFinish) => {
+                          if (isFinish) {
+                            props.focus.value = false;
+                            props.vIndicatorOpacity.value = withDelay(
+                              1000,
+                              withTiming(0)
+                            );
+                          }
+                        }
+                      );
+                    } else {
+                      props.focus.value = false;
+                      props.vIndicatorOpacity.value = withDelay(
+                        1000,
+                        withTiming(0)
+                      );
+                    }
+                  }
+                );
+              }
             }
           }
-        }
-        return true;
-      },
-    };
+          return true;
+        },
+      };
 
     const panHandlerWrapper = useAnimatedGestureHandler(panHandler);
     if (crossHeaderContext) {
@@ -636,6 +669,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     const contentContainerStyle = useAnimatedStyle(() => {
       return {
         flexGrow: 1,
+        paddingTop: crossHeaderContext?.crossHeaderHeight,
         transform: [
           { translateX: -props.contentOffset.x.value },
           { translateY: -props.contentOffset.y.value },

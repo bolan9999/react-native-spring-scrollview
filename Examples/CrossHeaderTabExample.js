@@ -2,13 +2,13 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:03:04
- * @LastEditTime: 2021-10-21 10:12:34
+ * @LastEditTime: 2021-10-21 16:19:07
  * @LastEditors: 石破天惊
  * @Description:
  */
 
 import React from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { SpringScrollView } from "../src/SpringScrollView";
 import { CrossHeaderTab } from "../src/CrossHeaderTab";
 
@@ -32,37 +32,40 @@ export class CrossHeaderTabExample extends React.Component {
                 height: 100,
                 backgroundColor: "lightgray",
               }}
-              pagingEnabled
+              bounces="horizontal"
+              pagingEnabled="horizontal"
               scrollEnabled="horizontal"
               contentContainerStyle={{ width: "300%", flexDirection: "row" }}
             >
-              <View style={{ flex: 1 }}>
+              <View style={styles.banner}>
                 <Text>I am Header1</Text>
               </View>
-              <View style={{ flex: 1 }}>
+              <View style={styles.banner}>
                 <Text>I am Header2</Text>
               </View>
-              <View style={{ flex: 1 }}>
+              <View style={styles.banner}>
                 <Text>I am Header3</Text>
               </View>
             </SpringScrollView>
           </View>
         )}
-        renderTab={(idx) => <TestSpringScrollView />}
+        renderTab={(idx) => (
+          <SpringScrollView>
+            <Text style={{ fontSize: 25 }}>{content}</Text>
+          </SpringScrollView>
+        )}
       />
     );
   }
 }
 
-class TestSpringScrollView extends React.Component {
-  render() {
-    return (
-      <SpringScrollView>
-        <Text style={{ fontSize: 25 }}>{content}</Text>
-      </SpringScrollView>
-    );
-  }
-}
+const styles = StyleSheet.create({
+  banner: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
 
 const content =
   "In React Native apps, the application code is executed outside of the " +
