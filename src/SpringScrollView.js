@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-21 16:20:49
+ * @LastEditTime: 2021-10-21 17:04:22
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -85,7 +85,6 @@ export const SpringScrollView = React.forwardRef(
         left: useSharedValue(0),
         right: useSharedValue(0),
       },
-      directionalLock: useSharedValue(true),
       dragging: useSharedValue(false),
       vIndicatorOpacity: useSharedValue(0),
       hIndicatorOpacity: useSharedValue(0),
@@ -99,7 +98,12 @@ export const SpringScrollView = React.forwardRef(
       focus: useSharedValue(false),
       currentPage: useSharedValue(0),
     });
-    return <SpringScrollViewClass ref={ref} {...props} {...sharedValues} />;
+    const crossHeaderContext = React.useContext(CrossHeaderTabContext);
+    const combined = { ...sharedValues, ...props };
+    if (crossHeaderContext) {
+      combined.contentOffset = crossHeaderContext.contentOffset;
+    }
+    return <SpringScrollViewClass ref={ref} {...combined} />;
   }
 );
 
@@ -184,13 +188,6 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     };
     const isOutOfRight = () => {
       "worklet";
-      console.log(
-        "isOutOfRight",
-        props.contentOffset.x.value,
-        props.contentInsets.right.value,
-        props.contentSize.width.value,
-        props.size.width.value
-      );
       return (
         props.contentOffset.x.value >=
         props.contentInsets.right.value +
@@ -457,7 +454,6 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
               );
             } else {
               if (props.pagingEnabled === "horizontal") {
-                console.log("pagingEnabled");
                 const pageWidth =
                   props.pageSize.width === 0
                     ? props.size.width.value
@@ -791,7 +787,6 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       loadMoreFooterRef,
       hIndicatorOpacity,
       vIndicatorOpacity,
-      directionalLock,
       directionalLockEnabled,
     } = this.props;
     if (!next.showsHorizontalScrollIndicator) {
@@ -802,7 +797,6 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       cancelAnimation(vIndicatorOpacity);
       vIndicatorOpacity.value = 0;
     }
-    directionalLock.value = directionalLockEnabled;
     if (refreshing !== next.refreshing) {
       if (next.refreshing) {
         refreshAnimating.value = true;

@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:03:04
- * @LastEditTime: 2021-10-21 16:19:07
+ * @LastEditTime: 2021-10-21 17:09:31
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -50,7 +50,7 @@ export class CrossHeaderTabExample extends React.Component {
           </View>
         )}
         renderTab={(idx) => (
-          <SpringScrollView>
+          <SpringScrollView showsVerticalScrollIndicator={false}>
             <Text style={{ fontSize: 25 }}>{content}</Text>
           </SpringScrollView>
         )}
