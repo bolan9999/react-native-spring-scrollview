@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:03:04
- * @LastEditTime: 2021-10-20 12:57:58
+ * @LastEditTime: 2021-10-21 10:12:34
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -32,7 +32,7 @@ export class CrossHeaderTabExample extends React.Component {
                 height: 100,
                 backgroundColor: "lightgray",
               }}
-              // pagingEnabled
+              pagingEnabled
               scrollEnabled="horizontal"
               contentContainerStyle={{ width: "300%", flexDirection: "row" }}
             >
@@ -48,7 +48,6 @@ export class CrossHeaderTabExample extends React.Component {
             </SpringScrollView>
           </View>
         )}
-        renderHeader={() => null}
         renderTab={(idx) => <TestSpringScrollView />}
       />
     );
