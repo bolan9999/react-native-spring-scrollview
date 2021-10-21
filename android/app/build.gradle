@@ -94,14 +94,14 @@ def enableSeparateBuildPerCPUArchitecture = false
 def enableProguardInReleaseBuilds = false
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId "com.springscrollviewexample"
-        minSdkVersion 19
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion 24
+        targetSdkVersion 29
+        versionCode 10
+        versionName "2.1"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -133,6 +133,9 @@ android {
             }
         }
     }
+    lintOptions {
+        abortOnError false
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -140,7 +143,7 @@ android {
 }
 
 dependencies {
-    api project(':lottie-react-native')
+    //api project(':lottie-react-native')
     api project(':react-native-spring-scroll-view')
     api fileTree(dir: "libs", include: ["*.jar"])
     api "com.android.support:appcompat-v7:28.0.0"
