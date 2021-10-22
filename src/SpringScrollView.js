@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-22 10:19:03
+ * @LastEditTime: 2021-10-22 10:50:12
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -471,18 +471,19 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                   props.pageSize.width === 0
                     ? props.size.width.value
                     : props.pageSize.width;
-                if (evt.velocityX < -3) props.currentPage.value++;
-                else if (evt.velocityX > 3) props.currentPage.value--;
-                if (props.currentPage.value < 0) props.currentPage.value = 0;
+                let page = props.currentPage.value;
+                if (evt.velocityX < -3) page++;
+                else if (evt.velocityX > 3) page--;
                 if (
-                  props.currentPage.value >
-                  Math.ceil(props.contentSize.width.value / pageWidth)
+                  page >
+                  Math.ceil(props.contentSize.width.value / pageWidth) - 1
                 )
-                  props.currentPage.value = Math.ceil(
-                    props.contentSize.width.value / pageWidth
-                  );
+                  page =
+                    Math.ceil(props.contentSize.width.value / pageWidth) - 1;
+                if (page < 0) page = 0;
+                props.currentPage.value = page;
                 props.contentOffset.x.value = withSpring(
-                  props.currentPage.value * pageWidth,
+                  page * pageWidth,
                   {
                     velocity: 50,
                     damping: 30,
@@ -490,7 +491,9 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                     stiffness: 225,
                   },
                   (isFinish) => {
-                    if (isFinish) props.focus.value = false;
+                    if (isFinish) {
+                      props.focus.value = false;
+                    }
                   }
                 );
               } else {
@@ -579,18 +582,19 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                   props.pageSize.height === 0
                     ? props.size.height.value
                     : props.pageSize.height;
-                if (evt.velocityY < -3) props.currentPage.value--;
-                else if (evt.velocityY > 3) props.currentPage.value++;
-                if (props.currentPage.value < 0) props.currentPage.value = 0;
+                let page = props.currentPage.value;
+                if (evt.velocityY < -3) page--;
+                else if (evt.velocityY > 3) page++;
+                if (page < 0) page = 0;
                 if (
-                  props.currentPage.value >
-                  Math.ceil(props.contentSize.height.value / pageHeight)
+                  page >
+                  Math.ceil(props.contentSize.height.value / pageHeight) - 1
                 )
-                  props.currentPage.value = Math.ceil(
-                    props.contentSize.height.value / pageHeight
-                  );
+                  page =
+                    Math.ceil(props.contentSize.height.value / pageHeight) - 1;
+                props.currentPage.value = page;
                 props.contentOffset.y.value = withSpring(
-                  props.currentPage.value * pageHeight,
+                  page * pageHeight,
                   {
                     velocity: 50,
                     damping: 30,
@@ -653,19 +657,20 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     }
     const touchHandler = {
       onTouchStart: (evt) => {
-        props.dragging.value = "";
+        console.log("onTouchStart");
+        props.dragging.value = false;
         cancelAnimation(props.contentOffset.x);
         cancelAnimation(props.contentOffset.y);
         cancelAnimation(props.vIndicatorOpacity);
         cancelAnimation(props.hIndicatorOpacity);
       },
       onTouchEnd: () => {
-        // console.log("onTouchEnd");
+        console.log("onTouchEnd");
         props.vIndicatorOpacity.value = withDelay(2000, withTiming(0));
         props.hIndicatorOpacity.value = withDelay(2000, withTiming(0));
       },
       onTouchCancel: () => {
-        // console.log("onTouchCancel");
+        console.log("onTouchCancel");
       },
     };
     const containerStyle = useAnimatedStyle(() => {
