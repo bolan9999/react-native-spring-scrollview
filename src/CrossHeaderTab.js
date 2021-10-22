@@ -2,18 +2,20 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:05:14
- * @LastEditTime: 2021-10-21 17:07:51
+ * @LastEditTime: 2021-10-21 20:13:10
  * @LastEditors: 石破天惊
  * @Description:
  */
 
 import React from "react";
-import { Text, View } from "react-native";
+import { Dimensions, Text, View } from "react-native";
 import { PanGestureHandler } from "react-native-gesture-handler";
 import { CrossHeaderTabContext, SpringScrollView } from "./SpringScrollView";
 import Reanimated, {
   useAnimatedGestureHandler,
+  useAnimatedReaction,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
 
@@ -25,18 +27,32 @@ interface CrossHeaderTabType extends ViewProps {
 
 export const CrossHeaderTab = React.forwardRef(
   (props: CrossHeaderTabType, ref) => {
+    const screenHeight = Dimensions.get("window").height;
     const arr = new Array(props.tabCount).fill(0);
-    const currentIndex = useSharedValue(0);
-    const [contentOffsets] = React.useState(
+    const currentPage = useSharedValue(0);
+    const [headerSize] = React.useState({
+      width: useSharedValue(0),
+      height: useSharedValue(0),
+    });
+    const [tabContentOffsets] = React.useState(
       arr.map(() => ({
         x: useSharedValue(0),
         y: useSharedValue(0),
       }))
     );
+    const [containerContentOffset] = React.useState({
+      x: useSharedValue(0),
+      y: useSharedValue(0),
+    });
+
+    const headerHeight = useDerivedValue(() => {
+      return headerSize.height.value - screenHeight;
+    });
+
     const [childrenPanActions] = React.useState(
       arr.map((_, index) => ({
-        contentOffset: contentOffsets[index],
-        crossHeaderHeight: 200,
+        contentOffset: tabContentOffsets[index],
+        crossHeaderHeight: headerHeight,
         onStart: null,
         onActive: null,
         onEnd: null,
@@ -45,35 +61,64 @@ export const CrossHeaderTab = React.forwardRef(
     const panHandler = {
       onStart: (evt, ctx) => {
         "worklet";
-        if (childrenPanActions[currentIndex.value].onStart) {
-          childrenPanActions[currentIndex.value].onStart(evt, ctx, true);
+        if (childrenPanActions[currentPage.value].onStart) {
+          childrenPanActions[currentPage.value].onStart(evt, ctx, true);
         }
       },
       onActive: (evt, ctx) => {
         "worklet";
-        if (childrenPanActions[currentIndex.value].onActive) {
-          childrenPanActions[currentIndex.value].onActive(evt, ctx, true);
+        if (childrenPanActions[currentPage.value].onActive) {
+          childrenPanActions[currentPage.value].onActive(evt, ctx, true);
         }
       },
       onEnd: (evt, ctx) => {
         "worklet";
-        if (childrenPanActions[currentIndex.value].onEnd) {
-          childrenPanActions[currentIndex.value].onEnd(evt, ctx, true);
+        if (childrenPanActions[currentPage.value].onEnd) {
+          childrenPanActions[currentPage.value].onEnd(evt, ctx, true);
         }
       },
     };
     const headerStyle = useAnimatedStyle(() => {
-      let translateY = -contentOffsets[currentIndex.value].y.value;
-      if (translateY < 0) translateY = 0;
+      let translateY = tabContentOffsets[currentPage.value].y.value;
+      if (translateY > headerSize.height.value - screenHeight - 50)
+        translateY = headerSize.height.value - screenHeight - 50;
       return {
         position: "absolute",
-        top: 0,
+        top: -screenHeight,
+        paddingTop: screenHeight,
         left: 0,
         right: 0,
         backgroundColor: "white",
-        transform: [{ translateY }],
+        transform: [{ translateY: -translateY }],
       };
     });
+    tabContentOffsets.forEach((contentOffset, index) => {
+      useAnimatedReaction(
+        () => contentOffset.y.value,
+        (res, pre) => {
+          if (pre >= headerSize.height.value - screenHeight - 50 || res === pre)
+            return;
+          tabContentOffsets.forEach((offset, idx) => {
+            if (offset.y.value !== res && idx !== currentPage.value) {
+              offset.y.value = res;
+            }
+          });
+        }
+      );
+    });
+
+    const indicatorStyle = useAnimatedStyle(() => {
+      return {
+        position: "absolute",
+        left: 0,
+        bottom: 0,
+        height: 3,
+        width: "33.33%",
+        backgroundColor: "gray",
+        transform: [{ translateX: containerContentOffset.x.value / 3 }],
+      };
+    });
+
     return (
       <View style={{ flex: 1 }}>
         <SpringScrollView
@@ -85,6 +130,8 @@ export const CrossHeaderTab = React.forwardRef(
             width: `${props.tabCount}00%`,
             flexDirection: "row",
           }}
+          contentOffset={containerContentOffset}
+          currentPage={currentPage}
         >
           {arr.map((_, index) => {
             return (
@@ -97,8 +144,20 @@ export const CrossHeaderTab = React.forwardRef(
             );
           })}
         </SpringScrollView>
-        <SpringScrollView style={headerStyle} panHandler={panHandler}>
+        <SpringScrollView
+          size={headerSize}
+          style={headerStyle}
+          panHandler={panHandler}
+        >
           {props.renderHeader()}
+          <View
+            style={{ flexDirection: "row", height: 50, alignItems: "center" }}
+          >
+            <Text style={{ flex: 1, textAlign: "center" }}>Tab1</Text>
+            <Text style={{ flex: 1, textAlign: "center" }}>Tab2</Text>
+            <Text style={{ flex: 1, textAlign: "center" }}>Tab3</Text>
+            <Reanimated.View style={indicatorStyle} />
+          </View>
         </SpringScrollView>
       </View>
     );

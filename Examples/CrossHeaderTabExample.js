@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:03:04
- * @LastEditTime: 2021-10-21 17:09:31
+ * @LastEditTime: 2021-10-21 20:06:55
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -20,11 +20,13 @@ export class CrossHeaderTabExample extends React.Component {
         renderHeader={() => (
           <View
             style={{
-              height: 200,
+              padding: 25,
               justifyContent: "center",
               alignItems: "center",
+              backgroundColor: "#EEE",
             }}
           >
+            <Text>I am Header</Text>
             <SpringScrollView
               style={{
                 flex: 0,
@@ -38,19 +40,19 @@ export class CrossHeaderTabExample extends React.Component {
               contentContainerStyle={{ width: "300%", flexDirection: "row" }}
             >
               <View style={styles.banner}>
-                <Text>I am Header1</Text>
+                <Text>I am Banner1</Text>
               </View>
               <View style={styles.banner}>
-                <Text>I am Header2</Text>
+                <Text>I am Banner2</Text>
               </View>
               <View style={styles.banner}>
-                <Text>I am Header3</Text>
+                <Text>I am Banner3</Text>
               </View>
             </SpringScrollView>
           </View>
         )}
         renderTab={(idx) => (
-          <SpringScrollView showsVerticalScrollIndicator={false}>
+          <SpringScrollView>
             <Text style={{ fontSize: 25 }}>{content}</Text>
           </SpringScrollView>
         )}

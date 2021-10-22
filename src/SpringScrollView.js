@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-21 17:04:22
+ * @LastEditTime: 2021-10-22 09:44:50
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -54,6 +54,10 @@ interface SpringScrollViewType extends ViewProps {
   loadingFooter?: LoadingFooter;
   refreshing?: boolean;
   loadingMore?: boolean;
+  onScrollUI?: (contentOffset: {
+    x: Reanimated.SharedValue,
+    x: Reanimated.SharedValue,
+  }) => any;
 }
 
 export const PanHandlerContext = React.createContext({
@@ -665,7 +669,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     const contentContainerStyle = useAnimatedStyle(() => {
       return {
         flexGrow: 1,
-        paddingTop: crossHeaderContext?.crossHeaderHeight,
+        paddingTop: crossHeaderContext?.crossHeaderHeight.value,
         transform: [
           { translateX: -props.contentOffset.x.value },
           { translateY: -props.contentOffset.y.value },
