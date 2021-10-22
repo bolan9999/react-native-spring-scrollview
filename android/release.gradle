@@ -6,7 +6,7 @@ def configureReactNativePom(def pom) {
     pom.name = GROUP
     pom.packaging = POM_PACKAGING
     pom.version = VERSION_NAME
-    pom.groupId = "com.springscrollviewexample"
+    pom.groupId = "com.react-native-spring-scrollview"
     archivesBaseName='react-native-spring-scrollview-android'
 
     pom.project {
@@ -46,12 +46,12 @@ afterEvaluate { project ->
     }
 
     task renameArchive(type: Copy) {
-        dependsOn 'assembleLiveRelease'
+        dependsOn 'assembleRelease'
         from('build/outputs/aar')
         into('build/outputs/aar')
         include('android-release.aar')
         rename ('android-release.aar',
-                'react-native-spring-scrollview.aar')
+                'react-native-spring-scroll-view-release.aar')
     }
 
     android.libraryVariants.all { variant ->
