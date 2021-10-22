@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:05:14
- * @LastEditTime: 2021-10-21 20:13:10
+ * @LastEditTime: 2021-10-22 10:54:34
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -59,6 +59,10 @@ export const CrossHeaderTab = React.forwardRef(
       }))
     );
     const panHandler = {
+      isParentFocus: () => {
+        "worklet";
+        return false;
+      },
       onStart: (evt, ctx) => {
         "worklet";
         if (childrenPanActions[currentPage.value].onStart) {

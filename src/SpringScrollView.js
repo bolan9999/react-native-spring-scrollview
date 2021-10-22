@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-22 10:50:12
+ * @LastEditTime: 2021-10-22 15:13:01
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -58,6 +58,8 @@ interface SpringScrollViewType extends ViewProps {
     x: Reanimated.SharedValue,
     x: Reanimated.SharedValue,
   }) => any;
+  onSizeChange?: ({ width: number, height: number }) => any;
+  onContentSizeChange?: ({ width: number, height: number }) => any;
 }
 
 export const PanHandlerContext = React.createContext({
@@ -125,13 +127,15 @@ SpringScrollView.defaultProps = {
   showsHorizontalScrollIndicator: true,
   dragToHideKeyboard: true,
   pagingEnabled: false,
-  decelerationRate: 0.998,
+  decelerationRate: 0.997,
   pageSize: { width: 0, height: 0 },
   refreshHeader: RefreshHeader,
   loadingFooter: LoadingFooter,
   refreshing: false,
   loadingMore: false,
   pageSize: { width: 0, height: 0 },
+  onSizeChange: () => 0,
+  onContentSizeChange: () => 0,
 };
 
 class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
@@ -150,12 +154,16 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       props.scrollEnabled === true || props.scrollEnabled === "horizontal";
     //#region function
     const onSize = (e) => {
-      props.size.width.value = e.nativeEvent.layout.width;
-      props.size.height.value = e.nativeEvent.layout.height;
+      const { layout } = e.nativeEvent;
+      props.size.width.value = layout.width;
+      props.size.height.value = layout.height;
+      props.onSizeChange({ ...layout });
     };
     const onContentSize = (e) => {
-      props.contentSize.width.value = e.nativeEvent.layout.width;
-      props.contentSize.height.value = e.nativeEvent.layout.height;
+      const { layout } = e.nativeEvent;
+      props.contentSize.width.value = layout.width;
+      props.contentSize.height.value = layout.height;
+      props.onContentSizeChange({ ...layout });
     };
 
     const isOutOfTop = () => {
@@ -365,12 +373,12 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       ctx.started = true;
       if (!preventEventBubble) {
         if (props.focus.value) {
-          if (!isPanFitFocus(evt)) {
-            if (parentHandlerContext.onStart(evt, ctx)) {
-              props.focus.value = false;
-              return true;
-            }
-          }
+          // if (!isPanFitFocus(evt)) {
+          //   if (parentHandlerContext.onStart(evt, ctx)) {
+          //     props.focus.value = false;
+          //     return true;
+          //   }
+          // }
         } else {
           if (parentHandlerContext.isParentFocus())
             return parentHandlerContext.onStart(evt, ctx);
@@ -657,7 +665,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     }
     const touchHandler = {
       onTouchStart: (evt) => {
-        console.log("onTouchStart");
+        // console.log("onTouchStart");
         props.dragging.value = false;
         cancelAnimation(props.contentOffset.x);
         cancelAnimation(props.contentOffset.y);
@@ -665,12 +673,119 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         cancelAnimation(props.hIndicatorOpacity);
       },
       onTouchEnd: () => {
-        console.log("onTouchEnd");
+        // console.log("onTouchEnd");
+        if (!props.focus.value) return;
         props.vIndicatorOpacity.value = withDelay(2000, withTiming(0));
         props.hIndicatorOpacity.value = withDelay(2000, withTiming(0));
+        const maxX =
+          props.contentSize.width.value -
+          props.size.width.value +
+          props.contentInsets.right.value;
+        let maxY =
+          props.contentSize.height.value +
+          props.contentInsets.bottom.value -
+          props.size.height.value;
+
+        if (props.pagingEnabled === "horizontal") {
+          const pageWidth =
+            props.pageSize.width === 0
+              ? props.size.width.value
+              : props.pageSize.width;
+          if (
+            props.currentPage.value * pageWidth !==
+            props.contentOffset.x.value
+          ) {
+            props.contentOffset.x.value = withSpring(
+              props.currentPage.value * pageWidth,
+              {
+                velocity: 50,
+                damping: 30,
+                mass: 1,
+                stiffness: 225,
+              },
+              (isFinish) => {
+                if (isFinish) {
+                  props.focus.value = false;
+                }
+              }
+            );
+            return;
+          }
+        }
+
+        if (props.pagingEnabled === "vertical") {
+          const pageHeight =
+            props.pageSize.height === 0
+              ? props.size.height.value
+              : props.pageSize.height;
+          if (
+            props.currentPage.value * pageHeight !==
+            props.contentOffset.y.value
+          ) {
+            props.contentOffset.y.value = withSpring(
+              page * pageHeight,
+              {
+                velocity: 50,
+                damping: 30,
+                mass: 1,
+                stiffness: 225,
+              },
+              (isFinish) => {
+                if (isFinish) props.focus.value = false;
+              }
+            );
+            return;
+          }
+        }
+        if (props.bounces === true || props.bounces === "vertical") {
+          if (isOutOfVertical()) {
+            props.contentOffset.y.value = withSpring(
+              isOutOfTop() ? -props.contentInsets.top.value : maxY,
+              {
+                velocity: 50,
+                damping: 30,
+                mass: 1,
+                stiffness: 225,
+              },
+              (isFinish) => {
+                if (isFinish) {
+                  props.focus.value = false;
+                  props.vIndicatorOpacity.value = withDelay(
+                    1000,
+                    withTiming(0)
+                  );
+                  props.refreshAnimating.value = false;
+                  props.loadMoreAnimating.value = false;
+                }
+              }
+            );
+          }
+        }
+        if (props.bounces === true || props.bounces === "horizontal") {
+          if (isOutOfHorizontal()) {
+            props.contentOffset.x.value = withSpring(
+              isOutOfLeft() ? -props.contentInsets.left.value : maxX,
+              {
+                velocity: 50,
+                damping: 30,
+                mass: 1,
+                stiffness: 225,
+              },
+              (isFinish) => {
+                if (isFinish) {
+                  props.focus.value = false;
+                  props.hIndicatorOpacity.value = withDelay(
+                    1000,
+                    withTiming(0)
+                  );
+                }
+              }
+            );
+          }
+        }
       },
       onTouchCancel: () => {
-        console.log("onTouchCancel");
+        // console.log("onTouchCancel");
       },
     };
     const containerStyle = useAnimatedStyle(() => {
@@ -805,7 +920,6 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       loadMoreFooterRef,
       hIndicatorOpacity,
       vIndicatorOpacity,
-      directionalLockEnabled,
     } = this.props;
     if (!next.showsHorizontalScrollIndicator) {
       cancelAnimation(hIndicatorOpacity);
