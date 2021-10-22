@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-22 15:13:01
+ * @LastEditTime: 2021-10-22 15:16:25
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -372,14 +372,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       }
       ctx.started = true;
       if (!preventEventBubble) {
-        if (props.focus.value) {
-          // if (!isPanFitFocus(evt)) {
-          //   if (parentHandlerContext.onStart(evt, ctx)) {
-          //     props.focus.value = false;
-          //     return true;
-          //   }
-          // }
-        } else {
+        if (!props.focus.value){
           if (parentHandlerContext.isParentFocus())
             return parentHandlerContext.onStart(evt, ctx);
           if (!isPanFitScroll(evt)) {
