@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-22 09:44:50
+ * @LastEditTime: 2021-10-22 10:19:03
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -61,6 +61,10 @@ interface SpringScrollViewType extends ViewProps {
 }
 
 export const PanHandlerContext = React.createContext({
+  isParentFocus: () => {
+    "worklet";
+    return false;
+  },
   onStart: () => {
     "worklet";
     return false;
@@ -348,6 +352,10 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         return props.scrollEnabled === "vertical";
       }
     };
+    const isParentFocus = () => {
+      "worklet";
+      return props.focus.value;
+    };
     const onStart = (evt, ctx, preventEventBubble) => {
       "worklet";
       if (evt.translationX === 0 && evt.translationY === 0) {
@@ -358,15 +366,15 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       if (!preventEventBubble) {
         if (props.focus.value) {
           if (!isPanFitFocus(evt)) {
-            props.focus.value = false;
-            return parentHandlerContext.onStart(evt, ctx);
-          }
-          if (isPanOutOfRange(evt)) {
-            if (parentHandlerContext.onStart(evt, ctx)) return true;
+            if (parentHandlerContext.onStart(evt, ctx)) {
+              props.focus.value = false;
+              return true;
+            }
           }
         } else {
+          if (parentHandlerContext.isParentFocus())
+            return parentHandlerContext.onStart(evt, ctx);
           if (!isPanFitScroll(evt)) {
-            props.focus.value = false;
             return parentHandlerContext.onStart(evt, ctx);
           }
           if (isPanOutOfRange(evt)) {
@@ -377,8 +385,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       if (props.scrollEnabled) {
         ctx.last = { x: evt.absoluteX, y: evt.absoluteY };
         if (!props.directionalLockEnabled) {
-          props.dragging.value = true;
-          props.focus.value = true;
+          props.dragging.value = props.scrollEnabled;
+          props.focus.value = props.scrollEnabled;
         } else {
           props.dragging.value =
             Math.abs(evt.translationX) > Math.abs(evt.translationY)
@@ -393,6 +401,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     let panHandler = props.panHandler;
     if (!panHandler)
       panHandler = {
+        isParentFocus,
         onStart,
         onActive: (evt, ctx, preventEventBubble) => {
           "worklet";
