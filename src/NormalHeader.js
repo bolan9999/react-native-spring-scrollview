@@ -1,9 +1,10 @@
-/**
- * Author: Shi(bolan0000@icloud.com)
- * Date: 2019/1/18
- * Copyright (c) 2018, AoTang, Inc.
- *
- * Description:
+/*
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 2020-11-05 10:44:46
+ * @LastEditTime: 2021-10-22 16:55:28
+ * @LastEditors: 石破天惊
+ * @Description:
  */
 
 import React from "react";
@@ -13,8 +14,12 @@ import {
   Animated,
   View,
   StyleSheet,
-  Text
+  Text,
 } from "react-native";
+import Reanimated, {
+  useAnimatedStyle,
+  interpolate,
+} from "react-native-reanimated";
 
 export class NormalHeader extends RefreshHeader {
   static height = 80;
@@ -24,41 +29,35 @@ export class NormalHeader extends RefreshHeader {
   render() {
     return (
       <View style={styles.container}>
-        {this._renderIcon()}
+        <this.Icon {...this.props} status={this.state.status} />
         <View style={styles.rContainer}>
-          <Text style={styles.text}>
-            {this.getTitle()}
-          </Text>
+          <Text style={styles.text}>{this.getTitle()}</Text>
           {this.renderContent()}
         </View>
       </View>
     );
   }
 
-  _renderIcon() {
-    const s = this.state.status;
-    if (s === "refreshing" || s === "rebound") {
-      return <ActivityIndicator color={"gray"}/>;
+  Icon = (props) => {
+    if (this.state.status === "refreshing" || this.state.status === "rebound") {
+      return <ActivityIndicator color={"gray"} />;
     }
     const { maxHeight, offset } = this.props;
+    const iconStyle = useAnimatedStyle(() => {
+      let rotate = 180 - ((offset.value + 90) * 180) / 40;
+      if (rotate > 180) rotate = 180;
+      if (rotate < 0) rotate = 0;
+      return { transform: [{ rotate: `${rotate}deg` }] };
+    });
     return (
-      <Animated.Image
+      <Reanimated.Image
         source={require("./Customize/res/arrow.png")}
-        style={{
-          transform: [
-            {
-              rotate: offset.interpolate({
-                inputRange: [-maxHeight - 1 - 10, -maxHeight - 10, -50, -49],
-                outputRange: ["180deg", "180deg", "0deg", "0deg"]
-              })
-            }
-          ]
-        }}
+        style={iconStyle}
       />
     );
-  }
+  };
 
-  renderContent(){
+  renderContent() {
     return null;
   }
 
@@ -83,16 +82,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    flexDirection: "row"
+    flexDirection: "row",
   },
   rContainer: {
-    marginLeft: 20
+    marginLeft: 20,
   },
   text: {
     marginVertical: 5,
     fontSize: 15,
     color: "#666",
     textAlign: "center",
-    width: 140
-  }
+    width: 140,
+  },
 });

@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-22 15:16:25
+ * @LastEditTime: 2021-10-22 16:40:23
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -29,6 +29,7 @@ import Reanimated, {
   useAnimatedReaction,
   useAnimatedRef,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withDecay,
   withDelay,
@@ -372,7 +373,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       }
       ctx.started = true;
       if (!preventEventBubble) {
-        if (!props.focus.value){
+        if (!props.focus.value) {
           if (parentHandlerContext.isParentFocus())
             return parentHandlerContext.onStart(evt, ctx);
           if (!isPanFitScroll(evt)) {
@@ -858,6 +859,12 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         transform: [{ translateY }],
       };
     });
+    const loadingFooterOffset = useDerivedValue(() => {
+      return (
+        props.contentOffset.y.value -
+        (props.contentSize.height.value - props.size.height.value)
+      );
+    });
     return (
       <PanGestureHandler
         activeOffsetY={[-5, 5]}
@@ -872,12 +879,20 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         >
           {props.onRefresh && (
             <Reanimated.View style={refreshHeaderStyle}>
-              <props.refreshHeader ref={props.refreshHeaderRef} />
+              <props.refreshHeader
+                offset={props.contentOffset.y}
+                maxHeight={props.refreshHeader.height}
+                ref={props.refreshHeaderRef}
+              />
             </Reanimated.View>
           )}
           {props.onLoadingMore && (
             <Reanimated.View style={loadMoreFooterStyle}>
-              <props.loadingFooter ref={props.loadMoreFooterRef} />
+              <props.loadingFooter
+                offset={loadingFooterOffset}
+                maxHeight={props.loadingFooter.height}
+                ref={props.loadMoreFooterRef}
+              />
             </Reanimated.View>
           )}
           <Reanimated.View

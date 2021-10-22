@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-22 11:32:47
+ * @LastEditTime: 2021-10-22 16:34:07
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -19,6 +19,8 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
+import { NormalFooter } from "../src/NormalFooter";
+import { NormalHeader } from "../src/NormalHeader";
 import { SpringScrollView } from "../src/SpringScrollView";
 // import { CommonLottieHeader, CommonLottieFooter } from "../src/Customize";
 
@@ -66,7 +68,7 @@ export class Test extends React.Component {
         ref={(ref) => (this._container = ref)}
         contentContainerStyle={cs.content}
 
-        // refreshHeader={CommonLottieHeader}
+        // refreshHeader={NormalHeader}
         // loadingFooter={CommonLottieFooter}
       >
         <View style={cs.main}>
@@ -82,8 +84,10 @@ export class Test extends React.Component {
               bounces={true}
               scrollEnabled={true}
               onRefresh={this._onRefresh}
+              loadingFooter={NormalFooter}
               onLoadingMore={this._onLoading}
               allLoaded={this.state.allLoaded}
+              refreshHeader={NormalHeader}
               refreshing={this.state.refreshing}
               preventReRender={this.state.preventReRender}
               loadingMore={this.state.loadingMore}
@@ -170,10 +174,10 @@ export class Test extends React.Component {
   //#region Test refresh and loading
   _beginRefresh = () => this._container.beginRefresh();
   _onRefresh = () => {
-    this._log("Refresh start");
+    // this._log("Refresh start");
     this.setState({ refreshing: true, preventReRender: true });
     setTimeout(() => {
-      this._log("Refresh end");
+      // this._log("Refresh end");
       this.setState({
         ...this._defaultState,
         refreshing: false,
