@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-21 13:05:32
- * @LastEditTime: 2021-10-22 18:08:52
+ * @LastEditTime: 2021-10-25 12:53:24
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -61,7 +61,7 @@ export class RefreshAndLoadingExample extends React.Component {
         onRefresh={this._onRefresh}
         onLoadingMore={this._onLoading}
         // onScroll={()=>console.log("RefreshAndLoadingExample onScroll")}
-        // allLoaded={this.state.allLoaded}
+        allLoaded={this.state.allLoaded}
         refreshHeader={CommonLottieHeader}
         loadingFooter={ChineseWithLastDateFooter}
         refreshing={this.state.refreshing}
@@ -100,7 +100,7 @@ export class RefreshAndLoadingExample extends React.Component {
     setTimeout(() => {
       this.setState((p) => ({
         count: p.count + this._step,
-        allLoaded: false,
+        allLoaded: true,
         loadingMore: false,
         preventReRender: false,
       }));
