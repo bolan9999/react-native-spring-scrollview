@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-25 12:51:35
+ * @LastEditTime: 2021-10-25 15:48:08
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -51,9 +51,13 @@ interface SpringScrollViewType extends ViewProps {
   allLoaded?: boolean;
   loadingMore?: boolean;
   preventReRender?: boolean;
+  onScroll?: (contentOffset: {
+    x: number,
+    y: number,
+  }) => any;
   onScrollUI?: (contentOffset: {
     x: Reanimated.SharedValue,
-    x: Reanimated.SharedValue,
+    y: Reanimated.SharedValue,
   }) => any;
   onSizeChange?: ({ width: number, height: number }) => any;
   onContentSizeChange?: ({ width: number, height: number }) => any;
@@ -705,6 +709,19 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         // console.log("onTouchCancel");
       },
     };
+
+    useAnimatedReaction(
+      () => {
+        return { x: props.contentOffset.x.value, y: props.contentOffset.y.value };
+      },
+      (offset: { x: number, y: number }, previous: { x: number, y: number }) => {
+        if (!previous || offset.x !== previous.x || offset.y !== previous.y) {
+          if (props.onScrollUI) props.onScrollUI(props.contentOffset);
+          if (props.onScroll) runOnJS(props.onScroll)(offset);
+        }
+      },
+    );
+
     const containerStyle = useAnimatedStyle(() => {
       return {
         flex: 1,
@@ -1000,5 +1017,58 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         },
       );
     }
+  }
+
+  scrollTo(offset, animated: boolean = true): Promise<void> {
+    const { contentOffset } = this.props;
+    if (!animated) {
+      contentOffset.x.value = offset.x;
+      contentOffset.y.value = offset.y;
+      return Promise.resolve();
+    }
+    cancelAnimation(contentOffset.x);
+    cancelAnimation(contentOffset.y);
+    const xPromise = new Promise((resolve, reject) => {
+      contentOffset.x.value = withSpring(
+        offset.x,
+        {
+          velocity: 10,
+          damping: 30,
+          mass: 1,
+          stiffness: 225,
+        },
+        (isFinish) => {
+          if (isFinish) resolve();
+          else reject();
+        },
+      );
+    });
+
+    const yPromise = new Promise((resolve, reject) => {
+      contentOffset.y.value = withSpring(
+        offset.y,
+        {
+          velocity: 10,
+          damping: 30,
+          mass: 1,
+          stiffness: 225,
+        },
+        (isFinish) => {
+          if (isFinish) resolve();
+          else reject();
+        },
+      );
+    });
+    return Promise.all([xPromise, yPromise]);
+  }
+
+  scrollTo(offset, animated: boolean = true): Promise<void> {
+    return this.scrollTo(
+      {
+        x: offset.x + this.props.contentOffset.x.value,
+        y: offset.y + this.props.contentOffset.y.value,
+      },
+      animated,
+    );
   }
 }
