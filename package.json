@@ -1,9 +1,8 @@
 {
   "name": "react-native-spring-scrollview",
-  "version": "2.0.23",
+  "version": "3.0.2",
   "private": true,
   "description": "An cross-platform (iOS & Android) spring ScrollView",
-  "main": "index.js",
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
@@ -11,52 +10,12 @@
     "test": "jest",
     "lint": "eslint ."
   },
-  "keywords": [
-    "react-native",
-    "scroll",
-    "ScrollView",
-    "iOS style",
-    "react-native-scrollview",
-    "spring",
-    "rebound",
-    "bounces",
-    "cross-platform"
-  ],
   "author": "bolan9999 <shanshang130@gmail.com>",
   "license": "MIT",
-  "peerDependencies": {
-    "react": "^16.3.1",
-    "react-native": "0.65.1",
-    "lottie-react-native": "latest"
-  },
-  "react-native": {
-    "zlib": "browserify-zlib",
-    "console": "console-browserify",
-    "constants": "constants-browserify",
-    "crypto": "react-native-crypto",
-    "dns": "dns.js",
-    "net": "react-native-tcp",
-    "domain": "domain-browser",
-    "http": "@tradle/react-native-http",
-    "https": "https-browserify",
-    "os": "react-native-os",
-    "path": "path-browserify",
-    "querystring": "querystring-es3",
-    "fs": "react-native-level-fs",
-    "_stream_transform": "readable-stream/transform",
-    "_stream_readable": "readable-stream/readable",
-    "_stream_writable": "readable-stream/writable",
-    "_stream_duplex": "readable-stream/duplex",
-    "_stream_passthrough": "readable-stream/passthrough",
-    "dgram": "react-native-udp",
-    "stream": "stream-browserify",
-    "timers": "timers-browserify",
-    "tty": "tty-browserify",
-    "vm": "vm-browserify",
-    "tls": false 
-  },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.5",
+    "lottie-ios": "3.1.8",
+    "lottie-react-native": "^4.0.2",
     "react": "17.0.1",
     "react-native": "0.65.1"
   },
@@ -70,30 +29,7 @@
     "metro-react-native-babel-preset": "^0.64.0",
     "react-test-renderer": "17.0.1"
   },
-  "browser": {
-    "zlib": "browserify-zlib",
-    "console": "console-browserify",
-    "constants": "constants-browserify",
-    "crypto": "react-native-crypto",
-    "dns": "dns.js",
-    "net": "react-native-tcp",
-    "domain": "domain-browser",
-    "http": "@tradle/react-native-http",
-    "https": "https-browserify",
-    "os": "react-native-os",
-    "path": "path-browserify",
-    "querystring": "querystring-es3",
-    "fs": "react-native-level-fs",
-    "_stream_transform": "readable-stream/transform",
-    "_stream_readable": "readable-stream/readable",
-    "_stream_writable": "readable-stream/writable",
-    "_stream_duplex": "readable-stream/duplex",
-    "_stream_passthrough": "readable-stream/passthrough",
-    "dgram": "react-native-udp",
-    "stream": "stream-browserify",
-    "timers": "timers-browserify",
-    "tty": "tty-browserify",
-    "vm": "vm-browserify",
-    "tls": false
+  "jest": {
+    "preset": "react-native"
   }
 }
