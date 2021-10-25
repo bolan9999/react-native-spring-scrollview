@@ -2,6 +2,7 @@
   "name": "react-native-spring-scrollview",
   "version": "3.0.2",
   "description": "A cross-platform (iOS & Android) spring ScrollView",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
