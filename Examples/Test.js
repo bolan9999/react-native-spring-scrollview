@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-25 16:14:00
+ * @LastEditTime: 2021-10-25 17:42:29
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -74,7 +74,7 @@ export class Test extends React.Component {
           <View style={cs.mainScroll}>
             <SpringScrollView
               {...this.state}
-              inputToolBarHeight={Platform.select({ ios: 44, android: 200 })}
+              inputToolBarHeight={Platform.select({ ios: 44, android: 100 })}
               textInputRefs={[this._contentStyleRef, this._pageSizeRef, this._decelerationRateRef]}
               bounces={true}
               scrollEnabled={true}
@@ -98,7 +98,7 @@ export class Test extends React.Component {
               onContentSizeChange={this._onContentSizeChange}
             >
               <TouchableOpacity
-                style={[rs.row, { justifyContent: "center", backgroundColor: "gray" }]}
+                style={[rs.row, {marginTop:200, justifyContent: "center", backgroundColor: "gray" }]}
                 onPress={this._beginRefresh}
               >
                 <Text style={rs.title}>Click to begin refresh</Text>
@@ -106,7 +106,7 @@ export class Test extends React.Component {
               </TouchableOpacity>
               {propertyKeys.map((key, index) => {
                 let inputRef;
-                if (key === "contentStyle") inputRef = this._contentStyleRef;
+                if (key === "contentContainerStyle") inputRef = this._contentStyleRef;
                 if (key === "pageSize") inputRef = this._pageSizeRef;
                 if (key === "decelerationRate") inputRef = this._decelerationRateRef;
                 return (
@@ -128,14 +128,16 @@ export class Test extends React.Component {
           <this.SmallButton text={"-"} style={cs.reduceHeight} onPress={this._onReduceHeight} />
           <this.SmallButton text={"-"} style={cs.reduceWidth} onPress={this._onReduceWidth} />
         </View>
-        <View style={cs.log}>
-          <SpringScrollView inverted onNativeContentOffsetExtract={this.state.logNativeOffset}>
-            <Text style={cs.inverted}>{this.state.log}</Text>
-            <AnimatedButton style={this._getClearButtonStyle()} onPress={this._clearLog}>
-              <Text style={cs.clearText}>CLEAR</Text>
-            </AnimatedButton>
-          </SpringScrollView>
-        </View>
+        {false && (
+          <View style={cs.log}>
+            <SpringScrollView inverted onNativeContentOffsetExtract={this.state.logNativeOffset}>
+              <Text style={cs.inverted}>{this.state.log}</Text>
+              <AnimatedButton style={this._getClearButtonStyle()} onPress={this._clearLog}>
+                <Text style={cs.clearText}>CLEAR</Text>
+              </AnimatedButton>
+            </SpringScrollView>
+          </View>
+        )}
       </SpringScrollView>
     );
   }
@@ -253,7 +255,8 @@ export class Test extends React.Component {
   };
 
   _log = (d) => {
-    this.setState({ log: this.state.log + d + "\n" });
+    // this.setState({ log: this.state.log + d + "\n" });
+    console.log(d);
   };
 
   _clearLog = () => this.setState({ log: "Log View\n" });

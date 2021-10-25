@@ -2,13 +2,21 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-25 16:12:49
+ * @LastEditTime: 2021-10-25 19:54:08
  * @LastEditors: 石破天惊
  * @Description:
  */
 
 import React, { useContext, useRef, useState } from "react";
-import { Animated, Platform, StyleSheet, ViewProps, ViewStyle } from "react-native";
+import {
+  Animated,
+  Platform,
+  StyleSheet,
+  ViewProps,
+  ViewStyle,
+  TextInput,
+  Keyboard,
+} from "react-native";
 import {
   NativeViewGestureHandler,
   PanGestureHandler,
@@ -65,6 +73,10 @@ interface SpringScrollViewType extends ViewProps {
   onTouchEnd?: () => any;
   onScrollBeginDrag?: () => any;
   onScrollEndDrag?: () => any;
+  textInputRefs?: TextInput[];
+  inputToolBarHeight?: number;
+  dragToHideKeyboard?: boolean;
+  tapToHideKeyboard?: boolean;
 }
 
 export const PanHandlerContext = React.createContext({
@@ -113,6 +125,7 @@ export const SpringScrollView = React.forwardRef((props: SpringScrollViewType, r
     currentPage: useSharedValue(0),
     refreshingInner: useSharedValue(false),
     loadingMoreInner: useSharedValue(false),
+    keyboardOffset: useSharedValue(0),
   });
   const crossHeaderContext = React.useContext(CrossHeaderTabContext);
   const combined = { ...sharedValues, ...props };
@@ -142,6 +155,10 @@ SpringScrollView.defaultProps = {
   pageSize: { width: 0, height: 0 },
   onSizeChange: () => 0,
   onContentSizeChange: () => 0,
+  textInputRefs: [],
+  inputToolBarHeight: 44,
+  tapToHideKeyboard: true,
+  dragToHideKeyboard: true,
 };
 
 class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
@@ -395,6 +412,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           if (!ctx.started && !onStart(evt, ctx, preventEventBubble)) return false;
           if (!props.focus.value)
             return parentHandlerContext.onActive(evt, ctx, preventEventBubble);
+          props.dragToHideKeyboard && runOnJS(Keyboard.dismiss)();
           if (
             props.showsVerticalScrollIndicator &&
             props.size.height.value < props.contentSize.height.value
@@ -420,6 +438,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           props.onTouchEnd && runOnJS(props.onTouchEnd)();
           if (!props.scrollEnabled) return;
           props.onScrollEndDrag && runOnJS(props.onScrollEndDrag)();
+          props.keyboardOffset.value = 0;
           const maxX =
             props.contentSize.width.value -
             props.size.width.value +
@@ -618,6 +637,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         cancelAnimation(props.vIndicatorOpacity);
         cancelAnimation(props.hIndicatorOpacity);
         props.onTouchBegin && props.onTouchBegin();
+        props.tapToHideKeyboard && Keyboard.dismiss();
       },
       onTouchEnd: () => {
         // console.log("onTouchEnd");
@@ -717,7 +737,6 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         // console.log("onTouchCancel");
       },
     };
-    // const onScroll = (offset) => props.onScroll(offset);
     useAnimatedReaction(
       () => {
         return { x: props.contentOffset.x.value, y: props.contentOffset.y.value };
@@ -1046,8 +1065,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           stiffness: 225,
         },
         (isFinish) => {
-          if (isFinish) resolve();
-          else reject();
+          if (isFinish) runOnJS(resolve)();
+          else runOnJS(reject)();
         },
       );
     });
@@ -1062,15 +1081,15 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           stiffness: 225,
         },
         (isFinish) => {
-          if (isFinish) resolve();
-          else reject();
+          if (isFinish) runOnJS(resolve)();
+          else runOnJS(reject)();
         },
       );
     });
     return Promise.all([xPromise, yPromise]);
   }
 
-  scrollTo(offset, animated: boolean = true): Promise<void> {
+  scroll(offset, animated: boolean = true): Promise<void> {
     return this.scrollTo(
       {
         x: offset.x + this.props.contentOffset.x.value,
@@ -1078,5 +1097,44 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       },
       animated,
     );
+  }
+
+  _onKeyboardWillShow = (evt) => {
+    this.props.textInputRefs.every((input) => {
+      if (input.current?.isFocused()) {
+        input.current.measureInWindow((x, y, w, h, l, t) => {
+          const offset = -evt.endCoordinates.screenY + this.props.inputToolBarHeight + y + h;
+          if (offset > 0) {
+            this.props.keyboardOffset.value = offset;
+            this.scroll({ x: 0, y: offset }).catch(() => 0);
+          }
+        });
+        return false;
+      }
+      return true;
+    });
+  };
+
+  _onKeyboardWillHide = () => {
+    if (this.props.keyboardOffset.value > 0) {
+      this.props.keyboardOffset.value = 0;
+      this.scroll({ x: 0, y: -this.props.keyboardOffset.value }).catch(() => 0);
+    }
+  };
+
+  componentDidMount() {
+    this._keyboardShowSub = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      this._onKeyboardWillShow,
+    );
+    this._keyboardHideSub = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      this._onKeyboardWillHide,
+    );
+  }
+
+  componentWillUnmount() {
+    this._keyboardShowSub.remove();
+    this._keyboardHideSub.remove();
   }
 }
