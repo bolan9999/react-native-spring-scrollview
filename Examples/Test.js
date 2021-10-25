@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-25 17:42:29
+ * @LastEditTime: 2021-10-25 22:42:36
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -98,7 +98,7 @@ export class Test extends React.Component {
               onContentSizeChange={this._onContentSizeChange}
             >
               <TouchableOpacity
-                style={[rs.row, {marginTop:200, justifyContent: "center", backgroundColor: "gray" }]}
+                style={[rs.row, { justifyContent: "center", backgroundColor: "gray" }]}
                 onPress={this._beginRefresh}
               >
                 <Text style={rs.title}>Click to begin refresh</Text>
