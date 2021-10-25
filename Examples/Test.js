@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-22 16:34:07
+ * @LastEditTime: 2021-10-22 17:24:51
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -22,7 +22,7 @@ import {
 import { NormalFooter } from "../src/NormalFooter";
 import { NormalHeader } from "../src/NormalHeader";
 import { SpringScrollView } from "../src/SpringScrollView";
-// import { CommonLottieHeader, CommonLottieFooter } from "../src/Customize";
+import { CommonLottieHeader, CommonLottieFooter } from "../src/Customize";
 
 const AnimatedButton = Animated.createAnimatedComponent(TouchableOpacity);
 export class Test extends React.Component {
@@ -84,7 +84,7 @@ export class Test extends React.Component {
               bounces={true}
               scrollEnabled={true}
               onRefresh={this._onRefresh}
-              loadingFooter={NormalFooter}
+              loadingFooter={CommonLottieFooter}
               onLoadingMore={this._onLoading}
               allLoaded={this.state.allLoaded}
               refreshHeader={NormalHeader}

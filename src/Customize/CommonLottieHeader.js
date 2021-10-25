@@ -1,43 +1,60 @@
 /*
- *
- * Created by Stone
- * https://github.com/bolan9999
- * Email: shanshang130@gmail.com
- * Date: 2019/2/18
- *
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 2021-07-22 11:57:12
+ * @LastEditTime: 2021-10-25 10:21:20
+ * @LastEditors: 石破天惊
+ * @Description:
  */
 
-import React from "react";
+import React, { useRef } from "react";
 import { RefreshHeader } from "../RefreshHeader";
 import { View } from "react-native";
-let LottieView;
+import SafeModule from "react-native-safe-modules";
+import LottieView from "lottie-react-native";
+import Reanimated, {
+  interpolate,
+  useAnimatedProps,
+  addWhitelistedUIProps,
+  Extrapolate,
+} from "react-native-reanimated";
 
+const ReanimatedLottieView = Reanimated.createAnimatedComponent(LottieView);
+
+Reanimated.addWhitelistedUIProps({ progress: true });
 export class CommonLottieHeader extends RefreshHeader {
   static height: number = 100;
-  constructor(props){
-    super(props);
-    if (!LottieView) LottieView = require("lottie-react-native");
-  }
 
   render() {
-    let progress = this.props.offset.interpolate({
-      inputRange: [-200, -150, -150, -100, -100, -50],
-      outputRange: [1, 0, 1, 0, 1, 0]
-    });
-    if (this.state.status === "refreshing") {
-      progress = undefined;
-    }
     return (
       <View style={{ flex: 1, marginTop: 20 }}>
-        <LottieView
-          source={
-            this.state.status === "refreshing" ? require("./res/refreshing2.json") : require("./res/refreshing.json")
-          }
-          progress={progress}
-          autoPlay={this.state.status === "refreshing"}
-          loop={this.state.status === "refreshing"}
-        />
+        <this.Lottie offset={this.props.offset} />
       </View>
     );
   }
+  Lottie = (props) => {
+    const animatedProps = useAnimatedProps(() => {
+      const progress = interpolate(
+        props.offset.value,
+        [-201, -200, -150, -150, -100, -100, -50],
+        [1, 1, 0, 1, 0, 1, 0],
+        Extrapolate.CLAMP
+      );
+      return {
+        progress: props.status === "refreshing" ? undefined : progress,
+      };
+    });
+    return (
+      <ReanimatedLottieView
+        source={
+          this.state.status === "refreshing"
+            ? require("./res/refreshing2.json")
+            : require("./res/refreshing.json")
+        }
+        autoPlay={this.state.status === "refreshing"}
+        loop={this.state.status === "refreshing"}
+        animatedProps={animatedProps}
+      />
+    );
+  };
 }

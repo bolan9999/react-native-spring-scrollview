@@ -1,50 +1,59 @@
 /*
- *
- * Created by Stone
- * https://github.com/bolan9999
- * Email: shanshang130@gmail.com
- * Date: 2019/2/18
- *
+ * @Author: 石破天惊
+ * @email: shanshang130@gmail.com
+ * @Date: 2021-07-22 11:57:17
+ * @LastEditTime: 2021-10-22 17:42:45
+ * @LastEditors: 石破天惊
+ * @Description:
  */
 
 import React from "react";
 import { RefreshHeader } from "../RefreshHeader";
 import { View } from "react-native";
+import LottieView from "lottie-react-native";
+import Reanimated, {
+  interpolate,
+  useAnimatedProps,
+  addWhitelistedUIProps,
+  Extrapolate,
+} from "react-native-reanimated";
 
-let LottieView;
+Reanimated.addWhitelistedUIProps({ progress: true });
 
+const ReanimatedLottieView = Reanimated.createAnimatedComponent(LottieView);
 export class CommonLottieFooter extends RefreshHeader {
   static height: number = 100;
 
-  constructor(props){
-    super(props);
-    if (!LottieView) LottieView = require("lottie-react-native");
-  }
-
   render() {
     if (this.state.status === "allLoaded") return null;
-    const { offset, bottomOffset } = this.props;
-    let progress = offset.interpolate({
-      inputRange: [
-        bottomOffset + 50,
-        bottomOffset + 500
-      ],
-      outputRange: [0, 1]
-    });
-    if (this.state.status === "loading") {
-      progress = undefined;
-    }
     return (
       <View style={{ flex: 1, marginBottom: 20 }}>
-        <LottieView
-          key={this.state.status === "loading"}
-          source={require("./res/loading.json")}
-          progress={progress}
-          autoPlay={this.state.status === "loading"}
-          loop={this.state.status === "loading"}
-          speed={2}
-        />
+        <this.Lottie offset={this.props.offset} status={this.state.status} />
       </View>
     );
   }
+
+  Lottie = (props) => {
+    const animatedProps = useAnimatedProps(() => {
+      const progress = interpolate(
+        props.offset.value,
+        [50, 100],
+        [0, 1],
+        Extrapolate.CLAMP
+      );
+      return {
+        progress: props.status === "loading" ? undefined : progress,
+      };
+    });
+    return (
+      <ReanimatedLottieView
+        key={props.status === "loading"}
+        source={require("./res/loading.json")}
+        autoPlay={props.status === "loading"}
+        loop={props.status === "loading"}
+        speed={2}
+        animatedProps={animatedProps}
+      />
+    );
+  };
 }
