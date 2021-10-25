@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-25 15:48:08
+ * @LastEditTime: 2021-10-25 16:12:49
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -61,6 +61,10 @@ interface SpringScrollViewType extends ViewProps {
   }) => any;
   onSizeChange?: ({ width: number, height: number }) => any;
   onContentSizeChange?: ({ width: number, height: number }) => any;
+  onTouchBegin?: () => any;
+  onTouchEnd?: () => any;
+  onScrollBeginDrag?: () => any;
+  onScrollEndDrag?: () => any;
 }
 
 export const PanHandlerContext = React.createContext({
@@ -376,6 +380,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
             Math.abs(evt.translationX) > Math.abs(evt.translationY) ? "horizontal" : "vertical";
           props.focus.value = props.dragging.value;
         }
+        props.onScrollBeginDrag && runOnJS(props.onScrollBeginDrag)();
         return true;
       }
       return false;
@@ -412,7 +417,9 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           "worklet";
           props.dragging.value = false;
           if (!props.focus.value) return parentHandlerContext.onEnd(evt);
+          props.onTouchEnd && runOnJS(props.onTouchEnd)();
           if (!props.scrollEnabled) return;
+          props.onScrollEndDrag && runOnJS(props.onScrollEndDrag)();
           const maxX =
             props.contentSize.width.value -
             props.size.width.value +
@@ -610,6 +617,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         cancelAnimation(props.contentOffset.y);
         cancelAnimation(props.vIndicatorOpacity);
         cancelAnimation(props.hIndicatorOpacity);
+        props.onTouchBegin && props.onTouchBegin();
       },
       onTouchEnd: () => {
         // console.log("onTouchEnd");
@@ -622,7 +630,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           props.contentSize.height.value +
           props.contentInsets.bottom.value -
           props.size.height.value;
-
+        props.onTouchEnd && props.onTouchEnd();
         if (props.pagingEnabled === "horizontal") {
           const pageWidth =
             props.pageSize.width === 0 ? props.size.width.value : props.pageSize.width;
@@ -709,7 +717,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         // console.log("onTouchCancel");
       },
     };
-
+    // const onScroll = (offset) => props.onScroll(offset);
     useAnimatedReaction(
       () => {
         return { x: props.contentOffset.x.value, y: props.contentOffset.y.value };

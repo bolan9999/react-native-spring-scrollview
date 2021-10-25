@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-22 17:24:51
+ * @LastEditTime: 2021-10-25 16:14:00
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -57,8 +57,7 @@ export class Test extends React.Component {
 
   render() {
     const propertyKeys = Object.keys(this.state).filter(
-      (key, index) =>
-        index < Object.keys(this.state).findIndex((v) => v === "log")
+      (key, index) => index < Object.keys(this.state).findIndex((v) => v === "log"),
     );
     return (
       <SpringScrollView
@@ -76,11 +75,7 @@ export class Test extends React.Component {
             <SpringScrollView
               {...this.state}
               inputToolBarHeight={Platform.select({ ios: 44, android: 200 })}
-              textInputRefs={[
-                this._contentStyleRef,
-                this._pageSizeRef,
-                this._decelerationRateRef,
-              ]}
+              textInputRefs={[this._contentStyleRef, this._pageSizeRef, this._decelerationRateRef]}
               bounces={true}
               scrollEnabled={true}
               onRefresh={this._onRefresh}
@@ -103,10 +98,7 @@ export class Test extends React.Component {
               onContentSizeChange={this._onContentSizeChange}
             >
               <TouchableOpacity
-                style={[
-                  rs.row,
-                  { justifyContent: "center", backgroundColor: "gray" },
-                ]}
+                style={[rs.row, { justifyContent: "center", backgroundColor: "gray" }]}
                 onPress={this._beginRefresh}
               >
                 <Text style={rs.title}>Click to begin refresh</Text>
@@ -116,8 +108,7 @@ export class Test extends React.Component {
                 let inputRef;
                 if (key === "contentStyle") inputRef = this._contentStyleRef;
                 if (key === "pageSize") inputRef = this._pageSizeRef;
-                if (key === "decelerationRate")
-                  inputRef = this._decelerationRateRef;
+                if (key === "decelerationRate") inputRef = this._decelerationRateRef;
                 return (
                   <this.Row
                     key={key}
@@ -132,37 +123,15 @@ export class Test extends React.Component {
               <Text style={cs.tips}>{tips}</Text>
             </SpringScrollView>
           </View>
-          <this.SmallButton
-            text={"+"}
-            style={cs.increaseWidth}
-            onPress={this._onIncreaseWidth}
-          />
-          <this.SmallButton
-            text={"+"}
-            style={cs.increaseHeight}
-            onPress={this._onIncreaseHeight}
-          />
-          <this.SmallButton
-            text={"-"}
-            style={cs.reduceHeight}
-            onPress={this._onReduceHeight}
-          />
-          <this.SmallButton
-            text={"-"}
-            style={cs.reduceWidth}
-            onPress={this._onReduceWidth}
-          />
+          <this.SmallButton text={"+"} style={cs.increaseWidth} onPress={this._onIncreaseWidth} />
+          <this.SmallButton text={"+"} style={cs.increaseHeight} onPress={this._onIncreaseHeight} />
+          <this.SmallButton text={"-"} style={cs.reduceHeight} onPress={this._onReduceHeight} />
+          <this.SmallButton text={"-"} style={cs.reduceWidth} onPress={this._onReduceWidth} />
         </View>
         <View style={cs.log}>
-          <SpringScrollView
-            inverted
-            onNativeContentOffsetExtract={this.state.logNativeOffset}
-          >
+          <SpringScrollView inverted onNativeContentOffsetExtract={this.state.logNativeOffset}>
             <Text style={cs.inverted}>{this.state.log}</Text>
-            <AnimatedButton
-              style={this._getClearButtonStyle()}
-              onPress={this._clearLog}
-            >
+            <AnimatedButton style={this._getClearButtonStyle()} onPress={this._clearLog}>
               <Text style={cs.clearText}>CLEAR</Text>
             </AnimatedButton>
           </SpringScrollView>
@@ -201,8 +170,7 @@ export class Test extends React.Component {
   };
   //#endregion
   //#region Test Content Size Change
-  _onSizeChange = ({ width, height }) =>
-    this._log(`onSizeChange width=${width} height=${height}`);
+  _onSizeChange = ({ width, height }) => this._log(`onSizeChange width=${width} height=${height}`);
   _onContentSizeChange = ({ width, height }) =>
     this._log(`onContentSizeChange width=${width} height=${height}`);
 
@@ -252,8 +220,7 @@ export class Test extends React.Component {
   _onScrollEndDrag = () => {
     this._log("onScrollEndDrag");
   };
-  _onScroll = ({ nativeEvent: { contentOffset } }) =>
-    console.log("onScroll", contentOffset);
+  _onScroll = (contentOffset) => console.log("onScroll", contentOffset);
   // #endregion
   //#region Other functions
   _getClearButtonStyle = () => {
