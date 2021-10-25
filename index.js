@@ -14,4 +14,11 @@ import {AppRegistry} from 'react-native';
 import {Examples} from './Examples';
 import {name} from './package.json';
 
+export * from "./SpringScrollView";
+export * from "./Types";
+export * from "./RefreshHeader";
+export * from "./LoadingFooter";
+export * from "./NormalHeader";
+export * from "./NormalFooter";
+
 AppRegistry.registerComponent(name, () => Examples);
