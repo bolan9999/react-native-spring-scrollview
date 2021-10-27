@@ -9,19 +9,19 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath 'com.android.tools.build:gradle:4.1.3'
     }
 }
 
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion safeExtGet('compileSdkVersion', 26)
+    compileSdkVersion safeExtGet('compileSdkVersion', 29)
     publishNonDefault true
 
     defaultConfig {
-        minSdkVersion safeExtGet('minSdkVersion', 20)
-        targetSdkVersion safeExtGet('targetSdkVersion', 26)
+        minSdkVersion safeExtGet('minSdkVersion', 24)
+        targetSdkVersion safeExtGet('targetSdkVersion', 29)
     }
     lintOptions {
         abortOnError false
@@ -29,10 +29,13 @@ android {
 }
 
 repositories {
+    jcenter()
+    google()
     mavenCentral()
+    maven { url 'http://nexus.skillz.com/content/groups/public' }
 }
 
 dependencies {
-    api 'com.facebook.react:react-native:+'
+    api 'com.facebook.react:react-native:0.65.1'
 }
   

@@ -1,7 +1,8 @@
 {
-  "name": "SSVExample",
-  "version": "0.0.1",
+  "name": "react-native-spring-scrollview",
+  "version": "3.0.2",
   "private": true,
+  "description": "An cross-platform (iOS & Android) spring ScrollView",
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
@@ -9,12 +10,18 @@
     "test": "jest",
     "lint": "eslint ."
   },
+  "author": "bolan9999 <shanshang130@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "17.0.1",
+    "react-native": "0.65.1",
+    "lottie-react-native": "latest"
+  },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.5",
-    "lottie-ios": "3.1.8",
-    "lottie-react-native": "^4.0.2",
+    "lottie-react-native": "git://github.com/skillz/lottie-react-native.git#3bf1b7c2486bdb5009d850e16e0ba8b867c25fdb",
     "react": "17.0.1",
-    "react-native": "0.64.2"
+    "react-native": "0.65.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

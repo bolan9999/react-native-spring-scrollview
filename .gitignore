@@ -13,6 +13,15 @@ build/
 !default.mode2v3
 *.perspectivev3
 !default.perspectivev3
+xcuserdata/
+
+## Other
+*.xcscmblueprint
+
+*.log
+
+.vscode/
+
 xcuserdata
 *.xccheckout
 *.moved-aside

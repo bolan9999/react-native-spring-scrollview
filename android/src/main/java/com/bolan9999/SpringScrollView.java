@@ -10,6 +10,7 @@ import android.view.View;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.uimanager.UIManagerModule;
@@ -369,7 +370,7 @@ public class SpringScrollView extends ReactViewGroup implements View.OnLayoutCha
         WritableMap contentOffsetMap = Arguments.createMap();
         contentOffsetMap.putDouble("x", PixelUtil.toDIPFromPixel(contentOffset.x));
         contentOffsetMap.putDouble("y", PixelUtil.toDIPFromPixel(contentOffset.y));
-        event.putMap("contentOffset", contentOffsetMap);
+        event.putMap("contentOffset", (ReadableMap)contentOffsetMap);
         event.putString("refreshStatus", refreshStatus);
         event.putString("loadingStatus", loadingStatus);
         sendOnScrollEvent(event);

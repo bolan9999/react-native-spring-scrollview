@@ -1,6 +1,6 @@
 require "json"
 
-package = JSON.parse(File.read(File.join(__dir__, "package.json")))
+package = JSON.parse(File.read(File.join(__dir__, "..", "package.json")))
 
 Pod::Spec.new do |s|
   s.name         = "RNSpringScrollView"
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.author       = { "skillz" => "sdk@skillz.com" }
   s.platforms    = { :ios => "7.0", :tvos => "9.0" }
   s.source       = { :git => "https://github.com/skillz/react-native-spring-scrollview.git", :tag => s.version }
-  s.source_files  = "ios/SpringScrollView/**/*.{h,m}"
+  s.source_files  = "SpringScrollView/**/*.{h,m}"
   s.requires_arc = true
 
   s.dependency "React"
