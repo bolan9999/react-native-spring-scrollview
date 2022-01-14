@@ -17,13 +17,12 @@
 import React from "react";
 import { Animated, Platform, requireNativeComponent, View } from "react-native";
 
-const SpringScrollViewNative = Animated.createAnimatedComponent(
-  requireNativeComponent("SpringScrollView")
-);
-
 export class SpringScrollViewNativeAdapter extends React.Component {
   _scrollViewRef;
   render() {
+    const SpringScrollViewNative = Animated.createAnimatedComponent(
+      requireNativeComponent("SpringScrollView")
+    );
     return (
       <SpringScrollViewNative
         {...this.props}
