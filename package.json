@@ -2,6 +2,10 @@
   "name": "SSVExample",
   "version": "0.0.1",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bolan9999/react-native-spring-scrollview"
+  },
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
