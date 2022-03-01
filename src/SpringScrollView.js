@@ -94,6 +94,8 @@ export class SpringScrollView extends React.PureComponent<SpringScrollViewPropTy
         onLayout={this._onWrapperLayoutChange}
         onTouchBegin={this._onTouchBegin}
         onScrollBeginDrag={this._onScrollBeginDrag}
+        onScrollEndDrag={() => this._dragging = false}
+        onMomentumScrollBegin={() => this._dragging = true}
         onMomentumScrollEnd={this._onMomentumScrollEnd}
         scrollEventThrottle={1}
         onStartShouldSetResponderCapture={() => this._dragging}
