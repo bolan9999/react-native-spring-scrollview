@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2021-10-25 19:54:08
+ * @LastEditTime: 2022-02-16 13:56:38
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -566,12 +566,13 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                 const pageHeight =
                   props.pageSize.height === 0 ? props.size.height.value : props.pageSize.height;
                 let page = props.currentPage.value;
-                if (evt.velocityY < -3) page--;
-                else if (evt.velocityY > 3) page++;
+                if (evt.velocityY < -3) page++;
+                else if (evt.velocityY > 3) page--;
                 if (page < 0) page = 0;
                 if (page > Math.ceil(props.contentSize.height.value / pageHeight) - 1)
                   page = Math.ceil(props.contentSize.height.value / pageHeight) - 1;
                 props.currentPage.value = page;
+                console.log("scrollto",page)
                 props.contentOffset.y.value = withSpring(
                   page * pageHeight,
                   {
@@ -1011,7 +1012,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     }
   }
 
-  endLoadingMore(rebound = false) {
+  endLoadingMore(rebound = true) {
     const {
       loadingMoreInner,
       contentInsets,

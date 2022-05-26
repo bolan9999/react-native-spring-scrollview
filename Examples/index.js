@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-21 13:05:32
- * @LastEditTime: 2021-10-19 16:28:57
+ * @LastEditTime: 2022-01-11 22:30:33
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -25,6 +25,7 @@ import { ScrollToAndOnScrollExample } from "./ScrollToAndOnScrollExample";
 import { Test } from "./Test";
 import { CrossHeaderTabExample } from "./CrossHeaderTabExample";
 import { ChildrenTest } from "./ChildrenTest";
+import { CrossHeaderTabWithoutAnimated } from "./CrossHeaderTabWithoutAnimated";
 
 export class Examples extends React.Component {
   constructor(props) {
@@ -55,6 +56,8 @@ export class Examples extends React.Component {
         return <CrossHeaderTabExample />;
       case 7:
         return <ChildrenTest />;
+      case 8:
+        return <CrossHeaderTabWithoutAnimated />;
     }
   }
 
@@ -68,26 +71,15 @@ export class Examples extends React.Component {
           title="BouncesAndScrollEnabledExample"
         />
 
-        <Button
-          onPress={() => this.setState({ select: 3 })}
-          title="RefreshAndLoadingExample"
-        />
+        <Button onPress={() => this.setState({ select: 3 })} title="RefreshAndLoadingExample" />
 
+        <Button onPress={() => this.setState({ select: 4 })} title="ComplexExample" />
+        <Button onPress={() => this.setState({ select: 5 })} title="ScrollToAndOnScrollExample" />
+        <Button onPress={() => this.setState({ select: 6 })} title="CrossHeaderTabExample" />
+        <Button onPress={() => this.setState({ select: 7 })} title="ChildrenTest" />
         <Button
-          onPress={() => this.setState({ select: 4 })}
-          title="ComplexExample"
-        />
-        <Button
-          onPress={() => this.setState({ select: 5 })}
-          title="ScrollToAndOnScrollExample"
-        />
-        <Button
-          onPress={() => this.setState({ select: 6 })}
-          title="CrossHeaderTabExample"
-        />
-        <Button
-          onPress={() => this.setState({ select: 7 })}
-          title="ChildrenTest"
+          onPress={() => this.setState({ select: 8 })}
+          title="CrossHeaderTabWithoutAnimated"
         />
       </View>
     );

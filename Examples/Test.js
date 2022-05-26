@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2021-10-25 22:42:36
+ * @LastEditTime: 2022-02-16 13:31:22
  * @LastEditors: 石破天惊
  * @Description:
  */
@@ -36,7 +36,7 @@ export class Test extends React.Component {
     showsVerticalScrollIndicator: true,
     showsHorizontalScrollIndicator: true,
     dragToHideKeyboard: true,
-    pagingEnabled: false,
+    pagingEnabled: "vertical",
     decelerationRate: 0.998,
     pageSize: { width: 0, height: 0 },
     contentContainerStyle: { width: "100%", height: "350%" },
@@ -87,7 +87,7 @@ export class Test extends React.Component {
               preventReRender={this.state.preventReRender}
               loadingMore={this.state.loadingMore}
               // ref={(ref) => (this._main = ref)}
-              onScroll={this._onScroll}
+              // onScroll={this._onScroll}
               onTouchBegin={this._onTouchBegin}
               onTouchEnd={this._onTouchEnd}
               onMomentumScrollBegin={this.onMomentumScrollBegin}
