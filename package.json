@@ -8,19 +8,19 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.15.9",
-    "expo": "~42.0.1",
-    "expo-status-bar": "~1.0.4",
-    "lottie-react-native": "4.0.2",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
-    "react-native-gesture-handler": "~1.10.2",
-    "react-native-reanimated": "~2.2.0",
-    "react-native-web": "~0.13.12"
+    "@react-native-async-storage/async-storage": "1.17.11",
+    "expo": "^48.0.0",
+    "expo-status-bar": "~1.4.4",
+    "lottie-react-native": "5.1.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.71.8",
+    "react-native-gesture-handler": "~2.9.0",
+    "react-native-reanimated": "~2.14.4",
+    "react-native-web": "~0.18.11"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
+    "@babel/core": "^7.20.0",
     "prettier": "^2.4.1"
   },
   "private": true

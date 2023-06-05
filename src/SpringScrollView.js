@@ -2,8 +2,8 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2022-02-16 13:56:38
- * @LastEditors: 石破天惊
+ * @LastEditTime: 2023-06-02 18:40:04
+ * @LastEditors: 陆锡柱
  * @Description:
  */
 
@@ -431,6 +431,9 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           ctx.last = { x: evt.absoluteX, y: evt.absoluteY };
           return true;
         },
+        onTouchesCancelled: () => {
+          console.log("onTouchesCancelled");
+        },
         onEnd: (evt, ctx, preventEventBubble) => {
           "worklet";
           props.dragging.value = false;
@@ -459,6 +462,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                   damping: 30,
                   mass: 1,
                   stiffness: 225,
+                  restDisplacementThreshold: 50,
+                  restSpeedThreshold: 10,
                 },
                 (isFinish) => {
                   if (isFinish) {
@@ -485,6 +490,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                     damping: 30,
                     mass: 1,
                     stiffness: 225,
+                    restDisplacementThreshold: 50,
+                    restSpeedThreshold: 10,
                   },
                   (isFinish) => {
                     if (isFinish) {
@@ -498,6 +505,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                     velocity: vx,
                     deceleration: props.decelerationRate,
                     clamp: [0, maxX],
+                    rubberBandEffect: true,
                   },
                   (isFinish) => {
                     if (!isFinish) return;
@@ -509,6 +517,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                           damping: 48,
                           mass: 2.56,
                           stiffness: 225,
+                          restDisplacementThreshold: 50,
+                          restSpeedThreshold: 10,
                         },
                         (isFinish) => {
                           if (isFinish) {
@@ -551,6 +561,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                   damping: 30,
                   mass: 1,
                   stiffness: 225,
+                  restDisplacementThreshold: 50,
+                  restSpeedThreshold: 10,
                 },
                 (isFinish) => {
                   if (isFinish) {
@@ -572,7 +584,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                 if (page > Math.ceil(props.contentSize.height.value / pageHeight) - 1)
                   page = Math.ceil(props.contentSize.height.value / pageHeight) - 1;
                 props.currentPage.value = page;
-                console.log("scrollto",page)
+                console.log("scrollto", page);
                 props.contentOffset.y.value = withSpring(
                   page * pageHeight,
                   {
@@ -580,6 +592,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                     damping: 30,
                     mass: 1,
                     stiffness: 225,
+                    restDisplacementThreshold: 50,
+                    restSpeedThreshold: 10,
                   },
                   (isFinish) => {
                     if (isFinish) props.focus.value = false;
@@ -591,6 +605,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                     velocity: vy,
                     deceleration: props.decelerationRate,
                     clamp: [-props.contentInsets.top.value, maxY],
+                    rubberBandEffect: true,
+                    rubberBandFactor: 0.1,
                   },
                   (isFinish) => {
                     if (!isFinish) return;
@@ -599,9 +615,11 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                         props.contentOffset.y.value + 0.01,
                         {
                           velocity: vy,
-                          damping: 48,
-                          mass: 2.56,
+                          damping: 200,
+                          mass: 2,
                           stiffness: 225,
+                          restDisplacementThreshold: 50,
+                          restSpeedThreshold: 10,
                         },
                         (isFinish) => {
                           if (isFinish) {
@@ -663,6 +681,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                 damping: 30,
                 mass: 1,
                 stiffness: 225,
+                restDisplacementThreshold: 50,
+                restSpeedThreshold: 10,
               },
               (isFinish) => {
                 if (isFinish) {
@@ -685,6 +705,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                 damping: 30,
                 mass: 1,
                 stiffness: 225,
+                restDisplacementThreshold: 50,
+                restSpeedThreshold: 10,
               },
               (isFinish) => {
                 if (isFinish) props.focus.value = false;
@@ -702,6 +724,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                 damping: 30,
                 mass: 1,
                 stiffness: 225,
+                restDisplacementThreshold: 50,
+                restSpeedThreshold: 10,
               },
               (isFinish) => {
                 if (isFinish) {
@@ -723,6 +747,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                 damping: 30,
                 mass: 1,
                 stiffness: 225,
+                restDisplacementThreshold: 50,
+                restSpeedThreshold: 10,
               },
               (isFinish) => {
                 if (isFinish) {
@@ -742,7 +768,7 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       () => {
         return { x: props.contentOffset.x.value, y: props.contentOffset.y.value };
       },
-      (offset: { x: number, y: number }, previous: { x: number, y: number }) => {
+      (offset, previous) => {
         if (!previous || offset.x !== previous.x || offset.y !== previous.y) {
           if (props.onScrollUI) props.onScrollUI(props.contentOffset);
           if (props.onScroll) runOnJS(props.onScroll)(offset);
@@ -830,6 +856,9 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       <PanGestureHandler
         activeOffsetY={[-5, 5]}
         activeOffsetX={[-10, 10]}
+        failOffsetX={hScroll ? undefined : [-8, 8]}
+        failOffsetY={vScroll ? undefined : [-8, 8]}
+        enabled={!!props.scrollEnabled}
         onGestureEvent={panHandlerWrapper}
       >
         <Reanimated.View
@@ -935,6 +964,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
+          restDisplacementThreshold: 50,
+          restSpeedThreshold: 10,
         },
         (isFinish) => {
           refreshAnimating.value = false;
@@ -967,6 +998,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
+          restDisplacementThreshold: 50,
+          restSpeedThreshold: 10,
         },
         (isFinish) => {
           refreshStatus.value = "waiting";
@@ -1004,6 +1037,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
+          restDisplacementThreshold: 50,
+          restSpeedThreshold: 10,
         },
         (isFinish) => {
           loadMoreAnimating.value = false;
@@ -1038,6 +1073,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
+          restDisplacementThreshold: 50,
+          restSpeedThreshold: 10,
         },
         (isFinish) => {
           loadMoreStatus.value = "waiting";
@@ -1064,6 +1101,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
+          restDisplacementThreshold: 50,
+          restSpeedThreshold: 10,
         },
         (isFinish) => {
           if (isFinish) runOnJS(resolve)();
@@ -1080,6 +1119,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
+          restDisplacementThreshold: 50,
+          restSpeedThreshold: 10,
         },
         (isFinish) => {
           if (isFinish) runOnJS(resolve)();

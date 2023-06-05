@@ -2,8 +2,8 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-16 17:29:37
- * @LastEditTime: 2022-02-16 13:31:22
- * @LastEditors: 石破天惊
+ * @LastEditTime: 2023-06-02 17:13:48
+ * @LastEditors: 陆锡柱
  * @Description:
  */
 
@@ -30,13 +30,13 @@ export class Test extends React.Component {
   _container: SpringScrollView;
   _defaultState = {
     inverted: false,
-    // bounces: true,
-    // scrollEnabled: true,
+    bounces: true,
+    scrollEnabled: true,
     directionalLockEnabled: true,
     showsVerticalScrollIndicator: true,
     showsHorizontalScrollIndicator: true,
     dragToHideKeyboard: true,
-    pagingEnabled: "vertical",
+    pagingEnabled: false,
     decelerationRate: 0.998,
     pageSize: { width: 0, height: 0 },
     contentContainerStyle: { width: "100%", height: "350%" },
@@ -61,14 +61,14 @@ export class Test extends React.Component {
     );
     return (
       <SpringScrollView
-        // bounces={false}
-        // scrollEnabled={false}
+        bounces={false}
+        scrollEnabled={false}
         style={cs.container}
         ref={(ref) => (this._container = ref)}
         contentContainerStyle={cs.content}
-
-        // refreshHeader={NormalHeader}
-        // loadingFooter={CommonLottieFooter}
+        onRefresh={() => setTimeout(() => this._container.endRefresh(), 2000)}
+        refreshHeader={NormalHeader}
+        loadingFooter={CommonLottieFooter}
       >
         <View style={cs.main}>
           <View style={cs.mainScroll}>
@@ -86,8 +86,8 @@ export class Test extends React.Component {
               refreshing={this.state.refreshing}
               preventReRender={this.state.preventReRender}
               loadingMore={this.state.loadingMore}
-              // ref={(ref) => (this._main = ref)}
-              // onScroll={this._onScroll}
+              ref={(ref) => (this._main = ref)}
+              onScroll={this._onScroll}
               onTouchBegin={this._onTouchBegin}
               onTouchEnd={this._onTouchEnd}
               onMomentumScrollBegin={this.onMomentumScrollBegin}

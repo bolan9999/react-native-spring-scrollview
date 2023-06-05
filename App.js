@@ -2,8 +2,8 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 1985-10-26 16:15:00
- * @LastEditTime: 2021-10-16 16:26:19
- * @LastEditors: 石破天惊
+ * @LastEditTime: 2023-06-01 17:11:00
+ * @LastEditors: 陆锡柱
  * @Description:
  */
 import { StatusBar } from "expo-status-bar";
@@ -21,6 +21,7 @@ import {
   TouchableOpacity,
   PanGestureHandler,
   NativeViewGestureHandler,
+  GestureHandlerRootView,
 } from "react-native-gesture-handler";
 import { Examples } from "./Examples";
 
@@ -33,8 +34,10 @@ export default function App() {
         marginTop: Platform.select({ android: 25 }),
       }}
     >
-      <Examples />
-      {false && nativeScrollView()}
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Examples />
+        {false && nativeScrollView()}
+      </GestureHandlerRootView>
     </SafeAreaView>
   );
 }
@@ -59,11 +62,7 @@ function nativeScrollView() {
       <Text>iOS Running app on iPhone 12</Text>
       <Text>iOS Running app on iPhone 12</Text>
       <Text>iOS Running app on iPhone 12</Text>
-      <TouchableOpacity
-        onPress={() =>
-          scrollRef.current && scrollRef.current.scrollTo({ y: 100 })
-        }
-      >
+      <TouchableOpacity onPress={() => scrollRef.current && scrollRef.current.scrollTo({ y: 100 })}>
         <Text>scroll to 100</Text>
       </TouchableOpacity>
     </ScrollView>

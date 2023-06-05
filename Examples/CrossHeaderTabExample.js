@@ -2,61 +2,63 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:03:04
- * @LastEditTime: 2021-10-21 20:06:55
- * @LastEditors: 石破天惊
+ * @LastEditTime: 2023-06-02 17:53:24
+ * @LastEditors: 陆锡柱
  * @Description:
  */
 
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { SpringScrollView } from "../src/SpringScrollView";
 import { CrossHeaderTab } from "../src/CrossHeaderTab";
 
 export class CrossHeaderTabExample extends React.Component {
   render() {
     return (
-      <CrossHeaderTab
-        tabCount={3}
-        renderHeader={() => (
-          <View
-            style={{
-              padding: 25,
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#EEE",
-            }}
-          >
-            <Text>I am Header</Text>
-            <SpringScrollView
+      <SafeAreaView style={{ flex: 1 }}>
+        <CrossHeaderTab
+          tabCount={3}
+          renderHeader={() => (
+            <View
               style={{
-                flex: 0,
-                width: 200,
-                height: 100,
-                backgroundColor: "lightgray",
+                padding: 25,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "#EEE",
               }}
-              bounces="horizontal"
-              pagingEnabled="horizontal"
-              scrollEnabled="horizontal"
-              contentContainerStyle={{ width: "300%", flexDirection: "row" }}
             >
-              <View style={styles.banner}>
-                <Text>I am Banner1</Text>
-              </View>
-              <View style={styles.banner}>
-                <Text>I am Banner2</Text>
-              </View>
-              <View style={styles.banner}>
-                <Text>I am Banner3</Text>
-              </View>
+              <Text>I am Header</Text>
+              <SpringScrollView
+                style={{
+                  flex: 0,
+                  width: 200,
+                  height: 100,
+                  backgroundColor: "lightgray",
+                }}
+                bounces="horizontal"
+                pagingEnabled="horizontal"
+                scrollEnabled="horizontal"
+                contentContainerStyle={{ width: "300%", flexDirection: "row" }}
+              >
+                <View style={styles.banner}>
+                  <Text>I am Banner1</Text>
+                </View>
+                <View style={styles.banner}>
+                  <Text>I am Banner2</Text>
+                </View>
+                <View style={styles.banner}>
+                  <Text>I am Banner3</Text>
+                </View>
+              </SpringScrollView>
+            </View>
+          )}
+          renderTab={(idx) => (
+            <SpringScrollView contentContainerStyle={{ height: 2000 }}>
+              <Text style={{ fontSize: 25 }}>{content}</Text>
             </SpringScrollView>
-          </View>
-        )}
-        renderTab={(idx) => (
-          <SpringScrollView>
-            <Text style={{ fontSize: 25 }}>{content}</Text>
-          </SpringScrollView>
-        )}
-      />
+          )}
+        />
+      </SafeAreaView>
     );
   }
 }
