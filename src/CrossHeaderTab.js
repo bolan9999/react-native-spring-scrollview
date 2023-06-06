@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:05:14
- * @LastEditTime: 2023-06-02 18:35:49
+ * @LastEditTime: 2023-06-06 15:01:00
  * @LastEditors: 陆锡柱
  * @Description:
  */
@@ -64,21 +64,23 @@ export const CrossHeaderTab = React.forwardRef((props: CrossHeaderTabType, ref) 
     },
     onStart: (evt, ctx) => {
       "worklet";
-      if (childrenPanActions[currentPage.value].onStart) {
-        childrenPanActions[currentPage.value].onStart(evt, ctx, true);
-      }
+      childrenPanActions[currentPage.value].onStart?.(evt, ctx, true);
     },
     onActive: (evt, ctx) => {
       "worklet";
-      if (childrenPanActions[currentPage.value].onActive) {
-        childrenPanActions[currentPage.value].onActive(evt, ctx, true);
-      }
+      childrenPanActions[currentPage.value].onActive?.(evt, ctx, true);
     },
     onEnd: (evt, ctx) => {
       "worklet";
-      if (childrenPanActions[currentPage.value].onEnd) {
-        childrenPanActions[currentPage.value].onEnd(evt, ctx, true);
-      }
+      childrenPanActions[currentPage.value].onEnd?.(evt, ctx, true);
+    },
+    onCancel: (evt, ctx) => {
+      "worklet";
+      childrenPanActions[currentPage.value].onCancel?.(evt, ctx, true);
+    },
+    onFail: (evt, ctx) => {
+      "worklet";
+      childrenPanActions[currentPage.value].onFail?.(evt, ctx, true);
     },
   };
   const headerStyle = useAnimatedStyle(() => {

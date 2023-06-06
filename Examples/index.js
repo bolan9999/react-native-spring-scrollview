@@ -2,8 +2,8 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-07-21 13:05:32
- * @LastEditTime: 2022-01-11 22:30:33
- * @LastEditors: 石破天惊
+ * @LastEditTime: 2023-06-06 09:33:28
+ * @LastEditors: 陆锡柱
  * @Description:
  */
 /*
@@ -26,6 +26,7 @@ import { Test } from "./Test";
 import { CrossHeaderTabExample } from "./CrossHeaderTabExample";
 import { ChildrenTest } from "./ChildrenTest";
 import { CrossHeaderTabWithoutAnimated } from "./CrossHeaderTabWithoutAnimated";
+import { UIScrollViewTest } from "./UIScrollViewTest";
 
 export class Examples extends React.Component {
   constructor(props) {
@@ -58,6 +59,8 @@ export class Examples extends React.Component {
         return <ChildrenTest />;
       case 8:
         return <CrossHeaderTabWithoutAnimated />;
+      case 9:
+        return <UIScrollViewTest />;
     }
   }
 
@@ -81,6 +84,7 @@ export class Examples extends React.Component {
           onPress={() => this.setState({ select: 8 })}
           title="CrossHeaderTabWithoutAnimated"
         />
+        <Button onPress={() => this.setState({ select: 9 })} title="UIScrollViewTest" />
       </View>
     );
   }

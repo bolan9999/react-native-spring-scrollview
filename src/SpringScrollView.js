@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-09-24 09:47:22
- * @LastEditTime: 2023-06-02 18:40:04
+ * @LastEditTime: 2023-06-06 15:20:43
  * @LastEditors: 陆锡柱
  * @Description:
  */
@@ -101,7 +101,7 @@ export const PanHandlerContext = React.createContext({
 export const CrossHeaderTabContext = React.createContext();
 
 export const SpringScrollView = React.forwardRef((props: SpringScrollViewType, ref) => {
-  const [sharedValues] = useState({
+  const sharedValues = {
     size: { width: useSharedValue(0), height: useSharedValue(0) },
     contentSize: { width: useSharedValue(0), height: useSharedValue(0) },
     contentOffset: { x: useSharedValue(0), y: useSharedValue(0) },
@@ -126,10 +126,15 @@ export const SpringScrollView = React.forwardRef((props: SpringScrollViewType, r
     refreshingInner: useSharedValue(false),
     loadingMoreInner: useSharedValue(false),
     keyboardOffset: useSharedValue(0),
-  });
+  };
   const crossHeaderContext = React.useContext(CrossHeaderTabContext);
   const combined = { ...sharedValues, ...props };
   if (crossHeaderContext) {
+    if (props.contentOffset) {
+      console.warn(
+        "SpringScrollView warning: contentOffset is not supported in CrossHeaderTab's tab children",
+      );
+    }
     combined.contentOffset = crossHeaderContext.contentOffset;
   }
   return <SpringScrollViewClass ref={ref} {...combined} />;
@@ -145,7 +150,7 @@ SpringScrollView.defaultProps = {
   showsHorizontalScrollIndicator: true,
   dragToHideKeyboard: true,
   pagingEnabled: false,
-  decelerationRate: 0.997,
+  decelerationRate: 0.998,
   pageSize: { width: 0, height: 0 },
   refreshHeader: RefreshHeader,
   loadingFooter: LoadingFooter,
@@ -371,6 +376,13 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
     };
     const onStart = (evt, ctx, preventEventBubble) => {
       "worklet";
+      console.log("onStart");
+      props.dragging.value = false;
+      cancelAnimation(props.contentOffset.x);
+      cancelAnimation(props.contentOffset.y);
+      cancelAnimation(props.vIndicatorOpacity);
+      cancelAnimation(props.hIndicatorOpacity);
+      props.onTouchBegin && runOnJS(props.onTouchBegin)();
       if (evt.translationX === 0 && evt.translationY === 0) {
         ctx.started = false;
         return false;
@@ -431,11 +443,9 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           ctx.last = { x: evt.absoluteX, y: evt.absoluteY };
           return true;
         },
-        onTouchesCancelled: () => {
-          console.log("onTouchesCancelled");
-        },
         onEnd: (evt, ctx, preventEventBubble) => {
           "worklet";
+          console.log("onEnd");
           props.dragging.value = false;
           if (!props.focus.value) return parentHandlerContext.onEnd(evt);
           props.onTouchEnd && runOnJS(props.onTouchEnd)();
@@ -462,13 +472,12 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                   damping: 30,
                   mass: 1,
                   stiffness: 225,
-                  restDisplacementThreshold: 50,
-                  restSpeedThreshold: 10,
+                  restDisplacementThreshold: 1,
+                  restSpeedThreshold: 5,
                 },
                 (isFinish) => {
                   if (isFinish) {
                     props.focus.value = false;
-                    props.hIndicatorOpacity.value = withDelay(1000, withTiming(0));
                   }
                 },
               );
@@ -486,14 +495,14 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                 props.contentOffset.x.value = withSpring(
                   page * pageWidth,
                   {
-                    velocity: 50,
-                    damping: 30,
+                    velocity: -evt.velocityX,
+                    damping: 50,
                     mass: 1,
-                    stiffness: 225,
+                    stiffness: 625,
                     restDisplacementThreshold: 50,
-                    restSpeedThreshold: 10,
                   },
                   (isFinish) => {
+                    console.log("paging", isFinish);
                     if (isFinish) {
                       props.focus.value = false;
                     }
@@ -505,7 +514,6 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                     velocity: vx,
                     deceleration: props.decelerationRate,
                     clamp: [0, maxX],
-                    rubberBandEffect: true,
                   },
                   (isFinish) => {
                     if (!isFinish) return;
@@ -517,19 +525,17 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                           damping: 48,
                           mass: 2.56,
                           stiffness: 225,
-                          restDisplacementThreshold: 50,
-                          restSpeedThreshold: 10,
+                          restDisplacementThreshold: 1,
+                          restSpeedThreshold: 5,
                         },
                         (isFinish) => {
                           if (isFinish) {
                             props.focus.value = false;
-                            props.hIndicatorOpacity.value = withDelay(1000, withTiming(0));
                           }
                         },
                       );
                     } else {
                       props.focus.value = false;
-                      props.hIndicatorOpacity.value = withDelay(1000, withTiming(0));
                     }
                   },
                 );
@@ -561,13 +567,12 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                   damping: 30,
                   mass: 1,
                   stiffness: 225,
-                  restDisplacementThreshold: 50,
-                  restSpeedThreshold: 10,
+                  restDisplacementThreshold: 1,
+                  restSpeedThreshold: 5,
                 },
                 (isFinish) => {
                   if (isFinish) {
                     props.focus.value = false;
-                    props.vIndicatorOpacity.value = withDelay(1000, withTiming(0));
                     props.refreshAnimating.value = false;
                     props.loadMoreAnimating.value = false;
                   }
@@ -588,12 +593,12 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                 props.contentOffset.y.value = withSpring(
                   page * pageHeight,
                   {
-                    velocity: 50,
-                    damping: 30,
+                    velocity: -evt.velocityY,
+                    damping: 50,
                     mass: 1,
-                    stiffness: 225,
-                    restDisplacementThreshold: 50,
-                    restSpeedThreshold: 10,
+                    stiffness: 625,
+                    restDisplacementThreshold: 1,
+                    restSpeedThreshold: 5,
                   },
                   (isFinish) => {
                     if (isFinish) props.focus.value = false;
@@ -605,8 +610,6 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                     velocity: vy,
                     deceleration: props.decelerationRate,
                     clamp: [-props.contentInsets.top.value, maxY],
-                    rubberBandEffect: true,
-                    rubberBandFactor: 0.1,
                   },
                   (isFinish) => {
                     if (!isFinish) return;
@@ -618,19 +621,17 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
                           damping: 200,
                           mass: 2,
                           stiffness: 225,
-                          restDisplacementThreshold: 50,
-                          restSpeedThreshold: 10,
+                          restDisplacementThreshold: 1,
+                          restSpeedThreshold: 5,
                         },
                         (isFinish) => {
                           if (isFinish) {
                             props.focus.value = false;
-                            props.vIndicatorOpacity.value = withDelay(1000, withTiming(0));
                           }
                         },
                       );
                     } else {
                       props.focus.value = false;
-                      props.vIndicatorOpacity.value = withDelay(1000, withTiming(0));
                     }
                   },
                 );
@@ -639,6 +640,114 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           }
           return true;
         },
+        onCancel: () => {
+          "worklet";
+          console.log("onCancel");
+        },
+        onFail: () => {
+          "worklet";
+          console.log("onFail");
+          if (!props.focus.value) return;
+          props.vIndicatorOpacity.value = withDelay(2000, withTiming(0));
+          props.hIndicatorOpacity.value = withDelay(2000, withTiming(0));
+          const maxX =
+            props.contentSize.width.value -
+            props.size.width.value +
+            props.contentInsets.right.value;
+          let maxY =
+            props.contentSize.height.value +
+            props.contentInsets.bottom.value -
+            props.size.height.value;
+          props.onTouchEnd && runOnJS(props.onTouchEnd)();
+          if (props.pagingEnabled === "horizontal") {
+            const pageWidth =
+              props.pageSize.width === 0 ? props.size.width.value : props.pageSize.width;
+            if (props.currentPage.value * pageWidth !== props.contentOffset.x.value) {
+              props.contentOffset.x.value = withSpring(
+                props.currentPage.value * pageWidth,
+                {
+                  velocity: 50,
+                  damping: 50,
+                  mass: 1,
+                  stiffness: 625,
+                  restDisplacementThreshold: 1,
+                  restSpeedThreshold: 5,
+                },
+                (isFinish) => {
+                  if (isFinish) {
+                    props.focus.value = false;
+                  }
+                },
+              );
+              return;
+            }
+          }
+
+          if (props.pagingEnabled === "vertical") {
+            const pageHeight =
+              props.pageSize.height === 0 ? props.size.height.value : props.pageSize.height;
+            if (props.currentPage.value * pageHeight !== props.contentOffset.y.value) {
+              props.contentOffset.y.value = withSpring(
+                props.currentPage.value * pageHeight,
+                {
+                  velocity: 50,
+                  damping: 50,
+                  mass: 1,
+                  stiffness: 625,
+                  restDisplacementThreshold: 1,
+                  restSpeedThreshold: 5,
+                },
+                (isFinish) => {
+                  if (isFinish) props.focus.value = false;
+                },
+              );
+              return;
+            }
+          }
+          if (props.bounces === true || props.bounces === "vertical") {
+            if (isOutOfVertical()) {
+              props.contentOffset.y.value = withSpring(
+                isOutOfTop() ? -props.contentInsets.top.value : maxY,
+                {
+                  velocity: 50,
+                  damping: 30,
+                  mass: 1,
+                  stiffness: 225,
+                  restDisplacementThreshold: 1,
+                  restSpeedThreshold: 5,
+                },
+                (isFinish) => {
+                  if (isFinish) {
+                    props.focus.value = false;
+                    props.refreshAnimating.value = false;
+                    props.loadMoreAnimating.value = false;
+                  }
+                },
+              );
+            }
+          }
+          if (props.bounces === true || props.bounces === "horizontal") {
+            if (isOutOfHorizontal()) {
+              props.contentOffset.x.value = withSpring(
+                isOutOfLeft() ? -props.contentInsets.left.value : maxX,
+                {
+                  velocity: 50,
+                  damping: 30,
+                  mass: 1,
+                  stiffness: 225,
+                  restDisplacementThreshold: 1,
+                  restSpeedThreshold: 5,
+                },
+                (isFinish) => {
+                  if (isFinish) {
+                    props.focus.value = false;
+                  }
+                },
+              );
+            }
+          }
+          props.focus.value = false;
+        },
       };
 
     const panHandlerWrapper = useAnimatedGestureHandler(panHandler);
@@ -646,124 +755,10 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       crossHeaderContext.onStart = panHandler.onStart;
       crossHeaderContext.onActive = panHandler.onActive;
       crossHeaderContext.onEnd = panHandler.onEnd;
+      crossHeaderContext.onCancel = panHandler.onCancel;
+      crossHeaderContext.onFail = panHandler.onFail;
     }
-    const touchHandler = {
-      onTouchStart: (evt) => {
-        // console.log("onTouchStart");
-        props.dragging.value = false;
-        cancelAnimation(props.contentOffset.x);
-        cancelAnimation(props.contentOffset.y);
-        cancelAnimation(props.vIndicatorOpacity);
-        cancelAnimation(props.hIndicatorOpacity);
-        props.onTouchBegin && props.onTouchBegin();
-        props.tapToHideKeyboard && Keyboard.dismiss();
-      },
-      onTouchEnd: () => {
-        // console.log("onTouchEnd");
-        if (!props.focus.value) return;
-        props.vIndicatorOpacity.value = withDelay(2000, withTiming(0));
-        props.hIndicatorOpacity.value = withDelay(2000, withTiming(0));
-        const maxX =
-          props.contentSize.width.value - props.size.width.value + props.contentInsets.right.value;
-        let maxY =
-          props.contentSize.height.value +
-          props.contentInsets.bottom.value -
-          props.size.height.value;
-        props.onTouchEnd && props.onTouchEnd();
-        if (props.pagingEnabled === "horizontal") {
-          const pageWidth =
-            props.pageSize.width === 0 ? props.size.width.value : props.pageSize.width;
-          if (props.currentPage.value * pageWidth !== props.contentOffset.x.value) {
-            props.contentOffset.x.value = withSpring(
-              props.currentPage.value * pageWidth,
-              {
-                velocity: 50,
-                damping: 30,
-                mass: 1,
-                stiffness: 225,
-                restDisplacementThreshold: 50,
-                restSpeedThreshold: 10,
-              },
-              (isFinish) => {
-                if (isFinish) {
-                  props.focus.value = false;
-                }
-              },
-            );
-            return;
-          }
-        }
 
-        if (props.pagingEnabled === "vertical") {
-          const pageHeight =
-            props.pageSize.height === 0 ? props.size.height.value : props.pageSize.height;
-          if (props.currentPage.value * pageHeight !== props.contentOffset.y.value) {
-            props.contentOffset.y.value = withSpring(
-              page * pageHeight,
-              {
-                velocity: 50,
-                damping: 30,
-                mass: 1,
-                stiffness: 225,
-                restDisplacementThreshold: 50,
-                restSpeedThreshold: 10,
-              },
-              (isFinish) => {
-                if (isFinish) props.focus.value = false;
-              },
-            );
-            return;
-          }
-        }
-        if (props.bounces === true || props.bounces === "vertical") {
-          if (isOutOfVertical()) {
-            props.contentOffset.y.value = withSpring(
-              isOutOfTop() ? -props.contentInsets.top.value : maxY,
-              {
-                velocity: 50,
-                damping: 30,
-                mass: 1,
-                stiffness: 225,
-                restDisplacementThreshold: 50,
-                restSpeedThreshold: 10,
-              },
-              (isFinish) => {
-                if (isFinish) {
-                  props.focus.value = false;
-                  props.vIndicatorOpacity.value = withDelay(1000, withTiming(0));
-                  props.refreshAnimating.value = false;
-                  props.loadMoreAnimating.value = false;
-                }
-              },
-            );
-          }
-        }
-        if (props.bounces === true || props.bounces === "horizontal") {
-          if (isOutOfHorizontal()) {
-            props.contentOffset.x.value = withSpring(
-              isOutOfLeft() ? -props.contentInsets.left.value : maxX,
-              {
-                velocity: 50,
-                damping: 30,
-                mass: 1,
-                stiffness: 225,
-                restDisplacementThreshold: 50,
-                restSpeedThreshold: 10,
-              },
-              (isFinish) => {
-                if (isFinish) {
-                  props.focus.value = false;
-                  props.hIndicatorOpacity.value = withDelay(1000, withTiming(0));
-                }
-              },
-            );
-          }
-        }
-      },
-      onTouchCancel: () => {
-        // console.log("onTouchCancel");
-      },
-    };
     useAnimatedReaction(
       () => {
         return { x: props.contentOffset.x.value, y: props.contentOffset.y.value };
@@ -775,11 +770,19 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
         }
       },
     );
+    useAnimatedReaction(
+      () => props.focus.value,
+      (focus, pre) => {
+        if (focus == pre) return;
+        props.hIndicatorOpacity.value = withDelay(1000, withTiming(0));
+        props.vIndicatorOpacity.value = withDelay(1000, withTiming(0));
+      },
+    );
 
     const containerStyle = useAnimatedStyle(() => {
       return {
         flex: 1,
-        overflow: Platform.OS === "ios" ? "scroll" : "hidden",
+        overflow: "scroll",
         transform: [{ scaleY: props.inverted ? -1 : 1 }],
       };
     });
@@ -856,17 +859,11 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
       <PanGestureHandler
         activeOffsetY={[-5, 5]}
         activeOffsetX={[-10, 10]}
-        failOffsetX={hScroll ? undefined : [-8, 8]}
-        failOffsetY={vScroll ? undefined : [-8, 8]}
         enabled={!!props.scrollEnabled}
         onGestureEvent={panHandlerWrapper}
+        maxPointers={1}
       >
-        <Reanimated.View
-          {...props}
-          style={[containerStyle, props.style]}
-          onLayout={onSize}
-          {...touchHandler}
-        >
+        <Reanimated.View {...props} style={[containerStyle, props.style]} onLayout={onSize}>
           <Reanimated.View
             onLayout={onContentSize}
             style={[contentContainerStyle, props.contentContainerStyle]}
@@ -893,8 +890,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
               />
             </Reanimated.View>
           )}
-          <Reanimated.View style={[styles.hIndicator, hIndicatorStyle]} />
-          <Reanimated.View style={[styles.vIndicator, vIndicatorStyle]} />
+          {hScroll && <Reanimated.View style={[styles.hIndicator, hIndicatorStyle]} />}
+          {vScroll && <Reanimated.View style={[styles.vIndicator, vIndicatorStyle]} />}
         </Reanimated.View>
       </PanGestureHandler>
     );
@@ -964,8 +961,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
-          restDisplacementThreshold: 50,
-          restSpeedThreshold: 10,
+          restDisplacementThreshold: 1,
+          restSpeedThreshold: 5,
         },
         (isFinish) => {
           refreshAnimating.value = false;
@@ -998,8 +995,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
-          restDisplacementThreshold: 50,
-          restSpeedThreshold: 10,
+          restDisplacementThreshold: 1,
+          restSpeedThreshold: 5,
         },
         (isFinish) => {
           refreshStatus.value = "waiting";
@@ -1037,8 +1034,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
-          restDisplacementThreshold: 50,
-          restSpeedThreshold: 10,
+          restDisplacementThreshold: 1,
+          restSpeedThreshold: 5,
         },
         (isFinish) => {
           loadMoreAnimating.value = false;
@@ -1073,8 +1070,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
-          restDisplacementThreshold: 50,
-          restSpeedThreshold: 10,
+          restDisplacementThreshold: 1,
+          restSpeedThreshold: 5,
         },
         (isFinish) => {
           loadMoreStatus.value = "waiting";
@@ -1101,8 +1098,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
-          restDisplacementThreshold: 50,
-          restSpeedThreshold: 10,
+          restDisplacementThreshold: 1,
+          restSpeedThreshold: 5,
         },
         (isFinish) => {
           if (isFinish) runOnJS(resolve)();
@@ -1119,8 +1116,8 @@ class SpringScrollViewClass extends React.Component<SpringScrollViewType> {
           damping: 30,
           mass: 1,
           stiffness: 225,
-          restDisplacementThreshold: 50,
-          restSpeedThreshold: 10,
+          restDisplacementThreshold: 1,
+          restSpeedThreshold: 5,
         },
         (isFinish) => {
           if (isFinish) runOnJS(resolve)();

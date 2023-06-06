@@ -2,7 +2,7 @@
  * @Author: 石破天惊
  * @email: shanshang130@gmail.com
  * @Date: 2021-10-18 16:03:04
- * @LastEditTime: 2023-06-02 17:53:24
+ * @LastEditTime: 2023-06-06 11:43:26
  * @LastEditors: 陆锡柱
  * @Description:
  */
@@ -53,8 +53,12 @@ export class CrossHeaderTabExample extends React.Component {
             </View>
           )}
           renderTab={(idx) => (
-            <SpringScrollView contentContainerStyle={{ height: 2000 }}>
-              <Text style={{ fontSize: 25 }}>{content}</Text>
+            <SpringScrollView
+              onContentSizeChange={(size) => console.log("tab contentSize", idx, size)}
+            >
+              <Text style={{ fontSize: 25, margin: 24 }}>{content}</Text>
+              <Text style={{ fontSize: 25, margin: 24 }}>{content}</Text>
+              <Text style={{ fontSize: 25, margin: 24 }}>{content}</Text>
             </SpringScrollView>
           )}
         />
