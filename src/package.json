@@ -20,7 +20,6 @@
   "author": "bolan9999 <shanshang130@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "react": "^16.3.1",
     "react-native": "^0.60.0"
   },
   "optionalDependencies":{
